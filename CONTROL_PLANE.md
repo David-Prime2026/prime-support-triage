@@ -21,6 +21,46 @@ No production merge, no db push to WMG OS from this work.
 
 ---
 
+## DR-CS-PLATFORM-005 — Catch-net full deploy — 2026-09-18 — **hosted+proven (WMG env wire pending Vercel login)**
+
+SHIPPED:
+- Isolated staging branch DB `rxhiydtqzmksaeegxyqo` (parent `apxbwdxszmdffbduhjen` / prime-support-triage): schema + grants + thread tables + OPEN-TEST seeds
+- Edge functions live (verify_jwt false): `intake-ticket`, `bricely-thread`, `approve-handoff`
+- **Tickets landed from all 3 surfaces** (API = same contract Bricely uses):
+  - internal `17fdcd98-…` · buyer `1c5fe0b1-…` · seller `a561f211-…` (all `is_mock=true`)
+- Thread persist round-trip PASS (POST+GET)
+- REST `Accept-Profile: support` PASS (no Invalid schema)
+- Console hosted: https://david-prime2026.github.io/prime-support-triage/
+- Dedicated GitHub repo: https://github.com/David-Prime2026/prime-support-triage
+- `wmg-backend` PR #1 **MERGED** to main (FIX console path)
+- Straight-to-prod OFF (`autonomy-killswitch.json` halt:true); email-notify deferred
+
+STUBBED / PENDING:
+- **WMG app env not set in Vercel** — Cursor CLI has no `VERCEL_TOKEN` / login. PRIME (or Cursor after `vercel login`) must set on WMG deploy:
+  - `VITE_BRICELY_INTAKE_URL=https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/intake-ticket`
+  - `VITE_BRICELY_THREAD_URL=https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/bricely-thread`
+  - `VITE_BRICELY_MOCK_EMAILS=david@primeai.systems,david+mockbuyer@primeai.systems,david+mockseller@primeai.systems`
+- Embed PR merge may still be in progress if conflicted earlier — confirm `feat/bricely-embed` on main
+- Parent project main (`apxbwdxszmdffbduhjen`) not yet mirrored (staging branch is the live prove target)
+- SendGrid approval email deferred
+
+SCHEMA: support schema on staging only — **never** on `qcefkoxqkfwnlqfmwzmi`
+
+GUARDRAILS: isolation held; kill switch ON; dispatch staging-only; mock tickets flagged
+
+PENDING (PRIME):
+1. Set the three VITE_BRICELY_* env vars on WMG Vercel + redeploy
+2. Re-run A–D eyes-on from real surface URLs with mock accounts
+3. Then open catch-net to real users
+
+URLS:
+- Console: https://david-prime2026.github.io/prime-support-triage/
+- Intake: https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/intake-ticket
+- Thread: https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/bricely-thread
+- Staging API: https://rxhiydtqzmksaeegxyqo.supabase.co
+
+---
+
 ## DR-CS-PLATFORM-004 — Unblock go-live — 2026-09-17 — **partial / blocked on host**
 
 SHIPPED (code + local prove):
