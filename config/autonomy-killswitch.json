@@ -1,0 +1,9 @@
+{
+  "halt": true,
+  "reason": "Catch-net go-live: prove intake/flow only. Straight-to-prod / Tier 1.1–1.5 autonomy remains OFF (Option 3).",
+  "set_at": "2026-09-17",
+  "set_by": "cursor",
+  "straight_to_prod_enabled": false,
+  "tier1_autonomy_enabled": false,
+  "note": "Any of: halt=true OR CURSOR_DEV_AUTONOMY=off OR missing ratification → no auto-execute to prod."
+}

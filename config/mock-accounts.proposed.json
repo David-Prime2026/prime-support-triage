@@ -1,0 +1,14 @@
+{
+  "status": "awaiting_prime_names",
+  "note": "PRIME must name mock accounts per surface. Until set, VITE_BRICELY_MOCK_EMAILS stays empty and is_mock will be false unless email matches.",
+  "isolation": {
+    "flag": "is_mock on support_tickets + bricely_threads",
+    "rule": "Mock traffic must not trigger real customer-facing email or CRM writes. Intake tags human_override.mock=true."
+  },
+  "accounts": {
+    "internal": { "email": "PENDING_PRIME", "label": "mock internal" },
+    "buyer": { "email": "PENDING_PRIME", "label": "mock buyer" },
+    "seller": { "email": "PENDING_PRIME", "label": "mock seller" }
+  },
+  "deploy_env_example": "VITE_BRICELY_MOCK_EMAILS=mock-internal@example.com,mock-buyer@example.com,mock-seller@example.com"
+}

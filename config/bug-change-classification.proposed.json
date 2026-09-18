@@ -1,0 +1,193 @@
+{
+  "status": "proposed_awaiting_prime_ratification",
+  "version": "0.1.0-proposed",
+  "proposed_by": "cursor",
+  "proposed_at": "2026-09-17",
+  "relates_to": "DR-CS-PLATFORM-002",
+  "prod_eligible_tier_enabled": false,
+  "straight_to_prod_enabled": false,
+  "percent_target_forbidden": true,
+  "note": "Honest classifier only. ~40% is an earned outcome, not a target. Default DOWN on uncertainty.",
+  "definitions": {
+    "bug": "Restoring intended/specified/previously-working behavior evidenced by an anchor; no new capability.",
+    "change": "Introducing new/different behavior, limitations-as-product-work, or policy/scope expansion.",
+    "ambiguous": "Insufficient anchor, mixed ask, or Cursor unsure — resolve conservative (stage/notify)."
+  },
+  "bug_requires_all": ["B0", "B1", "B2"],
+  "bug_requires_one_of": ["B3", "B4", "B5", "B6", "B7"],
+  "bug_signals": {
+    "B0": "Not hard-disqualified (H1–H7)",
+    "B1": "Restorative intent (should X / does Y)",
+    "B2": "Scoped to existing surface",
+    "B3": "Spec/ticket/SOP/UI/API written intended behavior",
+    "B4": "Regression from known-good",
+    "B5": "Error/exception/constraint failure on supported path",
+    "B6": "Broken product invariant",
+    "B7": "Logged defect (not limitation) in case log/CS"
+  },
+  "change_or_ambiguous_disqualifiers": {
+    "D1": "Add/support/allow without prior claim → change",
+    "D2": "Logged limitation / works as designed → change",
+    "D3": "Inventing new business rules → change|ambiguous",
+    "D4": "Bug+enhancement bundled → ambiguous",
+    "D5": "No anchor B3–B7 → ambiguous",
+    "D6": "Cannot name intended behavior in one sentence → ambiguous",
+    "D7": "Policy/billing/coverage judgment → change"
+  },
+  "prod_eligible_band": {
+    "tiers": ["1.1", "1.2", "1.3", "1.4", "1.5"],
+    "requires_all": ["P1", "P2", "P3", "P4", "P5", "P6", "P7"],
+    "criteria": {
+      "P1": "Single named failure; one primary locus",
+      "P2": "Small fix; no new tables/RPCs/edge functions; prefer <=50 LOC behavioral",
+      "P3": "No H1–H6 surfaces",
+      "P4": "Deterministic repro / obvious invariant",
+      "P5": "Trivially revertible; no data backfill",
+      "P6": "Blast radius one UI flow or pure function",
+      "P7": "High confidence; <=3 sentence explanation; no hedging"
+    },
+    "slots": {
+      "1.1": "Typo/wrong string/constant; one-file",
+      "1.2": "Null guard / off-by-one on pure display/transform",
+      "1.3": "Inverted boolean vs clear intended condition",
+      "1.4": "Missing field map for existing column",
+      "1.5": "Same as 1.1–1.4 across two coupled files"
+    }
+  },
+  "staging_first_band": {
+    "tiers": ["1.6", "1.7", "1.8", "1.9", "1.10"],
+    "any_of_pushes_here": ["S1", "S2", "S3", "S4", "S5", "S6", "S7"],
+    "criteria": {
+      "S1": "Multi-step or environment/role-conditioned repro",
+      "S2": "Touches >2 modules or shared cross-portal helpers",
+      "S3": "Partial fix history / deferred remainder",
+      "S4": "Needs migration/backfill/dual-write",
+      "S5": "Exceeds P2/P7 but still a bug",
+      "S6": "Side effects on email/board/notify paths",
+      "S7": "Needs flag/staged rollout to observe"
+    }
+  },
+  "hard_disqualifiers_never_straight_to_prod": {
+    "H1": "money_ar_invoice_pricing_memo_qbo",
+    "H2": "auth_invite_password_jwt_portal_crm_bind",
+    "H3": "schema_migrations_rls_grants",
+    "H4": "external_contracts_webhooks_email_providers",
+    "H5": "dispatch_approve_handoff_gates",
+    "H6": "prod_project_qcefkoxqkfwnlqfmwzmi_without_explicit_promote",
+    "H7": "cursor_unsure"
+  },
+  "conservatism": {
+    "default_down_on_uncertainty": true,
+    "never_round_up_to_hit_percent": true,
+    "straight_to_prod_execution_rules_when_enabled": [
+      "committed_pr",
+      "trivially_revertible",
+      "one_at_a_time",
+      "observed",
+      "control_plane_logged_realtime"
+    ],
+    "kill_switch": {
+      "file": "support-triage/config/autonomy-killswitch.json",
+      "file_halt_field": "halt",
+      "env": "CURSOR_DEV_AUTONOMY=off",
+      "any_active_halts_all_tier1_and_straight_to_prod": true
+    }
+  },
+  "worked_examples_summary": {
+    "source": "docs/bugs-and-fixes-log.md",
+    "straight_to_prod_eligible_count": 0,
+    "cases": [
+      {
+        "id": "BUG-001",
+        "class": "bug",
+        "tier": "1.8-1.10",
+        "straight_to_prod": false,
+        "why": "S3 partial fix; money-adjacent memo path H1 caution"
+      },
+      {
+        "id": "BUG-002",
+        "class": "bug_or_gap",
+        "tier": "gated",
+        "straight_to_prod": false,
+        "why": "H2 auth + H4 email"
+      },
+      {
+        "id": "BUG-003",
+        "class": "bug",
+        "tier": "gated",
+        "straight_to_prod": false,
+        "why": "H2 auth redirects"
+      },
+      {
+        "id": "BUG-004",
+        "class": "bug",
+        "tier": "gated",
+        "straight_to_prod": false,
+        "why": "H2 approve/CRM bind"
+      },
+      {
+        "id": "BUG-005",
+        "class": "bug",
+        "tier": "1.8-1.10",
+        "straight_to_prod": false,
+        "why": "H4 email/board side paths S6"
+      },
+      {
+        "id": "BUG-006",
+        "class": "bug",
+        "tier": "1.7",
+        "straight_to_prod": false,
+        "why": "S1 role-conditioned visibility"
+      },
+      {
+        "id": "BUG-007",
+        "class": "ambiguous",
+        "tier": "stage_or_notify",
+        "straight_to_prod": false,
+        "why": "D1/D6 without clear written hauler-later anchor"
+      },
+      {
+        "id": "BUG-008",
+        "class": "bug",
+        "tier": "gated",
+        "straight_to_prod": false,
+        "why": "H1 memo sequencer"
+      },
+      {
+        "id": "BUG-009",
+        "class": "bug",
+        "tier": "gated",
+        "straight_to_prod": false,
+        "why": "H1 invoice/AR"
+      },
+      {
+        "id": "BUG-010",
+        "class": "bug",
+        "tier": "gated",
+        "straight_to_prod": false,
+        "why": "H2 CRM/approve"
+      },
+      {
+        "id": "BUG-011",
+        "class": "bug",
+        "tier": "gated",
+        "straight_to_prod": false,
+        "why": "H1 pricing/memo dollars"
+      },
+      {
+        "id": "BUG-012",
+        "class": "change",
+        "tier": "n/a_product",
+        "straight_to_prod": false,
+        "why": "D2 logged limitation"
+      },
+      {
+        "id": "HYP-STATUS-TYPO",
+        "class": "bug",
+        "tier": "1.1",
+        "straight_to_prod": "candidate_only_after_ratification",
+        "why": "Single display string; P1–P7; no H*"
+      }
+    ]
+  }
+}

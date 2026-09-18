@@ -1,0 +1,11 @@
+support-triage/.env.local
+support-triage/node_modules/
+support-triage/dist/
+support-triage/supabase/.temp/
+support-triage/supabase/.branches/
+
+supabase/.temp/
+.env.local
+node_modules/
+dist/
+

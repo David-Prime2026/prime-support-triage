@@ -1,0 +1,254 @@
+# Support Triage / CS Platform — Control Plane
+
+Isolated from WMG OS production (`qcefkoxqkfwnlqfmwzmi`).
+
+## Branches
+- Backend / admin: `feat/bricely-support-system` (`wmg-backend` / `support-triage/`)
+- WMG embed: `feat/bricely-embed` (`wmg-canonical` / `src/bricely/`)
+
+## Doctrine
+- `doctrine/MS_SLA_EXHIBIT_A.md` — M&S §§18–35 + Exhibit A (INTERNAL ONLY)
+- `doctrine/SLA_RULES.md` — classifier / timing / customer-language rules
+- `config/resolution-tiers.json` — 0.85, Tier A allowlist, diagnostic turn cap, ops emails
+
+## Handoffs
+- **A** (quoting): JSON+CSV → `handoffs/`
+- **B** (Cursor): flat-file → `dispatches/outbox/` (WMG_OS_STAGING only)
+
+## Gate
+Build/prove on branches. Open PR. **STOP** — PRIME tests → approves → merges → ships.
+No production merge, no db push to WMG OS from this work.
+
+---
+
+## DR-CS-PLATFORM-004 — Unblock go-live — 2026-09-17 — **partial / blocked on host**
+
+SHIPPED (code + local prove):
+- Server-side Bricely persistence: migration `20260918010621_bricely_thread_persistence.sql` (`bricely_threads` + `bricely_thread_messages`); edge `bricely-thread`; client hydrate prefers server, sessionStorage cache
+- Intake tags `is_mock`, links `thread_id`, lands `awaiting_approval`; honesty banner kept
+- Mock account scaffold: `config/mock-accounts.proposed.json` + `VITE_BRICELY_MOCK_EMAILS`
+- Console `vercel.json` ready; hosting runbook: `docs/DR-CS-PLATFORM-004-hosting.md`
+- Local schema: `supabase db reset` PASS including thread persistence
+- Autonomy kill switch remains `halt: true` (straight-to-prod OFF)
+
+STUBBED / BLOCKED:
+- **No isolated cloud project yet** — org WMGOS only has WMG OS prod (`qcefkoxqkfwnlqfmwzmi`). New project **$10/mo** — awaiting PRIME CONFIRM (or alternate host target)
+- Therefore: no public intake URL, no hosted console URL, `VITE_BRICELY_INTAKE_URL` not set on WMG deploy
+- Mock account **emails not named** by PRIME yet
+- FIX branches not merged to `main` until hosted intake can be proven (avoid shipping demo-mode Bricely to real users)
+
+SCHEMA: support-triage migrations only (local applied). **Zero** changes to WMG OS prod.
+
+GUARDRAILS: isolation held; kill switch ON; dispatch staging-only
+
+PENDING (PRIME):
+1. CONFIRM create `prime-support-triage` ($10/mo) **or** provide host target
+2. Name mock emails (internal/buyer/seller)
+3. After host live: Cursor finishes wire + deploy → PRIME re-runs DR-003 A–D → then open to users
+
+STAGING: local Docker triage · http://127.0.0.1:5179
+
+---
+
+## Catch-Net Go-Live attempt — 2026-09-17 — **NO-GO** (prod deploy blocked)
+
+SHIPPED (prep only, not prod):
+- FIX-A conversation persistence implemented on embed branch (`src/bricely/persist.ts` — sessionStorage per surface/user)
+- Intake honesty: `BRICELY_INTAKE_WIRED` + demo banner when `VITE_BRICELY_INTAKE_URL` empty; failed intake surfaces warning
+- Operator notes composer in console (append via `ticket_events` / local fallback) — thin Step 1
+- Autonomy kill switch file: `config/autonomy-killswitch.json` → `halt: true` · straight-to-prod OFF
+
+STUBBED / BLOCKED:
+- **Intake not wired in any reachable env** — `VITE_BRICELY_INTAKE_URL` unset; escalations are local demo cards only
+- FIX-B/C + embed **not merged to main**; PRs still OPEN (`wmg-backend#1`, `Wmsosv2#1`)
+- **No prod CS console host** — only `127.0.0.1:5179`; isolated triage DB is local Docker
+- No prod mock-account isolation flag for buyer/seller test traffic
+- Must NOT put `support` schema on WMG OS prod (`qcefkoxqkfwnlqfmwzmi`) — isolation held
+
+SCHEMA: no prod schema change
+
+GUARDRAILS:
+- Straight-to-prod / Tier 1.1–1.5 **OFF** (kill switch + classification flags)
+- Dispatch remains `WMG_OS_STAGING` flat-file — does not auto-execute to prod
+- Real-user go-live halted until intake lands tickets in a reachable console
+
+GO/NO-GO checklist:
+| # | Item | Result |
+|---|------|--------|
+| 1 | Intake wired 3 surfaces → console | **NO-GO** |
+| 2 | FIX-A/B/C merged/promoted | **NO-GO** (A coded locally; B/C unmerged) |
+| 3 | Reachable prod env | **NO-GO** |
+| 4 | Mock-account isolation | **NO-GO** |
+| 5 | Prod console schema clean | **NO-GO** (no prod console) |
+| 6 | Bricely guardrails in prod | **NO-GO** (not on prod) |
+| 7 | Straight-to-prod OFF | **GO** |
+
+PENDING (unblock go-live):
+1. Host isolated support-triage API (Supabase project or Vercel+edge) with `intake-ticket` public URL
+2. Set `VITE_BRICELY_INTAKE_URL` on WMG app deploy; CORS allow app origins
+3. Merge/promote FIX-A/B/C after PRIME approve; deploy embed + console
+4. Designate mock buyer/seller/internal accounts for prod test
+5. Re-run GO checklist → then prod surface test A–D with eyes on
+
+STAGING: local only · http://127.0.0.1:5179 · http://localhost:5173
+
+---
+
+## DR-CS-PLATFORM-002 — Cursor-as-dev (tiered autonomy + in-ticket auth) — 2026-09-17 — proposed
+
+SHIPPED:
+- None (spec + execution proposal only; build order TBD)
+
+STUBBED / AUTHORED:
+- Execution proposal: `docs/DR-CS-PLATFORM-002-execution.md`
+- Tier 1 fence **proposed** (not ratified): `config/risk-fence.proposed.json` — Tier 1 OFF until PRIME ratifies
+- **Bug-vs-Change classification method proposed** (not ratified): `config/bug-change-classification.proposed.md` + `.json` — prod-eligible / straight-to-prod **OFF**; ~40% is earned outcome not target
+- Worked examples: BUG-001…012 under method → **0/12** straight-to-prod eligible (expected; log is auth/money-heavy)
+- Lift: Step 1 notes **7–10 h** · Step 2 Cursor-in-thread **21–33 h** · fence pass **2–3 h** · combined **~30–46 h**
+
+SCHEMA:
+- Proposed only (not applied): `ticket_notes`, `dev_assessments`, `authorizations`, `risk_fence`; extend `engineering_handoffs` with tier/promote_target/authorization_id
+- Recommend dedicated internal `ticket_notes` (do not overload customer `ticket_messages`)
+
+GUARDRAILS:
+- Fence Cursor-proposed / PRIME-ratified; assessments advisory; promote per-fix by PRIME; sensitive never Tier 1; isolation held
+- Conservatism: default DOWN on uncertainty; kill switch required before any autonomy enable (`autonomy-killswitch.json` / `CURSOR_DEV_AUTONOMY=off`)
+- **Do NOT build prod-eligible Tier 1 / straight-to-prod until PRIME ratifies bug-change method + sets conservatism**
+
+PENDING (PRIME):
+- Ratify / edit fence → `config/risk-fence.json`
+- Ratify / edit bug-vs-change method + conservatism dial → promote classification files (drop `.proposed`)
+- Build order: recommend **002-A Step 1 notes first**
+- Flag A: Tier 2 email (propose SendGrid) vs interim console-only
+- Flag B: live Cursor connection (propose poll-bridge v1)
+
+STAGING:
+- Same Phase 1 branch when build ordered · http://127.0.0.1:5179 · no prod
+
+---
+
+## DR-CS-PLATFORM-001 · FIX-C — Schema integrity, SLA-on-resolved, open-item path — 2026-09-17 — shipped-to-staging
+
+SHIPPED:
+- Root cause of **Invalid schema: support**: after hand-recovery wipe, `support` tables existed but **anon lacked GRANT USAGE** on schema `support` (console uses Vite anon key / Accept-Profile). PostgREST rejected the schema.
+- **Follow-up (same session):** Vite was also inheriting shell `VITE_SUPABASE_URL=https://brvjzmwnuyuhzwpvhdeg.supabase.co` (no `support` schema) which overrode `.env.local`. `vite.config.ts` now forces file-based local URL; client rejects non-local URLs.
+- Repair via **standard path**: `supabase db reset` applied 001→004 + `20260917215116_fix_c_schema_grants_open_seed.sql` (not hand-psql). Migration history restored (5 rows in `schema_migrations`).
+- 001 grants updated for future resets: USAGE + DML to `anon` as well as authenticated/service_role.
+- FIX-C migration: anon staging RLS policies on core + stub tables; **3 OPEN test tickets** (OPEN-TEST-001 w/ diagnosis P2; OPEN-TEST-002 diagnosis-less P3; OPEN-TEST-003 P1 w/ diagnosis).
+- SLA clock **stops on resolved/closed/auto_resolved** — UI shows “SLA settled · met|missed at close”, never active “Breached … ago” on closed cards or detail.
+- Diagnosis-less detail pane: explicit “No diagnosis…” copy; Approve→dispatch still uses request text.
+- Manual ticket + Approve→dispatch **DB/local fallback** when edge functions are unreachable (still emits staging Handoff B JSON only).
+
+STUBBED:
+- Operator JWT / prime_operators auth still bypassed via anon staging policies (local Phase 1 only)
+- Case-log BUG-001…012 remain client seed merge (optional future SQL upsert)
+- Avg first-touch still Phase 1 stub
+
+SCHEMA (integrity verification — isolated triage DB only):
+
+| Check | Result |
+|-------|--------|
+| Tables present (16) | PASS — clients, client_contracts, auto_resolve_allowlist, support_tickets, engineering_handoffs, change_order_drafts, ticket_events, prime_operators, ticket_attachments, ticket_messages, knowledge_base_refs, retention_policies, pii_flags, access_log, data_subject_requests, ai_disclosures |
+| RLS enabled on all 16 | PASS |
+| support_tickets cols (priority, diagnosis_summary, surface, escalation_flag, status, resolved_at, …) | PASS |
+| status/priority/ai_lane CHECK constraints | PASS |
+| anon USAGE + SELECT on support_tickets | PASS |
+| schema_migrations 001–004 + FIX-C | PASS |
+| anon REST `Accept-Profile: support` → 200 + open rows | PASS |
+| Policies present per table | PASS (1–3 each) |
+
+GUARDRAILS:
+- Isolation held (prime-support-triage only; no WMG OS `qcefkoxqkfwnlqfmwzmi`)
+- **Do not hand-apply migrations as normal practice** — use CLI reset/up; hand-recovery left migration history empty and grants incomplete (this incident)
+- Production untouched; no merge / no prod db push
+
+PENDING:
+- PRIME test checklist: (1) no red “Invalid schema” banner (2) resolved BUG seeds show settled SLA not breach (3) open OPEN-TEST-* → re-priority → Approve→dispatch download (4) OPEN-TEST-002 diagnosis-less still workable
+- Optional: upsert BUG case log into DB; watched-dir / CS repo naming
+
+STAGING:
+- Branch `feat/bricely-support-system` — http://127.0.0.1:5179
+- PR https://github.com/David-Prime2026/wmg-backend/pull/1
+- Lift: ~2.5h
+- Awaiting PRIME test → approve → merge → push
+
+---
+
+## DR-CS-PLATFORM-001 · Case log seed — bugs-and-fixes-log — 2026-09-17 — shipped-to-staging
+
+SHIPPED:
+- CS console case log pointed at `docs/bugs-and-fixes-log.md` (BUG-001…BUG-012)
+- Seed module `support-triage/src/seeds/bugsCaseLog.ts` + pointer `config/case-log.json`
+- All Tickets / counts / filters merge seed with live DB; filter pill “Case log (BUG-…)”
+- Sidebar + banner link to GitHub canonical log
+
+STUBBED:
+- Seed is client-side merge (not yet upserted into support.support_tickets)
+- Audit events for seed cases empty until DB-backed
+
+SCHEMA:
+- No new migrations; seed is flat-file → UI
+
+GUARDRAILS:
+- Isolation held; production untouched
+
+PENDING:
+- Optional SQL 005 upsert of BUG cases into isolated triage DB
+- PRIME confirm watched-dir / CS repo naming
+
+STAGING:
+- Branch `feat/bricely-support-system` — http://127.0.0.1:5179
+- Source: https://github.com/David-Prime2026/wmg-backend/blob/main/docs/bugs-and-fixes-log.md
+
+---
+
+## DR-CS-PLATFORM-001 · FIX-B — Correct admin console — 2026-09-17 — shipped-to-staging
+
+SHIPPED:
+- Admin rebuilt as async triage-and-route cockpit (PRIME navy): unified Tickets nav (All / Priority / Breaching / Awaiting Approval / Ambiguous / Assigned to me); Modules + Oversight sidebar groups (Phase 2 stubs)
+- Single-line summary bar (open · P1 · breaching · auto-resolved · avg first touch)
+- Filter pills (Status: Open, Priority: P1–P2, Clear all) — not toggle tabs
+- 2-badge list rows only: P1–P4 + State; routing/coverage in detail pane
+- Countdown SLA (time-to-touch / breached) green→amber→red; Exhibit A windows via P1–P4
+- Triage list+detail: diagnosis pane, classification (internal), priority, assign, timestamps/audit, Approve→Handoff B, →Change order, Resolve
+- Quote module: lift assessment + Emit Handoff A (JSON/CSV, “not the quote”) + Approve for build → Handoff B
+- Catch-net landing: manual/intake tickets appear in All Tickets queues
+
+STUBBED:
+- Clients / KB / Automations / Dashboard / Audit / Compliance = shell nav placeholders (Phase 2)
+- Avg first-touch metric is a Phase 1 stub (“&lt; 1h”) until dense touch events
+- Vision on attachments = local staging stub (server vision later)
+- Rep take-over of live conversation — NOT built (see PENDING)
+- Live reply / real-time agent desk / conversation-threading-for-live-response — NOT built
+
+SCHEMA:
+- Isolated support-triage DB only: `003_phase1_cs_platform_extensions.sql` (priority, diagnosis, attachments, messages, Phase 2 stubs); `004_seed_ms_sla_doctrine.sql` (M&S §18/§19 + Exhibit A clocks)
+- No WMG OS (`qcefkoxqkfwnlqfmwzmi`) schema changes
+
+GUARDRAILS:
+- Isolation held (own ports/branch/support schema)
+- WMG embed remains additive-only (separate `feat/bricely-embed`)
+- Human gates intact (Approve→dispatch; never auto code/prod)
+- Production untouched; no merge / no db push to WMG OS
+
+PENDING:
+- Rep take-over + live reply deferred to Phase 2 — no staffing model and no operator notification process once they leave the PC; a “jump in” button would imply availability we cannot honor
+- PRIME confirm: watched-dir absolute path; domain spelling; parallel CS repo name/timing
+- Apply/verify migrations on any fresh local triage DB; Vercel/preview URL for embed PR when ready
+
+STAGING:
+- Branch `feat/bricely-support-system` — local preview http://127.0.0.1:5179
+- PR https://github.com/David-Prime2026/wmg-backend/pull/1
+- Embed companion: `feat/bricely-embed` / https://github.com/David-Prime2026/Wmsosv2/pull/1 · http://localhost:5173
+- Awaiting PRIME test → approve → merge → push
+
+---
+
+## DR-CS-PLATFORM-001 Phase 1 (prior) — catch-net — 2026-09-17 — shipped-to-staging
+
+SHIPPED: Bricely embed ×3 + diagnostic loop + Settings Support + handoffs A/B + M&S doctrine  
+STUBBED: Full commercial console (superseded by FIX-B shell); Phase 2 slices  
+SCHEMA: support-triage 001–004 only  
+GUARDRAILS: held  
+PENDING: FIX-B console correction (this entry above)  
+STAGING: same branches/PRs — awaiting PRIME

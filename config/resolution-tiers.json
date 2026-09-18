@@ -1,0 +1,34 @@
+{
+  "auto_resolve_confidence_threshold": 0.85,
+  "bias": "conservative",
+  "diagnostic_turn_cap": 5,
+  "operators": {
+    "primary": "bricely@prime-timesystems.com",
+    "cc": ["david@prime-timesystems.com"]
+  },
+  "dispatch": {
+    "mechanism": "flat_file",
+    "watched_dir": "support-triage/dispatches/outbox",
+    "note": "PRIME TO CONFIRM watched dir path for production hosts"
+  },
+  "tier_a_allowlist": [
+    "password_reset",
+    "login_help",
+    "access_questions",
+    "how_to",
+    "known_issue_canned",
+    "read_only_data_lookup",
+    "self_serve_existing",
+    "navigation_help"
+  ],
+  "tier_b": {
+    "description": "Small non-destructive code fixes; human-gated via staging",
+    "auto": false
+  },
+  "tier_c": {
+    "description": "Significant / money / destructive / new feature / logic rewrite",
+    "auto": false
+  },
+  "phase": "1_catch_net",
+  "accounting_note": "Acknowledge accounting as coming-soon when relevant; do not pretend complete"
+}

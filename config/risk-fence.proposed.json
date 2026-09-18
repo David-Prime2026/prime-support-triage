@@ -1,0 +1,64 @@
+{
+  "status": "proposed_awaiting_prime_ratification",
+  "version": "0.1.0-proposed",
+  "proposed_by": "cursor",
+  "proposed_at": "2026-09-17",
+  "tier1_enabled": false,
+  "staging_only_default": true,
+  "note": "Cursor proposes; PRIME ratifies before any Tier 1 auto-act. Until ratified, Tier 1 = OFF.",
+  "in_fence": [
+    {
+      "id": "F1",
+      "category": "display_copy_labels",
+      "prod_allowed": false,
+      "examples": ["support-triage UI strings", "additive bricely copy"]
+    },
+    {
+      "id": "F2",
+      "category": "css_layout_polish",
+      "prod_allowed": false,
+      "examples": ["spacing", "existing color tokens", "non-behavioral classes"]
+    },
+    {
+      "id": "F3",
+      "category": "dead_code_unused_imports",
+      "prod_allowed": false,
+      "examples": ["lint-driven delete-only diffs"]
+    },
+    {
+      "id": "F4",
+      "category": "comments_jsdoc_control_plane_narrative",
+      "prod_allowed": false,
+      "examples": ["support-triage docs", "CONTROL_PLANE entries"]
+    },
+    {
+      "id": "F5",
+      "category": "additive_ui_stubs",
+      "prod_allowed": false,
+      "examples": ["existing Phase 2 placeholder panels"]
+    },
+    {
+      "id": "F6",
+      "category": "isolated_test_seed_data",
+      "prod_allowed": false,
+      "examples": ["OPEN-TEST seeds", "support-triage fixtures only"]
+    },
+    {
+      "id": "F7",
+      "category": "config_within_ratified_allowlist",
+      "prod_allowed": false,
+      "examples": ["toggle enabled on already-listed Tier A allowlist row in staging"]
+    }
+  ],
+  "explicitly_excluded": [
+    "migrations_schema_rls_grants",
+    "auth_jwt_invite_password_portal",
+    "money_invoice_ar_qbo_pricing",
+    "external_contracts_webhooks_email_providers",
+    "dispatch_handoff_approve_gates",
+    "anon_rls_bypass_widening",
+    "wmg_os_production_project",
+    "new_edge_functions_classifier_thresholds",
+    "project_qcefkoxqkfwnlqfmwzmi"
+  ]
+}

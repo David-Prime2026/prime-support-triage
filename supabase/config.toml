@@ -1,0 +1,62 @@
+# Isolated Support Triage stack — DO NOT link to WMG OS production.
+project_id = "prime-support-triage"
+
+[api]
+enabled = true
+port = 54341
+schemas = ["public", "graphql_public", "support"]
+extra_search_path = ["public", "support", "extensions"]
+max_rows = 1000
+
+[api.tls]
+enabled = false
+
+[db]
+port = 54342
+shadow_port = 54340
+major_version = 17
+
+[db.pooler]
+enabled = false
+port = 54349
+pool_mode = "transaction"
+default_pool_size = 20
+max_client_conn = 100
+
+[realtime]
+enabled = true
+
+[studio]
+enabled = true
+port = 54343
+api_url = "http://127.0.0.1"
+openai_api_key = "env(OPENAI_API_KEY)"
+
+[inbucket]
+enabled = true
+port = 54344
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:5179"
+additional_redirect_urls = ["http://127.0.0.1:5179"]
+jwt_expiry = 3600
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[edge_runtime]
+enabled = true
+policy = "per_worker"
+inspector_port = 54345
+
+[analytics]
+enabled = false

@@ -1,0 +1,8 @@
+{
+  "case_log_source": {
+    "path": "docs/bugs-and-fixes-log.md",
+    "repo_relative": "wmg-backend/docs/bugs-and-fixes-log.md",
+    "github": "https://github.com/David-Prime2026/wmg-backend/blob/main/docs/bugs-and-fixes-log.md",
+    "note": "WMG OS Bugs & Bug Fixes log (BUG-001…) — seed for CS console case log"
+  }
+}
