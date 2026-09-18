@@ -16,6 +16,7 @@ import {
   WMG_CLIENT_ID,
   type Ticket,
   type TicketEvent,
+  sortCsQueue,
 } from "./lib/supabase";
 import {
   buildDispatchPayload,
@@ -26,6 +27,15 @@ import {
   handoffAToCsvRow,
 } from "./lib/handoffs";
 import { bugsAsTickets, BUG_CASE_SEEDS, CASE_LOG_SOURCE } from "./seeds/bugsCaseLog";
+
+type QueueSort = "priority_fifo" | "newest" | "oldest";
+
+function applyQueueSort(list: Ticket[], mode: QueueSort): Ticket[] {
+  const copy = [...list];
+  if (mode === "newest") return copy.sort((a, b) => b.created_at.localeCompare(a.created_at));
+  if (mode === "oldest") return copy.sort((a, b) => a.created_at.localeCompare(b.created_at));
+  return copy.sort(sortCsQueue);
+}
 
 const PRIME = {
   bg: "#0b1220",
@@ -223,6 +233,7 @@ export default function App() {
   const [createEmail, setCreateEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [filters, setFilters] = useState<FilterChip[]>([]);
+  const [queueSort, setQueueSort] = useState<QueueSort>("priority_fifo");
   const [nowTick, setNowTick] = useState(Date.now());
   const [noteDraft, setNoteDraft] = useState("");
   const [localNotes, setLocalNotes] = useState<
@@ -274,7 +285,7 @@ export default function App() {
     const byId = new Map<string, Ticket>();
     for (const t of seeded) byId.set(t.id, t);
     for (const t of tickets) byId.set(t.id, t);
-    return Array.from(byId.values()).sort((a, b) => b.created_at.localeCompare(a.created_at));
+    return applyQueueSort(Array.from(byId.values()), "priority_fifo");
   }, [tickets]);
 
   useEffect(() => {
@@ -362,8 +373,12 @@ export default function App() {
         if (s !== "open") list = list.filter((t) => t.status === s);
       }
     }
+    // Ambiguous nav keeps its lane bias; otherwise apply CS queue sort
+    if (nav !== "ambiguous") {
+      list = applyQueueSort(list, queueSort);
+    }
     return list;
-  }, [ticketsWithCaseLog, nav, filters, me, nowTick]);
+  }, [ticketsWithCaseLog, nav, filters, me, nowTick, queueSort]);
 
   async function invoke(name: string, body: Record<string, unknown>) {
     if (!functionsBase) throw new Error("Missing VITE_SUPABASE_URL");
@@ -817,6 +832,20 @@ export default function App() {
         {/* Filter pills */}
         {showTicketList && (
           <div className="px-4 pt-3 flex flex-wrap items-center gap-2">
+            <label className="text-[11px] text-slate-400 flex items-center gap-1.5 mr-2">
+              Queue
+              <select
+                value={queueSort}
+                onChange={(e) => setQueueSort(e.target.value as QueueSort)}
+                className="rounded border bg-slate-900 text-slate-200 text-[11px] px-2 py-1"
+                style={{ borderColor: PRIME.border }}
+                title="Standard CS queue: Priority then FIFO (oldest first within priority)"
+              >
+                <option value="priority_fifo">Priority → FIFO</option>
+                <option value="oldest">Oldest first</option>
+                <option value="newest">Newest first</option>
+              </select>
+            </label>
             {filters.map((f) => (
               <button
                 key={f.id}
