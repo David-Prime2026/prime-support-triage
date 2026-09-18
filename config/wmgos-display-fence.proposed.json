@@ -1,0 +1,236 @@
+{
+  "status": "proposed_awaiting_prime_ratification",
+  "version": "0.1.0-proposed",
+  "proposed_by": "cursor",
+  "proposed_at": "2026-09-18",
+  "authority": "DR-CS-PLATFORM-007",
+  "lane": "lane_1_wmgos_display_code",
+  "target_project": "qcefkoxqkfwnlqfmwzmi",
+  "enabled": false,
+  "principle": "Autonomy may change how things LOOK, never what they DO or SHOW. Unsure in WMG OS = escalate always.",
+  "inherits": [
+    "DR-CS-PLATFORM-006 guardrails (kill switch, revert, live log, serial, fence blocks)",
+    "bug-change-classification.json (bug-not-change; default DOWN)",
+    "risk-fence.json support-app fence does NOT authorize WMG OS — this file is separate and stricter"
+  ],
+  "conservatism": {
+    "default_down_absolute": true,
+    "unsure_always_escalates": true,
+    "never_round_up_cosmetic": true,
+    "data_coupled_looks_cosmetic_is_excluded": true
+  },
+  "in_fence": [
+    {
+      "id": "W1",
+      "category": "static_ui_copy_typo",
+      "prod_allowed_after_ratification": false,
+      "definition": "Hard-coded presentational string with zero binding to DB/RPC/derived values; fixing a typo or misspelling only.",
+      "allowed_loci": [
+        "Static JSX/TSX string literals in labels, headings, empty-state prose, button captions that do not gate actions",
+        "STATUS_HELP / instructional help text objects when values are prose only (not status keys)",
+        "Bricely customer-safe intro / hint copy under src/bricely/config.ts (look only)"
+      ],
+      "examples_safe": [
+        "Typo in LoadBoardKanban Create Load modal helper: 'New loads are placed in \"Unsold\" status…'",
+        "Misspelling in SellerPortal guide step detail string",
+        "Bricely BRICELY_OPEN_TICKET_HINT wording typo"
+      ]
+    },
+    {
+      "id": "W2",
+      "category": "static_tooltip_help_aria",
+      "prod_allowed_after_ratification": false,
+      "definition": "title=, aria-label, Info/help prose that explains UI without changing visibility or data.",
+      "allowed_loci": [
+        "STATUS_HELP strings in LoadBoardKanban.tsx (keys unchanged)",
+        "aria-label on Close / Sign out / icon-only controls",
+        "title= truncations that only add hover text already shown elsewhere as the same static string"
+      ],
+      "examples_safe": [
+        "Clarify STATUS_HELP.process wording without renaming status key 'process'",
+        "Fix aria-label='Close invoice detail' typo"
+      ]
+    },
+    {
+      "id": "W3",
+      "category": "cosmetic_css_non_behavioral",
+      "prod_allowed_after_ratification": false,
+      "definition": "Class/token changes that do not hide, show, reorder interactive controls, or change which data cells render.",
+      "allowed_loci": [
+        "Padding/margin/gap on existing containers",
+        "Font weight/size on static headings",
+        "Border/radius/shadow using existing palette tokens (#2a4a31 / gray scale already in file)"
+      ],
+      "examples_safe": [
+        "Increase py- on a static section header",
+        "Bricely chat transcript background token already presentational"
+      ]
+    },
+    {
+      "id": "W4",
+      "category": "comments_jsdoc_internal_docs",
+      "prod_allowed_after_ratification": false,
+      "definition": "Comments / JSDoc / internal markdown under wmg-canonical that operators never see as product behavior.",
+      "allowed_loci": [
+        "Inline // comments in UI components",
+        "docs/uat notes that do not change shipped UI"
+      ],
+      "examples_safe": [
+        "Clarify comment above STATUS_CONFIG without touching keys"
+      ]
+    }
+  ],
+  "explicitly_excluded": [
+    {
+      "id": "X1",
+      "category": "status_keys_and_column_identity",
+      "why": "STATUS_CONFIG keys (process/unconfirmed/uncovered/covered/…) drive board column membership and DnD targets — changing label+key coupling changes what SHOWS where.",
+      "examples": [
+        "Renaming status key 'uncovered' or remapping loads between columns",
+        "Changing option value= in board filters that filter by status key"
+      ]
+    },
+    {
+      "id": "X2",
+      "category": "display_of_live_data_fields",
+      "why": "Looks like 'label' but renders DB/RPC fields — changing format or which field is shown changes what is SHOWN.",
+      "examples": [
+        "fmt(balanceDue) / commission / invoice amounts",
+        "(lbs/2000).toFixed — tonnage display",
+        "release_number, memo_number, pickup_window cells",
+        "PAYMENT_STATUS_LABEL[paymentEvent.status] mapping",
+        "Welcome firstName from buyer.contact / seller.contact / auth full_name"
+      ]
+    },
+    {
+      "id": "X3",
+      "category": "nav_route_ids_and_permissions",
+      "why": "Nav labels are paired with view ids gated by canAccessView / featurePermissions — changing id or gating changes DO.",
+      "examples": [
+        "allNavItems id: 'load-board' / 'accounting'",
+        "Portal NAV screen ids home|statements|invoices"
+      ]
+    },
+    {
+      "id": "X4",
+      "category": "conditional_visibility_css",
+      "why": "hidden/opacity-0/display:none/conditional render changes what controls or data appear.",
+      "examples": [
+        "Hiding Allocate / Send memo buttons via CSS",
+        "canViewAccounting && … branches",
+        "filter pills that remove cards from the board"
+      ]
+    },
+    {
+      "id": "X5",
+      "category": "money_ar_pricing_memo_load_state",
+      "why": "Hard-excluded permanently from all autonomy.",
+      "examples": [
+        "Any SalesMemos / AR / statement / aging / pricing string that formats money",
+        "allocate / deallocate / reassign / set-load-memo-rate / split-load UI copy that describes irreversible actions if it changes CTA meaning"
+      ]
+    },
+    {
+      "id": "X6",
+      "category": "auth_rls_schema_edge",
+      "why": "Hard-excluded permanently.",
+      "examples": ["LoginPage copy that changes auth flow", "PortalAccessAdmin invite strings tied to grant actions"]
+    },
+    {
+      "id": "X7",
+      "category": "bricely_behavior_not_copy",
+      "why": "Changing diagnostic logic, escalation rules, or liveFix kinds is behavior — not Lane 1.",
+      "examples": ["diagnostic.ts terminal routing", "intake payload shape", "turn caps"]
+    },
+    {
+      "id": "X8",
+      "category": "unsure_or_mixed_diff",
+      "why": "Unsure in WMG OS = escalate always. Mixed cosmetic+logic PR = escalate.",
+      "examples": ["Diff touches STATUS_CONFIG.label AND a filter", "Cursor cannot prove zero data impact in ≤3 sentences"]
+    }
+  ],
+  "data_coupling_traps": [
+    {
+      "trap": "Column header label shares STATUS_CONFIG with board membership",
+      "file": "src/app/components/LoadBoardKanban.tsx",
+      "safe_slice": "Edit STATUS_HELP.process prose OR STATUS_CONFIG.process.label string ONLY if status key 'process' and all value=/filter bindings unchanged",
+      "unsafe": "Change key, filter option values, or DnD accept types"
+    },
+    {
+      "trap": "KPI tile 'label' next to live count",
+      "file": "src/app/App.tsx (Accounts overview tiles)",
+      "safe_slice": "Static desc/help prose only",
+      "unsafe": "route, count source, or color tied to threshold logic"
+    },
+    {
+      "trap": "Portal welcome name looks like copy",
+      "file": "BuyerPortal / SellerPortal welcome cards",
+      "safe_slice": "NONE for Lane 1 code — name comes from contact/profile data (Lane 2 session override already separate)",
+      "unsafe": "Hard-coding a customer's name into source"
+    },
+    {
+      "trap": "Button caption that is the only affordance for a write action",
+      "file": "LoadBoardKanban allocate / send memo CTAs",
+      "safe_slice": "Typo in caption text only (e.g. 'Alocate' → 'Allocate') without changing onClick/handler/disabled rules",
+      "unsafe": "Renaming CTA to imply a different action; enabling a disabled button via CSS"
+    }
+  ],
+  "worked_examples": [
+    {
+      "id": "EX-SAFE-1",
+      "ask": "Typo on load board helper under Create Load",
+      "locus": "LoadBoardKanban.tsx static modal prose",
+      "verdict": "Lane 1 candidate (W1) after ratification — if string is literal and unbound",
+      "class": "bug_1.1"
+    },
+    {
+      "id": "EX-SAFE-2",
+      "ask": "STATUS_HELP Not Covered tooltip wording is confusing",
+      "locus": "STATUS_HELP.uncovered",
+      "verdict": "Lane 1 candidate (W2) — key 'uncovered' unchanged",
+      "class": "bug_or_copy_bug"
+    },
+    {
+      "id": "EX-UNSAFE-1",
+      "ask": "Rename board column Not Covered to Awaiting Hauler",
+      "locus": "STATUS_CONFIG.uncovered.label + operator mental model + filters",
+      "verdict": "EXCLUDED (X1) — product language change; may be change not bug; escalate to PRIME",
+      "class": "change_or_ambiguous"
+    },
+    {
+      "id": "EX-UNSAFE-2",
+      "ask": "Show tons with 3 decimals instead of 1",
+      "locus": "(lbs/2000).toFixed(1) in SellerPortal",
+      "verdict": "EXCLUDED (X2) — changes what data is SHOWN",
+      "class": "change"
+    },
+    {
+      "id": "EX-UNSAFE-3",
+      "ask": "Hide accounting nav for cleaner UI",
+      "locus": "App.tsx navItems / canAccessView",
+      "verdict": "EXCLUDED (X3/X4) — changes what users can DO",
+      "class": "change"
+    },
+    {
+      "id": "EX-UNSAFE-4",
+      "ask": "Fix wrong commission on statement header",
+      "locus": "fmt(comm) / statement totals",
+      "verdict": "EXCLUDED (X5) — money; escalate",
+      "class": "disqualified_H1"
+    },
+    {
+      "id": "EX-UNSAFE-5",
+      "ask": "Welcome should say Dave",
+      "locus": "buyer.contact / greeting override",
+      "verdict": "NOT Lane 1 code fix — data/session preference (see Lane 2 SF1 if ratified); never hard-code in repo",
+      "class": "lane_2_or_escalate"
+    }
+  ],
+  "execution_rules_when_enabled_later": [
+    "PRIME must ratify this file → wmgos-display-fence.json",
+    "Only W1–W4 with certainty; else escalate",
+    "Committed PR, trivially revertible, one-at-a-time, observed, CONTROL_PLANE real-time log",
+    "Kill switch halt=true stops all WMG OS autonomy",
+    "Never db push / migration / edge deploy as Lane 1"
+  ]
+}

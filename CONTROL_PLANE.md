@@ -58,6 +58,7 @@ Isolated from WMG OS production (`qcefkoxqkfwnlqfmwzmi`).
 - **`config/bug-change-classification.json`** — PRIME-ratified method v1.0.0 (defaults DOWN)
 - **`config/autonomy-killswitch.json`** — live kill switch (halt / tier1 / straight-to-prod)
 - **`config/catch-net-posture.json`** — users_live
+- **PROPOSED (not enabled):** `config/wmgos-display-fence.proposed.*` · `config/wmgos-safe-feature-allowlist.proposed.*` (DR-007)
 
 ## Handoffs
 - **A** (quoting): JSON+CSV → `handoffs/`
@@ -67,6 +68,29 @@ Isolated from WMG OS production (`qcefkoxqkfwnlqfmwzmi`).
 ## Gate
 Build/prove on branches. Open PR. **STOP** — PRIME tests → approves → merges → ships.
 No production merge, no db push to WMG OS from this work.
+
+---
+
+## DR-CS-PLATFORM-007 — WMG OS display fence + safe-feature allowlist — 2026-09-18 — **PROPOSED — STOP for PRIME ratification**
+
+PROPOSED (Cursor; **nothing enabled**):
+- Lane 1 display/cosmetic fence for WMG OS (`qcefkox…`): `config/wmgos-display-fence.proposed.json` + `.md`
+  - In: W1–W4 static copy / help / non-behavioral CSS / comments
+  - Out: status keys, live data SHOW, nav/permissions, visibility hacks, money/auth/schema, unsure→escalate
+  - Worked examples from `LoadBoardKanban` STATUS_CONFIG/HELP, portal `fmt`/tons, App nav, welcome contact
+- Lane 2 Bricely safe-feature allowlist (invoke existing only): `config/wmgos-safe-feature-allowlist.proposed.json` + `.md`
+  - In (proposed): SF1 greeting session override · SF2 navigate · SF3 clear board prefs · SF4 new chat · SF5 read refresh · SF6 clipboard · SF7 help guide · SF8 internal AI draft (not send)
+  - Never: send/notify email · allocate/update load · portal submits · invites/access · pricing/AR writes · new action code
+- Principle held: LOOK only for Lane 1; reversible/internal only for Lane 2; unsure in WMG OS = escalate always
+
+NOT DONE / BLOCKED ON PRIME:
+- Ratify/edit both proposals → promote to non-`.proposed` filenames
+- Separate enable step (not this DR) under DR-006 guardrails; PRIME watches first WMG OS fire
+- Kill switch / Tier 1 support-app posture unchanged by this proposal
+
+SCHEMA: **zero** WMG OS schema/RLS/edge changes in this DR
+
+**STOP — PRIME ratify both fences before any WMG OS autonomous code or feature trigger enables.**
 
 ---
 
