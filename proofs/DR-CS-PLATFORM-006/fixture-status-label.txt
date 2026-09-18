@@ -1,0 +1,2 @@
+# Tier 1 proof fixture (support-triage only — never WMG OS prod)
+STATUS_LABEL=Awaitng approval

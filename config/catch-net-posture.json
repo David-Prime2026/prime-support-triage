@@ -1,0 +1,20 @@
+{
+  "status": "users_live",
+  "opened_at": "2026-09-18T22:45:00Z",
+  "opened_by": "cursor",
+  "authority": "DR-CS-PLATFORM-006",
+  "surfaces": ["internal", "buyer", "seller"],
+  "console_url": "https://david-prime2026.github.io/prime-support-triage/",
+  "wmg_url": "https://wmgos.primetimesystems.ai",
+  "intake_url": "https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/intake-ticket",
+  "mock_emails_flag_only": true,
+  "mock_emails_note": "VITE_BRICELY_MOCK_EMAILS only tags is_mock=true; does not block real users.",
+  "first_day_watch": "PRIME",
+  "guardrails_live": [
+    "honest_ai_intro",
+    "no_billable_scope_cost_disclosure",
+    "accounting_coming_soon",
+    "escalation_turn_cap_24h",
+    "fail_loud_intake_banner"
+  ]
+}

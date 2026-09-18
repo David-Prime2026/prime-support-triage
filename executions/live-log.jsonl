@@ -1,0 +1,60 @@
+{"at":"2026-09-18T22:44:31.700Z","type":"proof_a1_start"}
+{"at":"2026-09-18T22:44:31.704Z","type":"dispatch_start","id":"PROOF-A1-KILL","summary":"typo proof dispatch — display label"}
+{"at":"2026-09-18T22:44:31.709Z","type":"classified","id":"PROOF-A1-KILL","classification":{"id":"PROOF-A1-KILL","class":"bug","tier":"1.1","fence":"F1","straight_to_prod":true,"action":"execute","reason":"fenced_light_bug_1.1_1.5"}}
+{"at":"2026-09-18T22:44:31.711Z","type":"dispatch_step","id":"PROOF-A1-KILL","step":1,"of":6}
+{"at":"2026-09-18T22:44:32.118Z","type":"dispatch_step","id":"PROOF-A1-KILL","step":2,"of":6}
+{"at":"2026-09-18T22:44:32.431Z","type":"proof_a1_flip","killswitch":{"halt":true,"reason":"A1 proof — halt flipped mid-flight","set_at":"2026-09-18T22:44:32.428Z","set_by":"cursor","straight_to_prod_enabled":false,"tier1_autonomy_enabled":true,"note":"Any of: halt=true OR CURSOR_DEV_AUTONOMY=off OR missing ratification → no auto-execute to prod."}}
+{"at":"2026-09-18T22:44:32.536Z","type":"dispatch_halted_mid_flight","id":"PROOF-A1-KILL","step":3,"reason":"file_halt"}
+{"at":"2026-09-18T22:44:32.549Z","type":"control_plane_append","title":"PROOF A1 — kill switch mid-flight"}
+{"at":"2026-09-18T22:44:32.693Z","type":"proof_a2_start","before":"# Tier 1 proof fixture (support-triage only — never WMG OS prod)\nSTATUS_LABEL=Awaitng approval\n"}
+{"at":"2026-09-18T22:44:32.700Z","type":"dispatch_start","id":"PROOF-A2-REVERT","summary":"typo STATUS_LABEL Awaitng → Awaiting (display copy)"}
+{"at":"2026-09-18T22:44:32.706Z","type":"classified","id":"PROOF-A2-REVERT","classification":{"id":"PROOF-A2-REVERT","class":"bug","tier":"1.1","fence":"F1","straight_to_prod":true,"action":"execute","reason":"fenced_light_bug_1.1_1.5"}}
+{"at":"2026-09-18T22:44:32.709Z","type":"dispatch_step","id":"PROOF-A2-REVERT","step":1,"of":2}
+{"at":"2026-09-18T22:44:32.768Z","type":"dispatch_step","id":"PROOF-A2-REVERT","step":2,"of":2}
+{"at":"2026-09-18T22:44:32.830Z","type":"proof_a2_fixed","after":"# Tier 1 proof fixture (support-triage only — never WMG OS prod)\nSTATUS_LABEL=Awaiting approval\n"}
+{"at":"2026-09-18T22:44:32.834Z","type":"fix_applied","id":"PROOF-A2-REVERT","fixResult":{"path":"C:\\Users\\daves\\wmg-backend\\support-triage\\proofs\\DR-CS-PLATFORM-006\\fixture-status-label.txt","from":"Awaitng","to":"Awaiting"}}
+{"at":"2026-09-18T22:44:32.836Z","type":"dispatch_complete","id":"PROOF-A2-REVERT","classification":{"id":"PROOF-A2-REVERT","class":"bug","tier":"1.1","fence":"F1","straight_to_prod":true,"action":"execute","reason":"fenced_light_bug_1.1_1.5"},"fixResult":{"path":"C:\\Users\\daves\\wmg-backend\\support-triage\\proofs\\DR-CS-PLATFORM-006\\fixture-status-label.txt","from":"Awaitng","to":"Awaiting"}}
+{"at":"2026-09-18T22:44:32.840Z","type":"proof_a2_reverted","afterRevert":"# Tier 1 proof fixture (support-triage only — never WMG OS prod)\nSTATUS_LABEL=Awaitng approval\n"}
+{"at":"2026-09-18T22:44:32.846Z","type":"control_plane_append","title":"PROOF A2 — revert"}
+{"at":"2026-09-18T22:44:32.971Z","type":"proof_a3_marker","marker":"A3-LIVE-1789771472970","note":"written BEFORE dispatch completes"}
+{"at":"2026-09-18T22:44:32.975Z","type":"dispatch_start","id":"PROOF-A3-LIVELOG","summary":"comment-only proof — control plane narrative"}
+{"at":"2026-09-18T22:44:32.980Z","type":"classified","id":"PROOF-A3-LIVELOG","classification":{"id":"PROOF-A3-LIVELOG","class":"bug","tier":"1.1","fence":"F4","straight_to_prod":true,"action":"execute","reason":"fenced_light_bug_1.1_1.5"}}
+{"at":"2026-09-18T22:44:32.983Z","type":"dispatch_step","id":"PROOF-A3-LIVELOG","step":1,"of":4}
+{"at":"2026-09-18T22:44:33.294Z","type":"dispatch_step","id":"PROOF-A3-LIVELOG","step":2,"of":4}
+{"at":"2026-09-18T22:44:33.603Z","type":"dispatch_step","id":"PROOF-A3-LIVELOG","step":3,"of":4}
+{"at":"2026-09-18T22:44:33.912Z","type":"dispatch_step","id":"PROOF-A3-LIVELOG","step":4,"of":4}
+{"at":"2026-09-18T22:44:34.220Z","type":"fix_dry_run","id":"PROOF-A3-LIVELOG","summary":"comment-only proof — control plane narrative"}
+{"at":"2026-09-18T22:44:34.222Z","type":"dispatch_complete","id":"PROOF-A3-LIVELOG","classification":{"id":"PROOF-A3-LIVELOG","class":"bug","tier":"1.1","fence":"F4","straight_to_prod":true,"action":"execute","reason":"fenced_light_bug_1.1_1.5"},"fixResult":{"dryRun":true}}
+{"at":"2026-09-18T22:44:34.227Z","type":"control_plane_append","title":"PROOF A3 — live log A3-LIVE-1789771472970"}
+{"at":"2026-09-18T22:44:34.360Z","type":"proof_a4_start","note":"two items — must be serial"}
+{"at":"2026-09-18T22:44:34.363Z","type":"queue_start","count":2,"mode":"serial"}
+{"at":"2026-09-18T22:44:34.366Z","type":"dispatch_start","id":"PROOF-A4-1","summary":"typo label one"}
+{"at":"2026-09-18T22:44:34.372Z","type":"classified","id":"PROOF-A4-1","classification":{"id":"PROOF-A4-1","class":"bug","tier":"1.1","fence":"F1","straight_to_prod":true,"action":"execute","reason":"fenced_light_bug_1.1_1.5"}}
+{"at":"2026-09-18T22:44:34.375Z","type":"dispatch_step","id":"PROOF-A4-1","step":1,"of":3}
+{"at":"2026-09-18T22:44:34.587Z","type":"dispatch_step","id":"PROOF-A4-1","step":2,"of":3}
+{"at":"2026-09-18T22:44:34.805Z","type":"dispatch_step","id":"PROOF-A4-1","step":3,"of":3}
+{"at":"2026-09-18T22:44:35.019Z","type":"fix_dry_run","id":"PROOF-A4-1","summary":"typo label one"}
+{"at":"2026-09-18T22:44:35.024Z","type":"dispatch_complete","id":"PROOF-A4-1","classification":{"id":"PROOF-A4-1","class":"bug","tier":"1.1","fence":"F1","straight_to_prod":true,"action":"execute","reason":"fenced_light_bug_1.1_1.5"},"fixResult":{"dryRun":true}}
+{"at":"2026-09-18T22:44:35.030Z","type":"dispatch_start","id":"PROOF-A4-2","summary":"typo label two"}
+{"at":"2026-09-18T22:44:35.040Z","type":"classified","id":"PROOF-A4-2","classification":{"id":"PROOF-A4-2","class":"bug","tier":"1.1","fence":"F1","straight_to_prod":true,"action":"execute","reason":"fenced_light_bug_1.1_1.5"}}
+{"at":"2026-09-18T22:44:35.046Z","type":"dispatch_step","id":"PROOF-A4-2","step":1,"of":3}
+{"at":"2026-09-18T22:44:35.265Z","type":"dispatch_step","id":"PROOF-A4-2","step":2,"of":3}
+{"at":"2026-09-18T22:44:35.485Z","type":"dispatch_step","id":"PROOF-A4-2","step":3,"of":3}
+{"at":"2026-09-18T22:44:35.697Z","type":"fix_dry_run","id":"PROOF-A4-2","summary":"typo label two"}
+{"at":"2026-09-18T22:44:35.702Z","type":"dispatch_complete","id":"PROOF-A4-2","classification":{"id":"PROOF-A4-2","class":"bug","tier":"1.1","fence":"F1","straight_to_prod":true,"action":"execute","reason":"fenced_light_bug_1.1_1.5"},"fixResult":{"dryRun":true}}
+{"at":"2026-09-18T22:44:35.704Z","type":"queue_done","count":2}
+{"at":"2026-09-18T22:44:35.713Z","type":"control_plane_append","title":"PROOF A4 — one-at-a-time serial"}
+{"at":"2026-09-18T22:44:35.869Z","type":"proof_a5_start","fence_version":"1.0.0","method_version":"1.0.0"}
+{"at":"2026-09-18T22:44:35.874Z","type":"dispatch_start","id":"PROOF-A5-MONEY-BLOCK","summary":"Fix invoice AR pricing commission dollars"}
+{"at":"2026-09-18T22:44:35.878Z","type":"classified","id":"PROOF-A5-MONEY-BLOCK","classification":{"id":"PROOF-A5-MONEY-BLOCK","class":"disqualified","tier":"blocked","straight_to_prod":false,"action":"block","reason":"H1:money/AR/pricing","default_down":true,"method_version":"1.0.0"}}
+{"at":"2026-09-18T22:44:35.880Z","type":"dispatch_blocked","id":"PROOF-A5-MONEY-BLOCK","classification":{"id":"PROOF-A5-MONEY-BLOCK","class":"disqualified","tier":"blocked","straight_to_prod":false,"action":"block","reason":"H1:money/AR/pricing","default_down":true,"method_version":"1.0.0"}}
+{"at":"2026-09-18T22:44:35.891Z","type":"control_plane_append","title":"PROOF A5 — fence blocks disqualified"}
+{"at":"2026-09-18T22:44:49.474Z","type":"proof_a5_start","fence_version":"1.0.0","method_version":"1.0.0"}
+{"at":"2026-09-18T22:44:49.497Z","type":"dispatch_start","id":"PROOF-A5-MONEY-BLOCK","summary":"Fix invoice AR pricing commission dollars"}
+{"at":"2026-09-18T22:44:49.520Z","type":"classified","id":"PROOF-A5-MONEY-BLOCK","classification":{"id":"PROOF-A5-MONEY-BLOCK","class":"disqualified","tier":"blocked","straight_to_prod":false,"action":"block","reason":"H1:money/AR/pricing","default_down":true,"method_version":"1.0.0"}}
+{"at":"2026-09-18T22:44:49.527Z","type":"dispatch_blocked","id":"PROOF-A5-MONEY-BLOCK","classification":{"id":"PROOF-A5-MONEY-BLOCK","class":"disqualified","tier":"blocked","straight_to_prod":false,"action":"block","reason":"H1:money/AR/pricing","default_down":true,"method_version":"1.0.0"}}
+{"at":"2026-09-18T22:44:49.545Z","type":"control_plane_append","title":"PROOF A5 — fence blocks disqualified"}
+{"at":"2026-09-18T22:45:11.806Z","type":"tier1_enabled","killswitch":{"halt":false,"reason":"DR-CS-PLATFORM-006 Step C — A1-A5 proven; Tier 1 fenced light bugs enabled straight-to-prod","set_at":"2026-09-18T22:45:11.804Z","set_by":"cursor","straight_to_prod_enabled":true,"tier1_autonomy_enabled":true,"note":"Kill switch: set halt=true to stop immediately. CURSOR_DEV_AUTONOMY=off also halts.","fence_version":"1.0.0","classifier_version":"1.0.0","enabled_at":"2026-09-18T22:45:11.802Z"}}
+{"at":"2026-09-18T22:45:11.819Z","type":"control_plane_append","title":"DR-CS-PLATFORM-006 — Tier 1 ENABLED (post A1-A5)"}
+{"at":"2026-09-18T22:45:11.951Z","type":"first_live_scan","queued":0,"outbox":0}
+{"at":"2026-09-18T22:45:11.972Z","type":"control_plane_append","title":"DR-CS-PLATFORM-006 — first live Tier 1 scan"}

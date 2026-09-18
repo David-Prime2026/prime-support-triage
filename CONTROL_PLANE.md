@@ -1,3 +1,47 @@
+
+## DR-CS-PLATFORM-006 — first live Tier 1 scan — 2026-09-18T22:45:11.970Z
+
+- No fenced 1.1-1.5 candidate in queue/outbox — no fire (expected)
+- Evidence: proofs/DR-CS-PLATFORM-006/FIRST-LIVE-SCAN.md
+
+## DR-CS-PLATFORM-006 — Tier 1 ENABLED (post A1-A5) — 2026-09-18T22:45:11.817Z
+
+- users-live + guardrails-proven + fence loaded
+- fence=1.0.0 classifier=1.0.0
+- straight-to-prod ON for clear 1.1-1.5 within fence only
+- kill switch reachable: config/autonomy-killswitch.json halt:true
+- Tier 2/3, dev-loop, email-approval remain OFF
+
+## PROOF A5 — fence blocks disqualified — 2026-09-18T22:44:49.542Z
+
+- PASS — H1–H7 + money runtime block; F1 typo allowed
+- Evidence: proofs/DR-CS-PLATFORM-006/A5-fence-blocks.md
+
+## PROOF A5 — fence blocks disqualified — 2026-09-18T22:44:35.888Z
+
+- FAIL
+- Evidence: proofs/DR-CS-PLATFORM-006/A5-fence-blocks.md
+
+## PROOF A4 — one-at-a-time serial — 2026-09-18T22:44:35.710Z
+
+- PASS — two fixes executed serially, not batched
+- Evidence: proofs/DR-CS-PLATFORM-006/A4-serial.md
+
+## PROOF A3 — live log A3-LIVE-1789771472970 — 2026-09-18T22:44:34.226Z
+
+- Execution logged in real time to executions/live-log.jsonl
+- Marker A3-LIVE-1789771472970 written before completion
+
+## PROOF A2 — revert — 2026-09-18T22:44:32.844Z
+
+- PASS — fix applied then clean revert to prior state
+- Evidence: proofs/DR-CS-PLATFORM-006/A2-revert.md
+
+## PROOF A1 — kill switch mid-flight — 2026-09-18T22:44:32.546Z
+
+- PASS — dispatch halted mid-flight on file halt
+- dispatch=PROOF-A1-KILL phase=mid_flight step=3
+- Evidence: proofs/DR-CS-PLATFORM-006/A1-killswitch.md
 # Support Triage / CS Platform — Control Plane
 
 Isolated from WMG OS production (`qcefkoxqkfwnlqfmwzmi`).
@@ -10,10 +54,15 @@ Isolated from WMG OS production (`qcefkoxqkfwnlqfmwzmi`).
 - `doctrine/MS_SLA_EXHIBIT_A.md` — M&S §§18–35 + Exhibit A (INTERNAL ONLY)
 - `doctrine/SLA_RULES.md` — classifier / timing / customer-language rules
 - `config/resolution-tiers.json` — 0.85, Tier A allowlist, diagnostic turn cap, ops emails
+- **`config/risk-fence.json`** — PRIME-ratified Tier 1 fence v1.0.0 (DR-006)
+- **`config/bug-change-classification.json`** — PRIME-ratified method v1.0.0 (defaults DOWN)
+- **`config/autonomy-killswitch.json`** — live kill switch (halt / tier1 / straight-to-prod)
+- **`config/catch-net-posture.json`** — users_live
 
 ## Handoffs
 - **A** (quoting): JSON+CSV → `handoffs/`
 - **B** (Cursor): flat-file → `dispatches/outbox/` (WMG_OS_STAGING only)
+- **Tier 1 governor:** `scripts/tier1/` · live log `executions/live-log.jsonl` · proofs `proofs/DR-CS-PLATFORM-006/`
 
 ## Gate
 Build/prove on branches. Open PR. **STOP** — PRIME tests → approves → merges → ships.
@@ -21,7 +70,74 @@ No production merge, no db push to WMG OS from this work.
 
 ---
 
-## DR-CS-PLATFORM-005 — Catch-net full deploy — 2026-09-18 — **hosted+proven (WMG env wire pending Vercel login)**
+## DR-CS-PLATFORM-006 — Users live + Tier 1 autonomous (fenced) — 2026-09-18 — **SHIPPED posture**
+
+### Part 1 — Catch-net OPEN to real WMG users
+- Posture: `config/catch-net-posture.json` → **users_live**
+- Non-mock intake landed + surface-tagged (evidence: `proofs/DR-CS-PLATFORM-006/PART1-users-live.md`):
+  - internal `830eac42-…` · buyer `c9587505-…` · seller `8aa2efda-…` (`is_mock=false`)
+- Guardrails remain live: honest intro · no billable/scope/cost · accounting coming soon · ~turn-cap escalate 24h · fail-loud intake
+- **First-day watch:** PRIME on https://david-prime2026.github.io/prime-support-triage/
+
+### Step A — Guardrails PROVEN (evidence, not claims)
+| ID | Proof | Result | Evidence file |
+|----|-------|--------|---------------|
+| A1 | Kill switch mid-flight halt | **PASS** (stopped at step 3) | `proofs/DR-CS-PLATFORM-006/A1-killswitch.md` |
+| A2 | Fix then clean revert | **PASS** | `proofs/DR-CS-PLATFORM-006/A2-revert.md` |
+| A3 | Real-time live log + CONTROL_PLANE while running | **PASS** | `proofs/DR-CS-PLATFORM-006/A3-live-log.md` |
+| A4 | One-at-a-time serial (not batched) | **PASS** | `proofs/DR-CS-PLATFORM-006/A4-serial.md` |
+| A5 | Fence blocks H1–H7 / money; allows F1 typo | **PASS** | `proofs/DR-CS-PLATFORM-006/A5-fence-blocks.md` |
+
+### Step B — Ratified fence loaded
+- `config/risk-fence.json` v1.0.0 (F1–F4 `prod_allowed:true`; F5–F7 staging; exclusions include `project_qcefkoxqkfwnlqfmwzmi`)
+- `config/bug-change-classification.json` v1.0.0 · `default_down_on_uncertainty: true` · ~40% not a target
+
+### Step C — Tier 1 straight-to-prod ENABLED (fenced 1.1–1.5 only)
+- `autonomy-killswitch.json`: `halt:false`, `tier1_autonomy_enabled:true`, `straight_to_prod_enabled:true`
+- **Kill switch still reachable:** set `halt:true` (or `CURSOR_DEV_AUTONOMY=off`) to stop immediately
+- First live scan: **no fenced candidate in queue/outbox — no fire** (expected; 0/12 on real log)
+- Evidence: `proofs/DR-CS-PLATFORM-006/FIRST-LIVE-SCAN.md` · `STEP-C-enabled.md`
+- Tier 2/3, DR-002 dev-loop, SendGrid approval email: **still OFF / deferred**
+
+SCHEMA: support schema on staging only — **never** on `qcefkoxqkfwnlqfmwzmi`
+
+URLS:
+- WMG: https://wmgos.primetimesystems.ai
+- Console: https://david-prime2026.github.io/prime-support-triage/
+- Intake: https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/intake-ticket
+
+---
+
+## HOTFIX — Bricely UX + console visibility — 2026-09-18 — **READY for PRIME resume**
+
+SHIPPED:
+- Bricely: New chat (↻), expand/shrink, softer tip (clear filter — **no hard refresh first**), one ticket per thread
+- Console: wired to staging `rxhiydtqzmksaeegxyqo` (was localhost-only — why tickets were invisible)
+- Queue sort default: **Priority → FIFO** (oldest within priority); also Oldest / Newest
+- Tickets already in DB from earlier smoke (`hi`, `new question`, load board, etc.)
+
+URLS:
+- WMG: https://wmgos.primetimesystems.ai (hard-refresh)
+- Console: https://david-prime2026.github.io/prime-support-triage/ (hard-refresh → Awaiting / All)
+
+PENDING (PRIME): resume A–D; use New chat between scenarios
+
+---
+
+## HOTFIX — Bricely stuck on first question / thinking dots — 2026-09-18
+
+SHIPPED:
+- `busy` now cleared in `finally` (never hangs on thinking dots after throw/abort)
+- Intake fetch 10s abort timeout
+- Do not persist mid-turn (orphan user-only threads)
+- Normalize `diag_state` from server; `ensureIntro` on hydrate
+- Late hydrate no longer clobbers an in-progress chat
+
+PENDING (PRIME): hard-refresh WMG → re-run A–D (mock). If old orphan thread still shows, close Bricely once and reopen (intro restored).
+
+---
+
+## DR-CS-PLATFORM-005 — Catch-net full deploy — 2026-09-18 — **WIRED + BAKED — STOP for PRIME A–D**
 
 SHIPPED:
 - Isolated staging branch DB `rxhiydtqzmksaeegxyqo` (parent `apxbwdxszmdffbduhjen` / prime-support-triage): schema + grants + thread tables + OPEN-TEST seeds
@@ -33,27 +149,31 @@ SHIPPED:
 - Console hosted: https://david-prime2026.github.io/prime-support-triage/
 - Dedicated GitHub repo: https://github.com/David-Prime2026/prime-support-triage
 - `wmg-backend` PR #1 **MERGED** to main (FIX console path)
+- **WMG Vercel env set** (Production / Preview / Development) + production redeploy Ready:
+  - `VITE_BRICELY_INTAKE_URL` → staging `intake-ticket`
+  - `VITE_BRICELY_THREAD_URL` → staging `bricely-thread`
+  - `VITE_BRICELY_MOCK_EMAILS` → david@ + mockbuyer/mockseller @primeai.systems
+- **Baked in live JS** on https://wmgos.primetimesystems.ai (`dpl_7i7S6HVJctfGqMhVgPM8VHPCL19G` / `wmg-site-lafnlrjkg-…`)
 - Straight-to-prod OFF (`autonomy-killswitch.json` halt:true); email-notify deferred
 
 STUBBED / PENDING:
-- **WMG app env not set in Vercel** — Cursor CLI has no `VERCEL_TOKEN` / login. PRIME (or Cursor after `vercel login`) must set on WMG deploy:
-  - `VITE_BRICELY_INTAKE_URL=https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/intake-ticket`
-  - `VITE_BRICELY_THREAD_URL=https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/bricely-thread`
-  - `VITE_BRICELY_MOCK_EMAILS=david@primeai.systems,david+mockbuyer@primeai.systems,david+mockseller@primeai.systems`
-- Embed PR merge may still be in progress if conflicted earlier — confirm `feat/bricely-embed` on main
 - Parent project main (`apxbwdxszmdffbduhjen`) not yet mirrored (staging branch is the live prove target)
 - SendGrid approval email deferred
+- **Real-user open still blocked** until PRIME A–D clean
 
 SCHEMA: support schema on staging only — **never** on `qcefkoxqkfwnlqfmwzmi`
 
 GUARDRAILS: isolation held; kill switch ON; dispatch staging-only; mock tickets flagged
 
-PENDING (PRIME):
-1. Set the three VITE_BRICELY_* env vars on WMG Vercel + redeploy
-2. Re-run A–D eyes-on from real surface URLs with mock accounts
-3. Then open catch-net to real users
+**STOP — PRIME A–D (eyes-on, mock accounts only):**
+1. **A** Internal surface — Bricely open → escalate → ticket in console (`is_mock`)
+2. **B** Buyer surface — same with `david+mockbuyer@…`
+3. **C** Seller surface — same with `david+mockseller@…`
+4. **D** Console — https://david-prime2026.github.io/prime-support-triage/ shows all three; thread survives refresh
+Do **not** open to real users until A–D pass.
 
 URLS:
+- WMG prod: https://wmgos.primetimesystems.ai
 - Console: https://david-prime2026.github.io/prime-support-triage/
 - Intake: https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/intake-ticket
 - Thread: https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/bricely-thread
