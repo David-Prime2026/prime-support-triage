@@ -3,7 +3,7 @@
 | Area | State | Notes |
 |------|-------|-------|
 | Bricely embed (3 surfaces) | **Grounded** | `feat/bricely-embed` — additive overlay |
-| Diagnostic loop §4.0 | **Grounded (staging)** | Ask → evidence (image/PDF) → safe step → ~5-turn cap |
+| Diagnostic loop §4.0 | **DR-008 policy in this repo** | Comprehension-led (`bricely-diagnose`); ~5-turn **target** + continue-or-ticket; soft backstop 12. Live WMG embed still needs to call this API. |
 | Settings Support | **Grounded** | Mockup layout + 6-row pagination + quote popup |
 | Lightweight admin | **FIX-B shipped-to-staging** | Corrected shell: unified nav, summary bar, pills, 2-badge, SLA countdown |
 | Handoff A/B | **Grounded** | Appendix A shapes; flat-file outbox |
