@@ -7,6 +7,7 @@ import {
   type ChatMessage,
   type DiagnoseAction,
 } from "../supabase/functions/_shared/bricelyDiagnose.ts";
+import { diagnoseLiveTurn } from "../supabase/functions/_shared/bricelyDiagnoseLive.ts";
 
 type Proof = {
   id: string;
@@ -135,8 +136,126 @@ for (const p of proofs) {
   }
 }
 
+type LiveProof = {
+  id: string;
+  title: string;
+  text: string;
+  state?: Parameters<typeof diagnoseLiveTurn>[0]["state"];
+  newAttachments?: Parameters<typeof diagnoseLiveTurn>[0]["newAttachments"];
+  expectTerminal: string | string[];
+  forbid?: RegExp[];
+  require?: RegExp[];
+};
+
+const liveProofs: LiveProof[] = [
+  {
+    id: "L1",
+    title: "Live wCe: load board + already cleared filters — skip canned gauntlet",
+    text: "The load board still shows yesterday's loads even after I cleared the filters.",
+    expectTerminal: "escalate",
+    forbid: [/screenshot/i, /clear any active filters/i, /Which screen are you on/i, /hard refresh/i],
+    require: [/cleared the filters/i, /24 hours/i],
+  },
+  {
+    id: "L2",
+    title: "Live wCe: export how-to — answer, not screenshot",
+    text: "How do I export the load board to CSV?",
+    expectTerminal: "continue",
+    forbid: [/screenshot/i, /clear any active filters/i],
+    require: [/export/i],
+  },
+  {
+    id: "L3",
+    title: "Live wCe: new chat reset",
+    text: "start over",
+    expectTerminal: "reset_chat",
+    require: [/fresh conversation/i],
+  },
+  {
+    id: "L4",
+    title: "Live wCe: open ticket",
+    text: "open ticket",
+    expectTerminal: "escalate",
+    require: [/specialist/i],
+  },
+  {
+    id: "L5",
+    title: "Live wCe: welcome-name live fix preserved",
+    text: "Change my welcome name to Dave",
+    expectTerminal: "live_fix",
+    require: [/Dave/],
+  },
+  {
+    id: "L6",
+    title: "Live wCe: accounting coming soon",
+    text: "Why is my aging report wrong?",
+    expectTerminal: "escalate",
+    require: [/finalized/i],
+    forbid: [/billable/i, /\bSLA\b/, /your contract/i],
+  },
+  {
+    id: "L7",
+    title: "Live wCe: after filter tip failed — escalate, do not re-tip",
+    text: "still the same, didn't help",
+    state: {
+      exchanges: 2,
+      phase: "guide_safe",
+      screen: "load board",
+      softTipDone: true,
+      triedSafeStep: true,
+      expectedAsked: true,
+      introAcked: true,
+      notes: ["load board is wrong"],
+    },
+    expectTerminal: "escalate",
+    forbid: [/clear any active filters/i, /Which screen/i],
+  },
+  {
+    id: "L8",
+    title: "Live wCe: turn-5 is offramp not hard wall",
+    text: "please help already",
+    state: {
+      exchanges: 4,
+      phase: "clarify",
+      expectedAsked: true,
+      introAcked: true,
+      notes: ["something is off", "not sure", "just broken", "same issue"],
+    },
+    expectTerminal: "continue",
+    require: [/keep digging|specialist/i],
+  },
+];
+
+for (const p of liveProofs) {
+  const result = diagnoseLiveTurn({
+    text: p.text,
+    state: p.state,
+    newAttachments: p.newAttachments,
+  });
+  const errors: string[] = [];
+  const expect = Array.isArray(p.expectTerminal) ? p.expectTerminal : [p.expectTerminal];
+  if (!expect.includes(result.terminal)) {
+    errors.push(`terminal ${result.terminal} (expected ${JSON.stringify(p.expectTerminal)})`);
+  }
+  for (const re of p.forbid ?? []) {
+    if (re.test(result.reply)) errors.push(`forbidden ${re} in reply: ${result.reply}`);
+  }
+  for (const re of p.require ?? []) {
+    if (!re.test(result.reply)) errors.push(`missing ${re} in reply: ${result.reply}`);
+  }
+  if (errors.length) {
+    failed += 1;
+    console.error(`FAIL ${p.id} ${p.title}`);
+    for (const e of errors) console.error(`  - ${e}`);
+    console.error(`  reason=${result.internal_reason} action=${result.action}`);
+  } else {
+    console.log(`PASS ${p.id} ${p.title} → ${result.terminal} (${result.internal_reason})`);
+  }
+}
+
+const total = proofs.length + liveProofs.length;
 if (failed) {
-  console.error(`\n${failed}/${proofs.length} proofs failed`);
+  console.error(`\n${failed}/${total} proofs failed`);
   process.exit(1);
 }
-console.log(`\n${proofs.length}/${proofs.length} proofs passed`);
+console.log(`\n${total}/${total} proofs passed`);

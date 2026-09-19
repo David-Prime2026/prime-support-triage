@@ -230,7 +230,9 @@ function finish(
 }
 
 function howToAnswer(text: string, facts: KnownFacts): string {
-  if (facts.surface === "load_board" && /export|csv|download/i.test(text)) {
+  const surface = (facts.surface ?? "").toLowerCase().replace(/\s+/g, "_");
+  const isLoadBoard = surface === "load_board" || surface === "board" || /load\s*board/.test(text);
+  if (isLoadBoard && /export|csv|download/i.test(text)) {
     return "On the load board, look for the export / download control on that view, pick CSV, and save the file. If you do not see export on your screen, tell me which surface you are on (internal, buyer, or seller) and I will take it from there.";
   }
   if (facts.login) {
