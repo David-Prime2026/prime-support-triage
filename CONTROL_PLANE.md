@@ -1,24 +1,30 @@
-## DR-CS-PLATFORM-008 — comprehension-led diagnosis — 2026-09-19 — **POLICY IN THIS REPO — embed wiring pending**
+## DR-CS-PLATFORM-008 — EXECUTED (policy + live wCe contract) — 2026-09-19 — **STOP — push from wmg-backend**
 
 Tester report: Bricely “asks the same questions,” “keeps asking for screenshots and removing filters,” “isn’t reading the question, just firing canned responses.”
 
-SHIPPED (prime-support-triage):
-- Doctrine §4.0 is comprehension-led: parse known facts first; screenshot / clarify / safe-step are optional tools; never re-ask
-- `config/resolution-tiers.json`: `diagnostic_mode=comprehension_led`; ~5-turn **target** + `continue_or_ticket` offramp; `diagnostic_soft_backstop=12`
-- Edge `bricely-diagnose` + shared engine `supabase/functions/_shared/bricelyDiagnose.ts`
-- Proofs (8/8): `npm run proof:dr-008` · `proofs/DR-CS-PLATFORM-008/BEFORE-AFTER.md`
+Live widget (inspected on wmgos.primetimesystems.ai): canned loop is **client `wCe`**, hard cap `e$=8`, flags `triedSafeStep` / `softTipDone` / `expectedAsked`. Intake + thread already hit staging `rxhiydtqzmksaeegxyqo`. `bricely-diagnose` is **404** until you deploy.
 
-STUBBED / PENDING:
-- Live canned loop still lives in WMG embed (`feat/bricely-embed` / `src/bricely/`) — this environment does not have that repo
-- Testers will still see the old script until the embed POSTs messages + `diag_state` to `bricely-diagnose` and renders the returned action/reply
-- No db push; no WMG OS prod change
+SHIPPED (this repo = `wmg-backend/support-triage` tree):
+- Doctrine §4.0 comprehension-led; `resolution-tiers.json` target 5 + continue-or-ticket + soft backstop 12
+- `bricely-diagnose` accepts **live `wCe` body** `{ text, state, newAttachments }` → `{ reply, next, terminal, liveFix? }`
+- Preserved product verbs: new chat, open ticket, welcome-name live fix, accounting coming-soon
+- Replaced canned screenshot / clear-filters / hard-8 wall
+- Proofs: `npm run proof:dr-008` (8 policy + 8 live-wCe)
+- Push runbook: `handoffs/DR-CS-PLATFORM-008/PUSH-FROM-WMG-BACKEND.md`
+- Embed swap: `handoffs/DR-CS-PLATFORM-008/embed/wCe.remote.ts`
 
-GUARDRAILS held: no billable/scope/cost in chat · accounting coming-soon · no mid-chat code · doctrine stays internal
+STUBBED / YOUR PUSH (this VM has no wmg-backend checkout and no Supabase CLI token):
+1. Copy function files into `wmg-backend/support-triage/` (path Friday used: `C:\\Users\\daves\\wmg-backend\\support-triage`)
+2. `npx supabase functions deploy bricely-diagnose --project-ref rxhiydtqzmksaeegxyqo --no-verify-jwt`
+3. Swap live `wCe` + set `VITE_BRICELY_DIAGNOSE_URL` on WMG Vercel — then **you** push WMG
+4. **Never** deploy/db-push to `qcefkoxqkfwnlqfmwzmi`
 
-**STOP — PRIME:** policy + proofs are here. Approve embed wiring on `feat/bricely-embed`, then same testers re-run the load-board / screenshot / how-to cases.
+GUARDRAILS held: no billable/scope/cost · accounting coming-soon · no mid-chat code · doctrine internal · no WMG OS prod schema
+
+**STOP — PRIME:** deploy function from wmg-backend → wire embed → hard-refresh → same testers + A–D (New chat between scenarios).
 
 URLS:
-- Engine (after deploy): `https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/bricely-diagnose`
+- Engine (after your deploy): `https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/bricely-diagnose`
 - Thread persist unchanged: `…/functions/v1/bricely-thread`
 
 ---

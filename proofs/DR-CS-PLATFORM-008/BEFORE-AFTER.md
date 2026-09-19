@@ -2,7 +2,10 @@
 
 Old widget loop (tester report): ask → screenshot → clear filters / refresh → hard ~5-turn cap.
 
-New engine: `npm run proof:dr-008` (8/8 PASS).
+New engine: `npm run proof:dr-008` (policy 8 + live-wCe 8).
+
+Live widget today runs a **client** `wCe` (hard cap `e$=8`, canned screenshot / clear-filters).  
+`bricely-diagnose` is the drop-in for that function. Deploy from `wmg-backend/support-triage` to `rxhiydtqzmksaeegxyqo`, then swap `wCe` — see `handoffs/DR-CS-PLATFORM-008/PUSH-FROM-WMG-BACKEND.md`.
 
 ## T1 — already-cleared filters (the canned-response complaint)
 
