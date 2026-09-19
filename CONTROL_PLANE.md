@@ -1,3 +1,27 @@
+## DR-CS-PLATFORM-008 — comprehension-led diagnosis — 2026-09-19 — **POLICY IN THIS REPO — embed wiring pending**
+
+Tester report: Bricely “asks the same questions,” “keeps asking for screenshots and removing filters,” “isn’t reading the question, just firing canned responses.”
+
+SHIPPED (prime-support-triage):
+- Doctrine §4.0 is comprehension-led: parse known facts first; screenshot / clarify / safe-step are optional tools; never re-ask
+- `config/resolution-tiers.json`: `diagnostic_mode=comprehension_led`; ~5-turn **target** + `continue_or_ticket` offramp; `diagnostic_soft_backstop=12`
+- Edge `bricely-diagnose` + shared engine `supabase/functions/_shared/bricelyDiagnose.ts`
+- Proofs (8/8): `npm run proof:dr-008` · `proofs/DR-CS-PLATFORM-008/BEFORE-AFTER.md`
+
+STUBBED / PENDING:
+- Live canned loop still lives in WMG embed (`feat/bricely-embed` / `src/bricely/`) — this environment does not have that repo
+- Testers will still see the old script until the embed POSTs messages + `diag_state` to `bricely-diagnose` and renders the returned action/reply
+- No db push; no WMG OS prod change
+
+GUARDRAILS held: no billable/scope/cost in chat · accounting coming-soon · no mid-chat code · doctrine stays internal
+
+**STOP — PRIME:** policy + proofs are here. Approve embed wiring on `feat/bricely-embed`, then same testers re-run the load-board / screenshot / how-to cases.
+
+URLS:
+- Engine (after deploy): `https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/bricely-diagnose`
+- Thread persist unchanged: `…/functions/v1/bricely-thread`
+
+---
 
 ## DR-CS-PLATFORM-006 — first live Tier 1 scan — 2026-09-18T22:45:11.970Z
 
@@ -53,7 +77,7 @@ Isolated from WMG OS production (`qcefkoxqkfwnlqfmwzmi`).
 ## Doctrine
 - `doctrine/MS_SLA_EXHIBIT_A.md` — M&S §§18–35 + Exhibit A (INTERNAL ONLY)
 - `doctrine/SLA_RULES.md` — classifier / timing / customer-language rules
-- `config/resolution-tiers.json` — 0.85, Tier A allowlist, diagnostic turn cap, ops emails
+- `config/resolution-tiers.json` — 0.85, Tier A allowlist, comprehension-led diagnostic target/offramp/soft backstop, ops emails
 - **`config/risk-fence.json`** — PRIME-ratified Tier 1 fence v1.0.0 (DR-006)
 - **`config/bug-change-classification.json`** — PRIME-ratified method v1.0.0 (defaults DOWN)
 - **`config/autonomy-killswitch.json`** — live kill switch (halt / tier1 / straight-to-prod)

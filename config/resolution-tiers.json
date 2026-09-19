@@ -1,7 +1,11 @@
 {
   "auto_resolve_confidence_threshold": 0.85,
   "bias": "conservative",
+  "diagnostic_mode": "comprehension_led",
   "diagnostic_turn_cap": 5,
+  "diagnostic_turn_cap_meaning": "target_then_offramp",
+  "diagnostic_offramp": "continue_or_ticket",
+  "diagnostic_soft_backstop": 12,
   "operators": {
     "primary": "bricely@prime-timesystems.com",
     "cc": ["david@prime-timesystems.com"]
