@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "db:reset": "supabase db reset --workdir ."
+    "db:reset": "supabase db reset --workdir .",
+    "proof:dr-008": "node --experimental-strip-types scripts/bricely-diagnose-proof.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
