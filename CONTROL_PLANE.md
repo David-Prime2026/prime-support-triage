@@ -1,4 +1,11 @@
 
+## DR-CS-PLATFORM-012 — Stage 4 GATE (2026-09-21) — STOP for bake
+
+- Desk ENG/DEV/HITL assign + @mention chips
+- Status pipeline (forward-only for operators; Approver can jump)
+- Staging package includes `desk_assignment`
+- Proof: `proofs/DR-CS-PLATFORM-012/GATE-4.md`
+
 ## DR-CS-PLATFORM-012 — Stage 3 GATE (2026-09-21) — STOP for bake
 
 - Approver session badge + Approve/Resolve gated

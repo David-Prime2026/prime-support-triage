@@ -19,7 +19,9 @@ import {
   type TicketDeskMessage,
   type DeskAuthorRole,
   type CursorExecStatus,
-  CURSOR_EXEC_STATUSES,
+  CURSOR_STATUS_PIPELINE,
+  deskAssignmentFromTicket,
+  nextCursorStatuses,
   sortCsQueue,
   pageContextFromTicket,
   prediagnosisFromTicket,
@@ -119,6 +121,12 @@ const SESSIONS: OperatorSession[] = [
 ];
 
 const OPERATORS = SESSIONS.map((s) => s.email);
+
+/** ENG roster for desk assign (Stage 4). Expand as staff grows. */
+const ENG_ROSTER = [
+  { id: "eng-david", label: "David · ENG", email: "bricely@prime-timesystems.com" },
+  { id: "eng-ops", label: "Ops · ENG", email: "david@prime-timesystems.com" },
+];
 
 const LANES = ["auto_resolve", "needs_approval", "billable", "ambiguous"] as const;
 
@@ -905,8 +913,66 @@ export default function App() {
     }
   }
 
+  async function assignDeskParty(party: "eng" | "dev" | "hitl", value: string | null) {
+    if (!selected || !supabase || selected.id.startsWith("b1000001-")) return;
+    setBusy(true);
+    try {
+      const current = deskAssignmentFromTicket(selected);
+      const next = { ...current, [party]: value };
+      const ov = {
+        ...((selected.human_override as Record<string, unknown> | null) ?? {}),
+        desk: next,
+      };
+      const { error: uErr } = await supabase
+        .from("support_tickets")
+        .update({ human_override: ov })
+        .eq("id", selected.id);
+      if (uErr) throw uErr;
+      const label =
+        party === "eng" ? "ENG" : party === "dev" ? "DEV/Cursor" : "HITL";
+      await supabase.from("ticket_messages").insert({
+        ticket_id: selected.id,
+        client_id: selected.client_id || WMG_CLIENT_ID,
+        author_role: "system",
+        channel: "admin",
+        body: value
+          ? `[desk] Assigned ${label} → ${value} (by ${me})`
+          : `[desk] Cleared ${label} assignment (by ${me})`,
+      });
+      const updated = { ...selected, human_override: ov };
+      setSelected(updated);
+      setTickets((list) => list.map((t) => (t.id === selected.id ? updated : t)));
+      await refreshDesk(selected.id);
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function insertMention(token: "@eng" | "@cursor" | "@hitl" | "@approver") {
+    setNoteDraft((d) => {
+      const trimmed = d.trim();
+      if (!trimmed) return `${token} `;
+      if (trimmed.includes(token)) return d;
+      return `${token} ${trimmed}`;
+    });
+  }
+
   async function setCursorExecutionStatus(status: CursorExecStatus) {
     if (!selected || selected.id.startsWith("b1000001-")) return;
+    const cur = selected.cursor_execution_status ?? "idle";
+    if (!canApprove && status !== cur) {
+      const { forward, side } = nextCursorStatuses(cur);
+      const allowed = [forward, ...side].filter(Boolean) as CursorExecStatus[];
+      if (!allowed.includes(status)) {
+        setError(
+          `Non-approvers may only advance to next step (${forward ?? "—"}) or blocked. Approver can jump the pipeline.`,
+        );
+        return;
+      }
+    }
     setBusy(true);
     try {
       if (!supabase) throw new Error("Supabase not configured");
@@ -928,7 +994,7 @@ export default function App() {
         ticket_id: selected.id,
         event_type: "cursor_execution_status",
         actor: "cursor",
-        payload: { status, set_by: me },
+        payload: { status, set_by: me, role: session.role },
       });
       if (eErr) {
         console.warn("cursor_execution_status event skipped:", eErr.message);
@@ -1607,34 +1673,125 @@ export default function App() {
                       <p className="text-[10px] font-semibold uppercase mb-1" style={{ color: PRIME.muted }}>
                         Cursor desk · HITL / DEV / ENG
                       </p>
+                      {(() => {
+                        const desk = deskAssignmentFromTicket(selected);
+                        const cur = (selected.cursor_execution_status ?? "idle") as CursorExecStatus;
+                        const { forward } = nextCursorStatuses(cur);
+                        const pipeIdx = CURSOR_STATUS_PIPELINE.indexOf(
+                          cur === "blocked" ? "in_staging" : cur,
+                        );
+                        return (
+                          <>
                       <p className="text-[10px] mb-2" style={{ color: PRIME.muted }}>
-                        Dialogue stays on this ticket (newest first). Packaging / Approve attaches the
-                        desk for Cursor — staging only. You are{" "}
+                        Newest first. Assign DEV/ENG + @mention who should act. Status pipeline is
+                        forward-only for operators; Approvers can jump. You are{" "}
                         <span className={canApprove ? "text-emerald-300 font-semibold" : "text-amber-200 font-semibold"}>
                           {session.role}
                         </span>
-                        {" · "}
-                        status:{" "}
-                        <span className="text-sky-300 font-semibold">
-                          {selected.cursor_execution_status ?? "idle"}
-                        </span>
+                        .
                       </p>
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {CURSOR_EXEC_STATUSES.map((st) => (
+
+                      <div className="mb-2 rounded border px-2 py-1.5 space-y-1" style={{ borderColor: PRIME.border }}>
+                        <p className="text-[9px] uppercase font-semibold text-slate-500">Desk assign</p>
+                        <div className="flex flex-wrap items-center gap-1 text-[10px]">
+                          <span style={{ color: PRIME.muted }}>ENG</span>
+                          {ENG_ROSTER.map((e) => (
+                            <button
+                              key={e.id}
+                              type="button"
+                              disabled={busy}
+                              onClick={() => void assignDeskParty("eng", e.email)}
+                              className={`px-1.5 py-0.5 rounded border ${
+                                desk.eng === e.email
+                                  ? "bg-violet-700 border-violet-500"
+                                  : "border-slate-600 text-slate-300"
+                              }`}
+                            >
+                              {e.label}
+                            </button>
+                          ))}
+                          <button
+                            type="button"
+                            disabled={busy || !desk.eng}
+                            onClick={() => void assignDeskParty("eng", null)}
+                            className="px-1.5 py-0.5 rounded border border-slate-700 text-slate-500 disabled:opacity-40"
+                          >
+                            clear
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-1 text-[10px]">
+                          <span style={{ color: PRIME.muted }}>DEV</span>
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void assignDeskParty("dev", "cursor")}
+                            className={`px-1.5 py-0.5 rounded border ${
+                              desk.dev === "cursor"
+                                ? "bg-sky-700 border-sky-500"
+                                : "border-slate-600 text-slate-300"
+                            }`}
+                          >
+                            Cursor
+                          </button>
+                          <button
+                            type="button"
+                            disabled={busy || !desk.dev}
+                            onClick={() => void assignDeskParty("dev", null)}
+                            className="px-1.5 py-0.5 rounded border border-slate-700 text-slate-500 disabled:opacity-40"
+                          >
+                            clear
+                          </button>
+                          <span className="ml-1" style={{ color: PRIME.muted }}>
+                            HITL {desk.hitl ? desk.hitl.split("@")[0] : "—"} · ENG{" "}
+                            {desk.eng ? desk.eng.split("@")[0] : "—"} · DEV {desk.dev ?? "—"}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-1 pt-0.5">
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void assignDeskParty("hitl", me)}
+                            className="text-[10px] px-1.5 py-0.5 rounded border border-emerald-700/50 text-emerald-200"
+                          >
+                            Assign me as HITL
+                          </button>
+                        </div>
+                      </div>
+
+                      <p className="text-[9px] uppercase font-semibold text-slate-500 mb-1">
+                        Status · {cur}
+                        {forward ? ` · next ${forward}` : ""}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-0.5 mb-2">
+                        {CURSOR_STATUS_PIPELINE.map((st, i) => (
                           <button
                             key={st}
                             type="button"
                             disabled={busy}
                             onClick={() => void setCursorExecutionStatus(st)}
                             className={`text-[10px] px-2 py-0.5 rounded border ${
-                              (selected.cursor_execution_status ?? "idle") === st
+                              cur === st
                                 ? "bg-sky-700 border-sky-500 text-white"
-                                : "border-slate-600 text-slate-300"
+                                : pipeIdx >= 0 && i <= pipeIdx && cur !== "blocked"
+                                  ? "border-sky-800/60 text-sky-200/80"
+                                  : "border-slate-600 text-slate-300"
                             }`}
                           >
                             {st}
                           </button>
                         ))}
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => void setCursorExecutionStatus("blocked")}
+                          className={`text-[10px] px-2 py-0.5 rounded border ml-1 ${
+                            cur === "blocked"
+                              ? "bg-amber-800 border-amber-500 text-white"
+                              : "border-amber-800/50 text-amber-200/80"
+                          }`}
+                        >
+                          blocked
+                        </button>
                       </div>
                       <div className="space-y-2">
                         <div className="flex flex-wrap gap-1">
@@ -1642,7 +1799,7 @@ export default function App() {
                             [
                               ["rep", "HITL"],
                               ["eng", "ENG"],
-                              ["cursor", "Cursor note"],
+                              ["cursor", "DEV/Cursor"],
                             ] as const
                           ).map(([role, label]) => (
                             <button
@@ -1658,12 +1815,22 @@ export default function App() {
                               {label}
                             </button>
                           ))}
+                          {(["@eng", "@cursor", "@hitl", "@approver"] as const).map((tok) => (
+                            <button
+                              key={tok}
+                              type="button"
+                              onClick={() => insertMention(tok)}
+                              className="text-[10px] px-2 py-0.5 rounded border border-slate-700 text-sky-200/90"
+                            >
+                              {tok}
+                            </button>
+                          ))}
                         </div>
                         <textarea
                           value={noteDraft}
                           onChange={(e) => setNoteDraft(e.target.value)}
                           rows={2}
-                          placeholder="HITL instruction, ENG note, or Cursor status update…"
+                          placeholder="HITL instruction, @eng / @cursor note…"
                           className="w-full rounded-lg border bg-slate-950/40 px-2 py-1.5 text-sm"
                           style={{ borderColor: PRIME.border }}
                         />
@@ -1730,6 +1897,9 @@ export default function App() {
                             ))}
                         </ul>
                       </div>
+                          </>
+                        );
+                      })()}
                     </section>
 
                     <section>

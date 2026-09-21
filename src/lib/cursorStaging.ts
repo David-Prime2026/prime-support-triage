@@ -1,5 +1,9 @@
 import type { Ticket } from "./supabase";
-import { prediagnosisFromTicket, pageContextFromTicket } from "./supabase";
+import {
+  prediagnosisFromTicket,
+  pageContextFromTicket,
+  deskAssignmentFromTicket,
+} from "./supabase";
 import { DISPATCH_OUTBOX_PATH } from "./handoffs";
 
 export type DeskThreadItem = {
@@ -20,6 +24,7 @@ export function buildCursorStagingProposal(
 ) {
   const pred = prediagnosisFromTicket(t);
   const page = pageContextFromTicket(t);
+  const deskAssign = deskAssignmentFromTicket(t);
   const shortId = t.id.slice(0, 8);
   const exact =
     pred.exactIssue ||
@@ -56,6 +61,7 @@ export function buildCursorStagingProposal(
       body: m.body,
       at: m.created_at,
     })),
+    desk_assignment: deskAssign,
     fence: {
       allow: [
         "Additive UI / copy / filter defaults",

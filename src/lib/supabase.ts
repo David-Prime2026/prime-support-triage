@@ -89,6 +89,47 @@ export const CURSOR_EXEC_STATUSES = [
 
 export type CursorExecStatus = (typeof CURSOR_EXEC_STATUSES)[number];
 
+/** Happy-path pipeline (blocked is a side state; done is terminal). */
+export const CURSOR_STATUS_PIPELINE: CursorExecStatus[] = [
+  "idle",
+  "received",
+  "in_staging",
+  "preview_ready",
+  "awaiting_promote",
+  "done",
+];
+
+export type DeskAssignment = {
+  eng: string | null;
+  /** Cursor / DEV execution owner label (usually "cursor"). */
+  dev: string | null;
+  hitl: string | null;
+};
+
+export function deskAssignmentFromTicket(t: Ticket): DeskAssignment {
+  const ov = t.human_override as { desk?: { eng?: unknown; dev?: unknown; hitl?: unknown } } | null;
+  const d = ov?.desk;
+  return {
+    eng: typeof d?.eng === "string" && d.eng.trim() ? d.eng.trim() : null,
+    dev: typeof d?.dev === "string" && d.dev.trim() ? d.dev.trim() : null,
+    hitl: typeof d?.hitl === "string" && d.hitl.trim() ? d.hitl.trim() : null,
+  };
+}
+
+export function nextCursorStatuses(
+  current: string | null | undefined,
+): { forward: CursorExecStatus | null; side: CursorExecStatus[] } {
+  const cur = (current ?? "idle") as CursorExecStatus;
+  if (cur === "done") return { forward: null, side: [] };
+  if (cur === "blocked") {
+    return { forward: "in_staging", side: ["done"] };
+  }
+  const idx = CURSOR_STATUS_PIPELINE.indexOf(cur);
+  const forward =
+    idx >= 0 && idx < CURSOR_STATUS_PIPELINE.length - 1 ? CURSOR_STATUS_PIPELINE[idx + 1] : null;
+  return { forward, side: ["blocked"] };
+}
+
 /** Host page context from intake (stored under human_override.page_context). */
 export function pageContextFromTicket(t: Ticket): { screenId: string | null; screenLabel: string | null } {
   const ov = t.human_override as
