@@ -1,4 +1,10 @@
 
+## DR — Place Load Order helper + Bricely page context — 2026-09-21
+
+- PR: feat/bricely-embed → main (Wmsosv2) — visible W1 on Place Load Order modal + host pageContext into Bricely
+- Bricely: intro knows current screen; skips “which screen?”; softer copy (no yes-gate)
+- Prior W1 on dead CreateLoadModal superseded for product visibility
+
 ## DR-CS-PLATFORM-007R — inaugural fires CLOSED — 2026-09-21T13:02:01Z
 
 - PRIME: clean move forward after watch
