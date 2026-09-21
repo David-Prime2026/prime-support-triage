@@ -43,13 +43,13 @@ Evidence: `config/wmgos-safe-feature-allowlist.json` → SF8 + `sf8_confirmation
 - Kill switch: `wmgos_lane1_display_enabled: true`, `wmgos_lane2_safe_features_enabled: true`, `halt: false`
 - Guardrails: DR-006 proven set still apply (kill / revert / live log / serial / fence blocks)
 - Unsure in WMG OS → escalate always
-- **First live fire:** NOT executed — prepared STOP for PRIME observation (see below)
+- **First live fire:** EXECUTED under PRIME watch; STOP cleared 2026-09-21T13:02:01Z (PRIME: clean move forward)
 
-## First-fire STOP (PRIME watches)
-Kill switch reachable: set `config/autonomy-killswitch.json` → `"halt": true`
+## First-fire STOP — CLOSED
+Kill switch still reachable: set `config/autonomy-killswitch.json` → `"halt": true`
 
-**Ready candidates (not fired):**
-1. **Lane 1:** any W1 typo ticket against static Create Load helper prose (when queued) — prepare PR only, no auto-deploy to `qcefkox`
-2. **Lane 2:** SF1 greeting override or SF3 clear board prefs on next matching Bricely request — observe with PRIME
+**Inaugural fires (done):**
+1. **Lane 1 W1:** Create Load helper copy — PR https://github.com/David-Prime2026/Wmsosv2/pull/7 **MERGED** (`043d043`)
+2. **Lane 2 SF4:** New conversation reset — observed live on internal Support
 
-Queue empty of named inaugural items at enable time → no autonomous fire until PRIME says go / watches.
+**Steady state:** lanes ON; further fires only from real fenced queue, serial, unsure→escalate. No theatrical next fire.

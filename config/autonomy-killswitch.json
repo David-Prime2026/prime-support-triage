@@ -1,7 +1,7 @@
 {
   "halt": false,
-  "reason": "DR-CS-PLATFORM-007R — Lane 1+2 ratified and enabled under proven guardrails; PRIME watches first WMG-OS fire",
-  "set_at": "2026-09-21T12:30:00.000Z",
+  "reason": "DR-CS-PLATFORM-007R — Lane 1+2 enabled; inaugural fires closed; queue-driven under DR-006 guardrails",
+  "set_at": "2026-09-21T13:02:01.000Z",
   "set_by": "cursor",
   "straight_to_prod_enabled": true,
   "tier1_autonomy_enabled": true,
@@ -16,5 +16,5 @@
     "support_triage_authoritative": "apxbwdxszmdffbduhjen",
     "rogue_mobile_unused": "rxhiydtqzmksaeegxyqo"
   },
-  "note": "Kill switch: set halt=true to stop immediately. CURSOR_DEV_AUTONOMY=off also halts. Never auto-deploy to qcefkox — PRIME deploys. First Lane1/Lane2 fire: prepare + STOP for PRIME observation."
+  "note": "Kill switch: set halt=true to stop immediately. CURSOR_DEV_AUTONOMY=off also halts. Never auto-deploy to qcefkox — PRIME deploys via merge. Inaugural Lane1/Lane2 fires closed 2026-09-21."
 }

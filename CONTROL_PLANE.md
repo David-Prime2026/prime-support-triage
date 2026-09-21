@@ -1,4 +1,13 @@
 
+## DR-CS-PLATFORM-007R — inaugural fires CLOSED — 2026-09-21T13:02:01Z
+
+- PRIME: clean move forward after watch
+- Lane 1 W1: PR https://github.com/David-Prime2026/Wmsosv2/pull/7 **MERGED** (`043d043`) — Create Load helper “for the sales team.”
+- Lane 2 SF4: New conversation reset observed live on internal Support
+- First-fire STOP cleared; lanes stay ON for real queue (serial, fenced, unsure→escalate)
+- Never auto-deploy `qcefkox` — Vercel/prod ship follows merge path only
+- Kill switch: `halt:true` still reachable
+
 ## FIRST FIRE Lane 2 (SF4) — Bricely New chat reset — 2026-09-21T12:45:38.849Z
 
 - Invoked existing New conversation control on internal Support (SF4)
@@ -18,7 +27,7 @@
 - W3 CSS TIGHTENED to purely aesthetic (no reflow/hide/position/clickability)
 - SF8 draft TIGHTENED to send_path=none (ai-draft only; never send/notify/EmailDrawer Send)
 - Lane 1 + Lane 2 governors live; unsure→escalate; kill switch reachable (halt:true)
-- FIRST LIVE FIRE: not executed — PRIME observes; see proofs/DR-CS-PLATFORM-007R/CONFIRM-AND-ENABLE.md
+- FIRST LIVE FIRE: executed under PRIME watch; STOP cleared 2026-09-21T13:02:01Z — see inaugural fires CLOSED above
 ﻿# Support Triage / CS Platform — Control Plane
 
 Isolated from WMG OS production (`qcefkoxqkfwnlqfmwzmi`).
