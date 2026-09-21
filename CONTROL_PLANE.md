@@ -1,4 +1,11 @@
 
+## DR-CS-PLATFORM-012 — Stage 1 GATE (2026-09-21) — STOP for bake
+
+- Design: console = HITL/DEV/ENG discourse; Cursor = execution + CONTROL_PLANE; never auto qcefkox
+- Schema: `cursor`/`eng` author roles + `cursor_execution_status` on tickets (apx)
+- Console: **Cursor desk** panel (`ticket_messages` channel=`admin`)
+- Proof: `proofs/DR-CS-PLATFORM-012/GATE-1.md` · **STOP before Stage 2/3 (notify)**
+
 ## DR-CS-PLATFORM-011 — Stages 2–4 COMPLETE (2026-09-21) — bake
 
 - Accept routing → Approve → Cursor staging JSON (fence: staging only)

@@ -57,10 +57,37 @@ export type Ticket = {
   assigned_to: string | null;
   human_override: Record<string, unknown> | null;
   resolution_notes: string | null;
+  /** DR-012 Cursor desk — staging fence status (human still owns promote). */
+  cursor_execution_status?: string | null;
   created_at: string;
   updated_at: string;
   is_mock?: boolean | null;
 };
+
+/** Internal Cursor desk messages (ticket_messages.channel = admin). Not customer chat. */
+export type DeskAuthorRole = "rep" | "eng" | "cursor" | "system";
+
+export type TicketDeskMessage = {
+  id: string;
+  ticket_id: string;
+  client_id: string;
+  author_role: DeskAuthorRole | string;
+  channel: string;
+  body: string;
+  created_at: string;
+};
+
+export const CURSOR_EXEC_STATUSES = [
+  "idle",
+  "received",
+  "in_staging",
+  "preview_ready",
+  "awaiting_promote",
+  "blocked",
+  "done",
+] as const;
+
+export type CursorExecStatus = (typeof CURSOR_EXEC_STATUSES)[number];
 
 /** Host page context from intake (stored under human_override.page_context). */
 export function pageContextFromTicket(t: Ticket): { screenId: string | null; screenLabel: string | null } {

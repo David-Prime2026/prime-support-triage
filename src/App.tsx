@@ -16,6 +16,10 @@ import {
   WMG_CLIENT_ID,
   type Ticket,
   type TicketEvent,
+  type TicketDeskMessage,
+  type DeskAuthorRole,
+  type CursorExecStatus,
+  CURSOR_EXEC_STATUSES,
   sortCsQueue,
   pageContextFromTicket,
   prediagnosisFromTicket,
@@ -246,8 +250,10 @@ export default function App() {
   const [queueSort, setQueueSort] = useState<QueueSort>("priority_fifo");
   const [nowTick, setNowTick] = useState(Date.now());
   const [noteDraft, setNoteDraft] = useState("");
+  const [deskRole, setDeskRole] = useState<DeskAuthorRole>("rep");
+  const [deskMessages, setDeskMessages] = useState<TicketDeskMessage[]>([]);
   const [localNotes, setLocalNotes] = useState<
-    { id: string; ticketId: string; body: string; author: string; at: string }[]
+    { id: string; ticketId: string; body: string; author: string; at: string; role?: string }[]
   >([]);
 
   const functionsBase = (import.meta.env.VITE_SUPABASE_URL as string)?.replace(/\/$/, "");
@@ -301,10 +307,12 @@ export default function App() {
   useEffect(() => {
     if (!supabase || !selected) {
       setEvents([]);
+      setDeskMessages([]);
       return;
     }
     if (selected.id.startsWith("b1000001-")) {
       setEvents([]);
+      setDeskMessages([]);
       return;
     }
     void supabase
@@ -313,6 +321,13 @@ export default function App() {
       .eq("ticket_id", selected.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setEvents((data ?? []) as TicketEvent[]));
+    void supabase
+      .from("ticket_messages")
+      .select("id,ticket_id,client_id,author_role,channel,body,created_at")
+      .eq("ticket_id", selected.id)
+      .eq("channel", "admin")
+      .order("created_at", { ascending: true })
+      .then(({ data }) => setDeskMessages((data ?? []) as TicketDeskMessage[]));
   }, [selected]);
 
   const counts = useMemo(() => {
@@ -679,20 +694,46 @@ export default function App() {
     downloadJson(`dispatch-co-${payload.dispatch_id}-${Date.now()}.json`, payload);
   }
 
-  async function addOperatorNote() {
+  async function refreshDesk(ticketId: string) {
+    if (!supabase || ticketId.startsWith("b1000001-")) return;
+    const { data } = await supabase
+      .from("ticket_messages")
+      .select("id,ticket_id,client_id,author_role,channel,body,created_at")
+      .eq("ticket_id", ticketId)
+      .eq("channel", "admin")
+      .order("created_at", { ascending: true });
+    setDeskMessages((data ?? []) as TicketDeskMessage[]);
+  }
+
+  async function postDeskMessage() {
     if (!selected || !noteDraft.trim()) return;
     const body = noteDraft.trim();
     const at = new Date().toISOString();
+    const role = deskRole;
     setBusy(true);
     try {
       if (supabase && !selected.id.startsWith("b1000001-")) {
+        const { error: mErr } = await supabase.from("ticket_messages").insert({
+          ticket_id: selected.id,
+          client_id: selected.client_id || WMG_CLIENT_ID,
+          author_role: role,
+          channel: "admin",
+          body:
+            role === "cursor"
+              ? `[Cursor status] ${body}`
+              : role === "eng"
+                ? `[ENG] ${body}`
+                : `[HITL · ${me}] ${body}`,
+        });
+        if (mErr) throw mErr;
         const { error: eErr } = await supabase.from("ticket_events").insert({
           ticket_id: selected.id,
-          event_type: "operator_note",
-          actor: "operator",
-          payload: { body, author: me, kind: "note" },
+          event_type: "cursor_desk_message",
+          actor: role === "rep" ? "operator" : role,
+          payload: { body, author: me, author_role: role, channel: "admin" },
         });
         if (eErr) throw eErr;
+        await refreshDesk(selected.id);
         const { data } = await supabase
           .from("ticket_events")
           .select("*")
@@ -707,11 +748,55 @@ export default function App() {
             body,
             author: me,
             at,
+            role,
           },
           ...n,
         ]);
       }
       setNoteDraft("");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function setCursorExecutionStatus(status: CursorExecStatus) {
+    if (!selected || selected.id.startsWith("b1000001-")) return;
+    setBusy(true);
+    try {
+      if (!supabase) throw new Error("Supabase not configured");
+      const { error: uErr } = await supabase
+        .from("support_tickets")
+        .update({ cursor_execution_status: status, updated_at: new Date().toISOString() })
+        .eq("id", selected.id);
+      if (uErr) throw uErr;
+      const { error: mErr } = await supabase.from("ticket_messages").insert({
+        ticket_id: selected.id,
+        client_id: selected.client_id || WMG_CLIENT_ID,
+        author_role: "cursor",
+        channel: "admin",
+        body: `[Cursor] execution_status → ${status} (staging fence; human still owns promote)`,
+      });
+      if (mErr) throw mErr;
+      const { error: eErr } = await supabase.from("ticket_events").insert({
+        ticket_id: selected.id,
+        event_type: "cursor_execution_status",
+        actor: "cursor",
+        payload: { status, set_by: me },
+      });
+      if (eErr) throw eErr;
+      setSelected({ ...selected, cursor_execution_status: status });
+      setTickets((list) =>
+        list.map((t) => (t.id === selected.id ? { ...t, cursor_execution_status: status } : t)),
+      );
+      await refreshDesk(selected.id);
+      const { data } = await supabase
+        .from("ticket_events")
+        .select("*")
+        .eq("ticket_id", selected.id)
+        .order("created_at", { ascending: false });
+      setEvents((data ?? []) as TicketEvent[]);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -1233,26 +1318,87 @@ export default function App() {
 
                     <section>
                       <p className="text-[10px] font-semibold uppercase mb-1" style={{ color: PRIME.muted }}>
-                        Operator notes
+                        Cursor desk · HITL / DEV / ENG
                       </p>
+                      <p className="text-[10px] mb-2" style={{ color: PRIME.muted }}>
+                        Admin discourse only. Cursor executes staging + CONTROL_PLANE — console does not auto-fix.
+                        Status:{" "}
+                        <span className="text-sky-300 font-semibold">
+                          {selected.cursor_execution_status ?? "idle"}
+                        </span>
+                      </p>
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {CURSOR_EXEC_STATUSES.map((st) => (
+                          <button
+                            key={st}
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void setCursorExecutionStatus(st)}
+                            className={`text-[10px] px-2 py-0.5 rounded border ${
+                              (selected.cursor_execution_status ?? "idle") === st
+                                ? "bg-sky-700 border-sky-500 text-white"
+                                : "border-slate-600 text-slate-300"
+                            }`}
+                          >
+                            {st}
+                          </button>
+                        ))}
+                      </div>
                       <div className="space-y-2">
+                        <div className="flex flex-wrap gap-1">
+                          {(
+                            [
+                              ["rep", "HITL"],
+                              ["eng", "ENG"],
+                              ["cursor", "Cursor note"],
+                            ] as const
+                          ).map(([role, label]) => (
+                            <button
+                              key={role}
+                              type="button"
+                              onClick={() => setDeskRole(role)}
+                              className={`text-[10px] px-2 py-0.5 rounded border ${
+                                deskRole === role
+                                  ? "bg-violet-700 border-violet-500"
+                                  : "border-slate-600 text-slate-300"
+                              }`}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
                         <textarea
                           value={noteDraft}
                           onChange={(e) => setNoteDraft(e.target.value)}
                           rows={2}
-                          placeholder="Observation, decision, or instructed action…"
+                          placeholder="HITL instruction, ENG note, or Cursor status update…"
                           className="w-full rounded-lg border bg-slate-950/40 px-2 py-1.5 text-sm"
                           style={{ borderColor: PRIME.border }}
                         />
                         <button
                           type="button"
                           disabled={busy || !noteDraft.trim()}
-                          onClick={() => void addOperatorNote()}
+                          onClick={() => void postDeskMessage()}
                           className="rounded-lg bg-slate-600 px-3 py-1.5 text-xs disabled:opacity-40"
                         >
-                          Add note (timestamped · {me.split("@")[0]})
+                          Post to desk ({deskRole})
                         </button>
-                        <ul className="space-y-1.5 text-xs">
+                        <ul className="space-y-1.5 text-xs max-h-48 overflow-y-auto">
+                          {deskMessages.map((m) => (
+                            <li
+                              key={m.id}
+                              className="rounded border px-2 py-1.5"
+                              style={{ borderColor: PRIME.border }}
+                            >
+                              <p className="text-[10px] uppercase font-semibold text-violet-300/90">
+                                {m.author_role}
+                              </p>
+                              <p className="text-slate-200 whitespace-pre-wrap">{m.body}</p>
+                              <p className="mt-0.5" style={{ color: PRIME.muted }}>
+                                {new Date(m.created_at).toLocaleString()}
+                              </p>
+                            </li>
+                          ))}
                           {localNotes
                             .filter((n) => n.ticketId === selected.id)
                             .map((n) => (
@@ -1261,6 +1407,9 @@ export default function App() {
                                 className="rounded border px-2 py-1.5"
                                 style={{ borderColor: PRIME.border }}
                               >
+                                <p className="text-[10px] uppercase font-semibold text-violet-300/90">
+                                  {n.role ?? "rep"} · local
+                                </p>
                                 <p className="text-slate-200 whitespace-pre-wrap">{n.body}</p>
                                 <p className="mt-0.5" style={{ color: PRIME.muted }}>
                                   {n.author} · {new Date(n.at).toLocaleString()}
@@ -1272,9 +1421,12 @@ export default function App() {
                             .map((ev) => (
                               <li
                                 key={ev.id}
-                                className="rounded border px-2 py-1.5"
+                                className="rounded border px-2 py-1.5 opacity-70"
                                 style={{ borderColor: PRIME.border }}
                               >
+                                <p className="text-[10px] uppercase font-semibold text-slate-400">
+                                  legacy note
+                                </p>
                                 <p className="text-slate-200 whitespace-pre-wrap">
                                   {String((ev.payload as { body?: string })?.body ?? "")}
                                 </p>
