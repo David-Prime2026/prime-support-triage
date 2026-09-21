@@ -1,4 +1,27 @@
 
+## DR-CS-PLATFORM-013 — CLOSED (2026-09-21) — Stage 4 GATE
+
+- Cursor poll/watch helper: `proofs/DR-CS-PLATFORM-013/CURSOR-OUTBOX-WATCH.md`
+- Closeout: `proofs/DR-CS-PLATFORM-013/CLOSEOUT.md`
+- Proof: `GATE-4.md`
+- Stages 0–4 complete; no unattended daemon; never auto qcefkox
+
+## Ticket → KB lane (2026-09-21) — thin HITL
+
+- Settings Retention card → **Knowledge Base** posture (`Ticket-fed · SOPs next`)
+- Customer Support list labeled **Demo · staging shapes** (not live console inventory)
+- Console Resolve: optional **Promote to KB** → `support.knowledge_base_refs` + desk `[KB]` note
+- Full KB search / SOP ingest / live customer ticket list = deferred
+- Proof: `proofs/DR-CS-PLATFORM-013/KB-LANE.md`
+- Never auto `qcefkox…`
+
+## DR-CS-PLATFORM-013 — Stage 3 GATE (2026-09-21) — STOP for bake
+
+- Expanded Bricely live-fix allowlist (additive SF1–SF5): `display_name`, `navigate_home`, `clear_board_prefs`, `refresh_view`
+- Seller / Buyer / internal hosts wired; no money/send/prod writes
+- Proof: `proofs/DR-CS-PLATFORM-013/GATE-3.md`
+- **STOP before optional Stage 4 (poll/watch helper doc)**
+
 ## DR-CS-PLATFORM-013 — Stage 2 GATE (2026-09-21) — STOP for bake
 
 - No browser download on Approve — durable outbox + repo sync

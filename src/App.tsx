@@ -381,6 +381,7 @@ export default function App() {
   const [createName, setCreateName] = useState("");
   const [createEmail, setCreateEmail] = useState("");
   const [busy, setBusy] = useState(false);
+  const [promoteToKb, setPromoteToKb] = useState(false);
   const [filters, setFilters] = useState<FilterChip[]>([]);
   const [queueSort, setQueueSort] = useState<QueueSort>("priority_fifo");
   const [nowTick, setNowTick] = useState(Date.now());
@@ -401,6 +402,10 @@ export default function App() {
     const id = window.setInterval(() => setNowTick(Date.now()), 30_000);
     return () => window.clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    setPromoteToKb(false);
+  }, [selected?.id]);
 
   const refresh = useCallback(async () => {
     if (!supabase) {
@@ -821,6 +826,7 @@ export default function App() {
       return;
     }
     setBusy(true);
+    const shouldPromoteKb = promoteToKb;
     try {
       const pred = prediagnosisFromTicket(selected);
       const exact =
@@ -887,6 +893,43 @@ export default function App() {
         channel: "admin",
         body: `[Approver · ${me}] Resolved. Requester notify: ${notifyStatus}${threadId ? ` (thread ${threadId.slice(0, 8)})` : ""}.`,
       });
+
+      let kbRefId: string | null = null;
+      if (shouldPromoteKb) {
+        const title =
+          (pred.exactIssue || selected.ai_summary || selected.raw_message || "Support guidance")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 120) || "Support guidance";
+        const notes = [
+          `ticket:${selected.id}`,
+          selected.surface ? `surface:${selected.surface}` : null,
+          selected.priority ? `priority:${selected.priority}` : null,
+          exact ? `exact_issue:${exact.slice(0, 400)}` : null,
+        ]
+          .filter(Boolean)
+          .join("\n");
+        const { data: kbRow, error: kbErr } = await supabase
+          .from("knowledge_base_refs")
+          .insert({
+            client_id: selected.client_id || WMG_CLIENT_ID,
+            title,
+            source_path: `ticket:${selected.id}`,
+            notes,
+          })
+          .select("id")
+          .maybeSingle();
+        if (kbErr) throw kbErr;
+        kbRefId = (kbRow?.id as string) || null;
+        await supabase.from("ticket_messages").insert({
+          ticket_id: selected.id,
+          client_id: selected.client_id || WMG_CLIENT_ID,
+          author_role: "rep",
+          channel: "admin",
+          body: `[KB] promoted from ticket ${selected.id.slice(0, 8)}${kbRefId ? ` · ref ${kbRefId.slice(0, 8)}` : ""} — how-to / self-serve / repeatable guidance.`,
+        });
+      }
+
       const closedTicket = {
         ...selected,
         status: "resolved",
@@ -896,7 +939,9 @@ export default function App() {
         closedBy: me,
         role: session.role,
         notifyStatus,
-        reason: "Resolve → notify path",
+        reason: shouldPromoteKb
+          ? "Resolve → notify + Promote to KB"
+          : "Resolve → notify path",
       });
       await supabase.from("ticket_messages").insert({
         ticket_id: selected.id,
@@ -924,9 +969,12 @@ export default function App() {
           notify_status: notifyStatus,
           thread_id: threadId,
           exact_issue: exact.slice(0, 240),
+          promote_to_kb: shouldPromoteKb,
+          kb_ref_id: kbRefId,
         },
       });
 
+      setPromoteToKb(false);
       await refresh();
       setSelected(null);
       setError(
@@ -2342,13 +2390,28 @@ export default function App() {
                       >
                         Billable: request hours → re-approve
                       </button>
+                      <label
+                        className="inline-flex items-center gap-2 rounded-lg border border-slate-600/60 px-3 py-1.5 text-xs text-slate-300"
+                        title="How-to / self-serve / repeatable guidance — HITL only; no auto-publish"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={promoteToKb}
+                          disabled={busy || !canApprove}
+                          onChange={(e) => setPromoteToKb(e.target.checked)}
+                          className="rounded border-slate-500"
+                        />
+                        Promote to KB
+                      </label>
                       <button
                         type="button"
                         disabled={busy || !canApprove}
                         onClick={() => void markResolved()}
                         title={
                           canApprove
-                            ? "Approver: resolve and notify requester on Bricely thread"
+                            ? promoteToKb
+                              ? "Approver: resolve, notify requester, and write knowledge_base_refs"
+                              : "Approver: resolve and notify requester on Bricely thread"
                             : "Requires Approver session"
                         }
                         className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 px-3 py-1.5 text-sm text-emerald-200 disabled:opacity-40"

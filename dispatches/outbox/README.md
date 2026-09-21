@@ -2,7 +2,8 @@
 
 **Command plane:** Cursor chat / `node scripts/sync-cursor-outbox.mjs`  
 **SoR:** `support.cursor_staging_outbox` on apx  
-**Repo artifacts:** this folder (synced from apx — not browser downloads)
+**Repo artifacts:** this folder (synced from apx — not browser downloads)  
+**Poll / watch guide:** [`../../proofs/DR-CS-PLATFORM-013/CURSOR-OUTBOX-WATCH.md`](../../proofs/DR-CS-PLATFORM-013/CURSOR-OUTBOX-WATCH.md)
 
 ## Flow
 1. Approver **Approve → record** or **Queue to Cursor outbox** in console  
