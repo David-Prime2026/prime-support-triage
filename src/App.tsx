@@ -32,6 +32,10 @@ import {
   buildAutomationSuggestions,
   buildSuggestionDigestPayload,
 } from "./lib/automations";
+import {
+  buildCursorStagingProposal,
+  routingPatchFromPrediagnosis,
+} from "./lib/cursorStaging";
 import { bugsAsTickets, BUG_CASE_SEEDS, CASE_LOG_SOURCE } from "./seeds/bugsCaseLog";
 
 type QueueSort = "priority_fifo" | "newest" | "oldest";
@@ -444,34 +448,55 @@ export default function App() {
     }
   }
 
-  async function approveSelected() {
+  async function applyPrediagnosisRouting(ticket = selected) {
+    if (!supabase || !ticket || ticket.id.startsWith("b1000001-")) return ticket;
+    const patch = routingPatchFromPrediagnosis(ticket);
+    if (!Object.keys(patch).length) return ticket;
+    const { error: uErr } = await supabase
+      .from("support_tickets")
+      .update(patch)
+      .eq("id", ticket.id);
+    if (uErr) throw new Error(uErr.message);
+    const next = { ...ticket, ...patch } as Ticket;
+    if (selected?.id === ticket.id) setSelected(next);
+    return next;
+  }
+
+  async function approveSelected(opts?: { applyRouting?: boolean }) {
     if (!selected) return;
     setBusy(true);
     try {
+      let ticket = selected;
+      if (opts?.applyRouting !== false) {
+        ticket = (await applyPrediagnosisRouting(ticket)) ?? ticket;
+      }
+      const pred = prediagnosisFromTicket(ticket);
       let handoffId: string | undefined;
       let dispatchFromEdge: unknown;
       try {
         const data = await invoke("approve-handoff", {
-          ticket_id: selected.id,
+          ticket_id: ticket.id,
           approved_by: me,
         });
         handoffId = data?.handoff_id;
         dispatchFromEdge = data?.dispatch_payload;
       } catch {
         // Local fallback: mark dispatched + emit flat-file Handoff B (staging only)
-        if (supabase && !selected.id.startsWith("b1000001-")) {
+        if (supabase && !ticket.id.startsWith("b1000001-")) {
           await supabase
             .from("support_tickets")
             .update({ status: "sent_to_engineering" })
-            .eq("id", selected.id);
+            .eq("id", ticket.id);
           const { data: handoff } = await supabase
             .from("engineering_handoffs")
             .insert({
-              ticket_id: selected.id,
+              ticket_id: ticket.id,
               structured_issue: {
-                summary: selected.ai_summary,
-                diagnosis: selected.diagnosis_summary,
-                proposed_fix: selected.ai_suggested_action,
+                summary: pred.exactIssue || ticket.ai_summary,
+                diagnosis: ticket.diagnosis_summary,
+                proposed_fix: ticket.ai_suggested_action,
+                prediagnosis: (ticket.human_override as { prediagnosis?: unknown } | null)
+                  ?.prediagnosis,
               },
               approved_by: me,
               approved_at: new Date().toISOString(),
@@ -482,22 +507,37 @@ export default function App() {
           handoffId = handoff?.id;
         }
       }
-      const payload = buildDispatchPayload({
-        ticket_id: selected.id,
-        client_id: selected.client_id,
-        approved_by: me,
-        title: selected.ai_summary || selected.raw_message.slice(0, 80),
-        description:
-          [selected.ai_suggested_action, selected.diagnosis_summary, selected.raw_message]
-            .filter(Boolean)
-            .join("\n\n") || selected.raw_message,
-        handoff_id: handoffId,
-        origin: "bug",
-      });
+      const staging = buildCursorStagingProposal(ticket, me);
+      const payload = {
+        ...buildDispatchPayload({
+          ticket_id: ticket.id,
+          client_id: ticket.client_id,
+          approved_by: me,
+          title: pred.exactIssue || ticket.ai_summary || ticket.raw_message.slice(0, 80),
+          description:
+            [
+              `Exact issue: ${pred.exactIssue ?? "—"}`,
+              `Suggested priority: ${pred.suggestedPriority ?? ticket.priority}`,
+              `Suggested lane: ${pred.suggestedLane ?? ticket.ai_lane}`,
+              ticket.ai_suggested_action,
+              ticket.diagnosis_summary,
+              ticket.raw_message,
+            ]
+              .filter(Boolean)
+              .join("\n\n") || ticket.raw_message,
+          handoff_id: handoffId,
+          origin: "bug",
+        }),
+        bricely_prediagnosis: pred,
+        cursor_staging_proposal: staging,
+      };
       downloadJson(
-        `dispatch-${payload.dispatch_id}-${Date.now()}.json`,
-        dispatchFromEdge ?? payload,
+        `dispatch-${ticket.id.slice(0, 8)}-${Date.now()}.json`,
+        dispatchFromEdge
+          ? { ...(dispatchFromEdge as object), bricely_prediagnosis: pred, cursor_staging_proposal: staging }
+          : payload,
       );
+      downloadJson(`cursor-staging-${ticket.id.slice(0, 8)}-${Date.now()}.json`, staging);
       await refresh();
       setSelected(null);
     } catch (e) {
@@ -1032,6 +1072,33 @@ export default function App() {
                       <p className="text-[11px]" style={{ color: PRIME.muted }}>
                         {pred.hitlNote}
                       </p>
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <button
+                          type="button"
+                          disabled={busy || !supabase || selected.id.startsWith("b1000001-")}
+                          onClick={() =>
+                            void applyPrediagnosisRouting().then(() => refresh()).catch((e) =>
+                              setError(e instanceof Error ? e.message : String(e)),
+                            )
+                          }
+                          className="rounded-lg border border-amber-500/40 px-2.5 py-1 text-[11px] text-amber-100 disabled:opacity-40"
+                        >
+                          Accept Bricely routing
+                        </button>
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() =>
+                            downloadJson(
+                              `cursor-staging-${selected.id.slice(0, 8)}-${Date.now()}.json`,
+                              buildCursorStagingProposal(selected, me),
+                            )
+                          }
+                          className="rounded-lg border border-sky-500/40 px-2.5 py-1 text-[11px] text-sky-100 disabled:opacity-40"
+                        >
+                          Download Cursor staging proposal
+                        </button>
+                      </div>
                     </section>
 
                     {page.screenLabel ? (
@@ -1243,7 +1310,7 @@ export default function App() {
                         onClick={() => void approveSelected()}
                         className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-sm disabled:opacity-40"
                       >
-                        <Download className="w-4 h-4" /> Approve → Handoff B
+                        <Download className="w-4 h-4" /> Accept routing → Approve → Cursor staging
                       </button>
                       <button
                         type="button"
@@ -1345,11 +1412,11 @@ export default function App() {
             <div className="flex-1 overflow-y-auto p-4">
               <div className="max-w-2xl space-y-4">
                 <div>
-                  <h2 className="text-lg font-semibold">Automations (suggest-only)</h2>
+                  <h2 className="text-lg font-semibold">Automations → Approve path</h2>
                   <p className="text-xs mt-1" style={{ color: PRIME.muted }}>
-                    Cursor CS bolt-on — digests for the operator queue. Never auto-dispatches, never
-                    overrides Approve. Drop downloaded digests into {DISPATCH_OUTBOX_PATH} if you
-                    want a paper trail.
+                    Suggest-only routing into HITL Approve. Never auto-dispatches. Open a ticket,
+                    accept Bricely routing, then Approve → Cursor staging JSON (fence: staging only,
+                    never qcefkox).
                   </p>
                 </div>
                 {(() => {
@@ -1390,6 +1457,46 @@ export default function App() {
                             <p className="text-[11px] mt-1.5 font-mono text-slate-400">
                               {s.ticket_ids.length} id(s) · {s.kind}
                             </p>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              <button
+                                type="button"
+                                className="rounded border border-slate-500/50 px-2 py-1 text-[11px] text-slate-200"
+                                onClick={() => {
+                                  const t = tickets.find((x) => x.id === s.ticket_ids[0]);
+                                  if (t) {
+                                    setSelected(t);
+                                    setNav("all");
+                                  }
+                                }}
+                              >
+                                Open first ticket
+                              </button>
+                              {s.kind === "routing_apply" && (
+                                <button
+                                  type="button"
+                                  disabled={busy || !supabase}
+                                  className="rounded border border-amber-500/40 px-2 py-1 text-[11px] text-amber-100 disabled:opacity-40"
+                                  onClick={() =>
+                                    void (async () => {
+                                      setBusy(true);
+                                      try {
+                                        for (const id of s.ticket_ids.slice(0, 20)) {
+                                          const t = tickets.find((x) => x.id === id);
+                                          if (t) await applyPrediagnosisRouting(t);
+                                        }
+                                        await refresh();
+                                      } catch (e) {
+                                        setError(e instanceof Error ? e.message : String(e));
+                                      } finally {
+                                        setBusy(false);
+                                      }
+                                    })()
+                                  }
+                                >
+                                  Apply routing (batch ≤20)
+                                </button>
+                              )}
+                            </div>
                           </li>
                         ))}
                       </ul>

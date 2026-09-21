@@ -1,7 +1,7 @@
 # DR-CS-PLATFORM-011 — Prediagnosis, routing writeback, Cursor within fence
 
-**Status:** Stage 0 COMPLETE (method). Stage 1 in progress.  
-**Date:** 2026-09-21  
+**Status:** Stages 0–4 COMPLETE (accelerated). Bake console + Approve→Cursor staging path.  
+**Date:** 2026-09-21
 **Authority:** PRIME GO after DR-010 close  
 **Runtime:** `apx…` sole · never auto `qcefkox…`
 
@@ -21,9 +21,9 @@
 |-------|------|------|
 | **0** | Method + doctrine (this file) | Done |
 | **1** | Bricely: permission-to-continue · exact_issue · prediagnosis package on intake | PR → bake |
-| **2** | Console: Prediagnosis panel · suggested priority/lane · HITL Approve without re-interview | GH Pages |
-| **3** | Automations: routing proposals → Approve path (still suggest-only for dispatch) | STOP PRIME |
-| **4** | Optional: expand fenced liveFixes / Cursor staging proposals from package | STOP PRIME |
+| **2** | Console: Prediagnosis panel · suggested priority/lane · HITL Approve without re-interview | **Done** |
+| **3** | Automations: routing proposals → Approve path (still suggest-only for dispatch) | **Done** |
+| **4** | Fenced Cursor staging proposals from package | **Done** |
 
 ## Out of scope (still)
 - Live human agent desk in-chat  

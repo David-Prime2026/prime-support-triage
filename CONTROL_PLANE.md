@@ -1,4 +1,10 @@
 
+## DR-CS-PLATFORM-011 — Stages 2–4 COMPLETE (2026-09-21) — bake
+
+- Accept routing → Approve → Cursor staging JSON (fence: staging only)
+- Automations batch apply routing (≤20); never auto-dispatch
+- Proof: `proofs/DR-CS-PLATFORM-011/GATE-2-4.md`
+
 ## DR-CS-PLATFORM-011 — IN PROGRESS (2026-09-21)
 
 - Method: `proofs/DR-CS-PLATFORM-011/METHOD.md`
