@@ -1,3 +1,11 @@
+
+## DR-CS-PLATFORM-007R — ratified + enabled (first fire STOP) — 2026-09-21T12:33:36.800Z
+
+- Canonical: prod=qcefkoxqkfwnlqfmwzmi (never auto-deploy) · triage=apxbwdxszmdffbduhjen · rogue=rxhiydtqzmksaeegxyqo unused
+- W3 CSS TIGHTENED to purely aesthetic (no reflow/hide/position/clickability)
+- SF8 draft TIGHTENED to send_path=none (ai-draft only; never send/notify/EmailDrawer Send)
+- Lane 1 + Lane 2 governors live; unsure→escalate; kill switch reachable (halt:true)
+- FIRST LIVE FIRE: not executed — PRIME observes; see proofs/DR-CS-PLATFORM-007R/CONFIRM-AND-ENABLE.md
 ﻿# Support Triage / CS Platform — Control Plane
 
 Isolated from WMG OS production (`qcefkoxqkfwnlqfmwzmi`).

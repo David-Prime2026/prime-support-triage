@@ -1,0 +1,388 @@
+{
+  "status": "ratified",
+  "version": "1.0.0",
+  "authority": "DR-CS-PLATFORM-007R",
+  "lane": "lane_2_bricely_safe_feature_triggers",
+  "enabled": true,
+  "principle": "Bricely may TRIGGER existing reversible/internal features only — never new autonomous code to perform actions. Irreversible/customer-facing = human-gated permanently.",
+  "inherits": [
+    "config/resolution-tiers.json tier_a_allowlist (guidance, how-to, navigation_help)",
+    "DR-CS-PLATFORM-006 kill switch / serial / live log",
+    "bug-change-classification does not invent features — Lane 2 is invoke-only"
+  ],
+  "conservatism": {
+    "existing_tested_only": true,
+    "reversible_and_internal_only": true,
+    "unsure_always_escalates": true,
+    "no_new_code_to_perform_action": true
+  },
+  "proposed_allowlist": [
+    {
+      "id": "SF1",
+      "feature": "portal_welcome_greeting_session_override",
+      "exists_today": true,
+      "locus": "src/bricely/liveFixes.ts + BuyerPortal/SellerPortal onLiveFix",
+      "what_bricely_does": "Calls existing applyDisplayNameLiveFix / host onLiveFix — writes sessionStorage greeting override only",
+      "reversibility": "Clear sessionStorage key wmg.portal.greeting.v1:* or New chat / sign-out session end; does not mutate CRM primary_contact_name",
+      "internal_vs_external": "internal_session_only",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true,
+      "notes": "Already partially wired in Phase 1 smoke; ratification makes it an official Lane 2 allowlist row"
+    },
+    {
+      "id": "SF2",
+      "feature": "client_navigation_hint",
+      "exists_today": true,
+      "locus": "BuyerPortal/SellerPortal setScreen; App setCurrentView",
+      "what_bricely_does": "Instructs or programmatically switches the signed-in user's UI to an existing screen they can already access (home, load-board, statements) — no new routes",
+      "reversibility": "User navigates back; session screen key overwritable",
+      "internal_vs_external": "internal_ui_only",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true,
+      "guard": "Must respect canAccessView / portal accounting gates — never open a screen the role cannot access"
+    },
+    {
+      "id": "SF3",
+      "feature": "clear_local_board_view_prefs",
+      "exists_today": true,
+      "locus": "LoadBoardKanban localStorage wmg.loadBoard.viewMode; board search/filter React state",
+      "what_bricely_does": "Resets view mode / clears client-side filters to defaults (soft tip already says clear filter)",
+      "reversibility": "User re-selects view; localStorage rewrite",
+      "internal_vs_external": "internal_ui_only",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true
+    },
+    {
+      "id": "SF4",
+      "feature": "bricely_thread_new_chat_reset",
+      "exists_today": true,
+      "locus": "BricelyChat startNewChat / idle close",
+      "what_bricely_does": "Starts fresh support thread; queues prior transcript to history",
+      "reversibility": "History retained in session/server thread store; no ERP write",
+      "internal_vs_external": "internal_support_only",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true
+    },
+    {
+      "id": "SF5",
+      "feature": "read_only_board_refetch",
+      "exists_today": true,
+      "locus": "useBoardLoadSync / fetchBoardLoadRows / Refresh control",
+      "what_bricely_does": "Triggers existing refresh of board rows (GET/RPC read path already used by UI)",
+      "reversibility": "Read-only; no state mutation beyond client cache",
+      "internal_vs_external": "internal_read",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true,
+      "guard": "Invoke only existing read RPCs; never allocate/update-load"
+    },
+    {
+      "id": "SF6",
+      "feature": "clipboard_copy_visible_reference",
+      "exists_today": true,
+      "locus": "Browser clipboard from values already on screen (REL#, memo #)",
+      "what_bricely_does": "Copies a reference the user can already see into clipboard for their own paste",
+      "reversibility": "Clipboard overwrite; no server write",
+      "internal_vs_external": "internal_device_only",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true
+    },
+    {
+      "id": "SF7",
+      "feature": "open_existing_help_guide_panel",
+      "exists_today": true,
+      "locus": "BuyerWelcomeCard / SellerWelcomeCard guideOpen toggle",
+      "what_bricely_does": "Expands in-portal 'How to use' guide already in UI",
+      "reversibility": "User collapses guide",
+      "internal_vs_external": "internal_ui_only",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true
+    },
+    {
+      "id": "SF8",
+      "feature": "ai_draft_email_for_operator_review",
+      "exists_today": true,
+      "locus": "supabase function ai-draft-customer-email ONLY (confirmed: no SendGrid/send in that function)",
+      "what_bricely_does": "INTERNAL operators only: invoke ONLY the existing ai-draft-customer-email function (or equivalent draft API). Return draft subject/body into Bricely chat or a draft-only buffer for human review. ZERO send path.",
+      "reversibility": "Draft text discarded if unused; no mail leaves the system via SF8",
+      "internal_vs_external": "internal_operator_assist",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true,
+      "guard": "HARD: SF8 must NEVER call send-customer-email, notify-*, open EmailDrawer Send, click Send Email, or any outbound delivery route. Draft compose/prepare only. Buyer/seller surfaces: SF8 off.",
+      "send_path": "none",
+      "forbidden_invokes": [
+        "send-customer-email",
+        "notify-sales-memo",
+        "notify-ar-overdue",
+        "notify-load-status",
+        "notify-payment-confirmation",
+        "EmailDrawer.handleSend",
+        "any webhook that delivers mail"
+      ],
+      "sf8_confirmation": {
+        "verified_at": "2026-09-21T12:32:13.619Z",
+        "draft_function_has_send": false,
+        "prior_wording_risk": "left draft in EmailDrawer which also has Send Email button — tightened to draft-API-only, no send UI automation",
+        "tightened_to": "compose/prepare only; zero ability to send/notify/deliver"
+      }
+    }
+  ],
+  "explicitly_excluded_never_autonomous": [
+    {
+      "id": "NX1",
+      "feature": "send_customer_email_or_notify_star",
+      "why": "Irreversible customer-facing outbound — no un-send",
+      "examples": [
+        "send-customer-email",
+        "notify-sales-memo",
+        "notify-ar-overdue",
+        "notify-load-status",
+        "notify-payment-confirmation"
+      ]
+    },
+    {
+      "id": "NX2",
+      "feature": "load_lifecycle_writes",
+      "why": "Changes ERP load state / money-adjacent workflow",
+      "examples": [
+        "allocate-load",
+        "deallocate-buyer",
+        "reassign-buyer",
+        "split-load",
+        "update-load",
+        "set-load-memo-rate",
+        "create-load-order",
+        "cancel_unsold"
+      ]
+    },
+    {
+      "id": "NX3",
+      "feature": "portal_submits_to_wmg",
+      "why": "Creates operational records / customer-side commitments",
+      "examples": [
+        "submit-load-request",
+        "submit-load-issue",
+        "submit payment notice",
+        "payment acknowledgment",
+        "accept_buyer_load",
+        "confirm delivery",
+        "assign hauler"
+      ]
+    },
+    {
+      "id": "NX4",
+      "feature": "access_identity_provisioning",
+      "why": "Auth / access — irreversible from customer view; security-sensitive",
+      "examples": [
+        "PortalAccessAdmin invite",
+        "create user",
+        "approve portal access",
+        "password reset email to another user",
+        "role/permission changes"
+      ]
+    },
+    {
+      "id": "NX5",
+      "feature": "pricing_ar_accounting_writes",
+      "why": "Money",
+      "examples": [
+        "save-commodity-monthly-pricing",
+        "save-seller-commodity-price-overrides",
+        "parse/promote aging or statements",
+        "AR adjustments"
+      ]
+    },
+    {
+      "id": "NX6",
+      "feature": "any_new_code_path_for_an_action",
+      "why": "Lane 2 is invoke-existing only — writing new automation to 'be helpful' is out of scope",
+      "examples": [
+        "New edge function to auto-allocate",
+        "Script that emails sellers in bulk"
+      ]
+    }
+  ],
+  "worked_examples": [
+    {
+      "id": "EX-SF-SAFE-1",
+      "ask": "Change my home welcome to Dave",
+      "feature": "SF1",
+      "verdict": "Candidate after ratification — session greeting override only"
+    },
+    {
+      "id": "EX-SF-SAFE-2",
+      "ask": "I can't find statements",
+      "feature": "SF2 + how_to",
+      "verdict": "Candidate — navigate to statements if role allows + explain"
+    },
+    {
+      "id": "EX-SF-SAFE-3",
+      "ask": "Board looks empty / filter stuck",
+      "feature": "SF3",
+      "verdict": "Candidate — clear local filters / reset viewMode"
+    },
+    {
+      "id": "EX-SF-UNSAFE-1",
+      "ask": "Email the buyer the sales memo",
+      "feature": "NX1",
+      "verdict": "NEVER autonomous — human sends via EmailDrawer"
+    },
+    {
+      "id": "EX-SF-UNSAFE-2",
+      "ask": "Assign this load to Toronto Textile",
+      "feature": "NX2",
+      "verdict": "NEVER autonomous — allocate-load is ERP write"
+    },
+    {
+      "id": "EX-SF-UNSAFE-3",
+      "ask": "Submit my payment notice for me",
+      "feature": "NX3",
+      "verdict": "NEVER autonomous — customer-facing operational submit"
+    },
+    {
+      "id": "EX-SF-UNSAFE-4",
+      "ask": "Invite our AP clerk to the portal",
+      "feature": "NX4",
+      "verdict": "NEVER autonomous — access provisioning"
+    },
+    {
+      "id": "EX-SF-BORDER-1",
+      "ask": "Draft an email to the seller about pickup",
+      "feature": "SF8",
+      "verdict": "Only if ratified AND internal operator surface AND draft-only; send remains human. If unsure → escalate"
+    }
+  ],
+  "mapping_from_resolution_tiers_tier_a": {
+    "password_reset": "HUMAN for other-user resets (NX4); self-serve guidance-only remains Tier A talk-track, not autonomous email send",
+    "login_help": "Guidance + SF2 navigation; no auth writes",
+    "access_questions": "Guidance only — provisioning NX4",
+    "how_to": "Guidance + SF2/SF7",
+    "known_issue_canned": "Talk-track only unless paired with SF3/SF4",
+    "read_only_data_lookup": "SF5 read refresh only — no new queries inventing PII dumps",
+    "self_serve_existing": "SF1/SF3/SF6/SF7",
+    "navigation_help": "SF2"
+  },
+  "execution_rules_when_enabled_later": [
+    "PRIME ratifies → wmgos-safe-feature-allowlist.json",
+    "Bricely may only call listed feature ids; anything else escalates",
+    "Log every trigger to executions/live-log.jsonl + ticket note",
+    "Kill switch halt stops Lane 2 triggers",
+    "Buyer/seller surfaces: SF8 disabled even if ratified for internal"
+  ],
+  "ratified_by": "PRIME",
+  "ratified_at": "2026-09-21",
+  "allowlist": [
+    {
+      "id": "SF1",
+      "feature": "portal_welcome_greeting_session_override",
+      "exists_today": true,
+      "locus": "src/bricely/liveFixes.ts + BuyerPortal/SellerPortal onLiveFix",
+      "what_bricely_does": "Calls existing applyDisplayNameLiveFix / host onLiveFix — writes sessionStorage greeting override only",
+      "reversibility": "Clear sessionStorage key wmg.portal.greeting.v1:* or New chat / sign-out session end; does not mutate CRM primary_contact_name",
+      "internal_vs_external": "internal_session_only",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true,
+      "notes": "Already partially wired in Phase 1 smoke; ratification makes it an official Lane 2 allowlist row"
+    },
+    {
+      "id": "SF2",
+      "feature": "client_navigation_hint",
+      "exists_today": true,
+      "locus": "BuyerPortal/SellerPortal setScreen; App setCurrentView",
+      "what_bricely_does": "Instructs or programmatically switches the signed-in user's UI to an existing screen they can already access (home, load-board, statements) — no new routes",
+      "reversibility": "User navigates back; session screen key overwritable",
+      "internal_vs_external": "internal_ui_only",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true,
+      "guard": "Must respect canAccessView / portal accounting gates — never open a screen the role cannot access"
+    },
+    {
+      "id": "SF3",
+      "feature": "clear_local_board_view_prefs",
+      "exists_today": true,
+      "locus": "LoadBoardKanban localStorage wmg.loadBoard.viewMode; board search/filter React state",
+      "what_bricely_does": "Resets view mode / clears client-side filters to defaults (soft tip already says clear filter)",
+      "reversibility": "User re-selects view; localStorage rewrite",
+      "internal_vs_external": "internal_ui_only",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true
+    },
+    {
+      "id": "SF4",
+      "feature": "bricely_thread_new_chat_reset",
+      "exists_today": true,
+      "locus": "BricelyChat startNewChat / idle close",
+      "what_bricely_does": "Starts fresh support thread; queues prior transcript to history",
+      "reversibility": "History retained in session/server thread store; no ERP write",
+      "internal_vs_external": "internal_support_only",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true
+    },
+    {
+      "id": "SF5",
+      "feature": "read_only_board_refetch",
+      "exists_today": true,
+      "locus": "useBoardLoadSync / fetchBoardLoadRows / Refresh control",
+      "what_bricely_does": "Triggers existing refresh of board rows (GET/RPC read path already used by UI)",
+      "reversibility": "Read-only; no state mutation beyond client cache",
+      "internal_vs_external": "internal_read",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true,
+      "guard": "Invoke only existing read RPCs; never allocate/update-load"
+    },
+    {
+      "id": "SF6",
+      "feature": "clipboard_copy_visible_reference",
+      "exists_today": true,
+      "locus": "Browser clipboard from values already on screen (REL#, memo #)",
+      "what_bricely_does": "Copies a reference the user can already see into clipboard for their own paste",
+      "reversibility": "Clipboard overwrite; no server write",
+      "internal_vs_external": "internal_device_only",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true
+    },
+    {
+      "id": "SF7",
+      "feature": "open_existing_help_guide_panel",
+      "exists_today": true,
+      "locus": "BuyerWelcomeCard / SellerWelcomeCard guideOpen toggle",
+      "what_bricely_does": "Expands in-portal 'How to use' guide already in UI",
+      "reversibility": "User collapses guide",
+      "internal_vs_external": "internal_ui_only",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true
+    },
+    {
+      "id": "SF8",
+      "feature": "ai_draft_email_for_operator_review",
+      "exists_today": true,
+      "locus": "supabase function ai-draft-customer-email ONLY (confirmed: no SendGrid/send in that function)",
+      "what_bricely_does": "INTERNAL operators only: invoke ONLY the existing ai-draft-customer-email function (or equivalent draft API). Return draft subject/body into Bricely chat or a draft-only buffer for human review. ZERO send path.",
+      "reversibility": "Draft text discarded if unused; no mail leaves the system via SF8",
+      "internal_vs_external": "internal_operator_assist",
+      "customer_facing_outbound": false,
+      "allowed_after_ratification": true,
+      "guard": "HARD: SF8 must NEVER call send-customer-email, notify-*, open EmailDrawer Send, click Send Email, or any outbound delivery route. Draft compose/prepare only. Buyer/seller surfaces: SF8 off.",
+      "send_path": "none",
+      "forbidden_invokes": [
+        "send-customer-email",
+        "notify-sales-memo",
+        "notify-ar-overdue",
+        "notify-load-status",
+        "notify-payment-confirmation",
+        "EmailDrawer.handleSend",
+        "any webhook that delivers mail"
+      ],
+      "sf8_confirmation": {
+        "verified_at": "2026-09-21T12:32:13.619Z",
+        "draft_function_has_send": false,
+        "prior_wording_risk": "left draft in EmailDrawer which also has Send Email button — tightened to draft-API-only, no send UI automation",
+        "tightened_to": "compose/prepare only; zero ability to send/notify/deliver"
+      }
+    }
+  ],
+  "canonical_refs": {
+    "wmg_os_production_never_autonomous_deploy": "qcefkoxqkfwnlqfmwzmi",
+    "support_triage_authoritative": "apxbwdxszmdffbduhjen",
+    "rogue_mobile_unused": "rxhiydtqzmksaeegxyqo"
+  }
+}

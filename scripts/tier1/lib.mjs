@@ -13,6 +13,8 @@ export const PROOFS = path.join(ROOT, "proofs", "DR-CS-PLATFORM-006");
 export const EXEC_LOG = path.join(ROOT, "executions", "live-log.jsonl");
 export const CONTROL_PLANE = path.join(ROOT, "CONTROL_PLANE.md");
 export const WMG_OS_PROD_REF = "qcefkoxqkfwnlqfmwzmi";
+export const SUPPORT_TRIAGE_REF = "apxbwdxszmdffbduhjen";
+export const ROGUE_MOBILE_REF = "rxhiydtqzmksaeegxyqo";
 
 export function readJson(file) {
   return JSON.parse(fs.readFileSync(file, "utf8"));
@@ -24,6 +26,7 @@ export function writeJson(file, obj) {
 
 export function ensureDirs() {
   fs.mkdirSync(PROOFS, { recursive: true });
+  fs.mkdirSync(path.join(ROOT, "proofs", "DR-CS-PLATFORM-007R"), { recursive: true });
   fs.mkdirSync(path.dirname(EXEC_LOG), { recursive: true });
   fs.mkdirSync(path.join(ROOT, "dispatches", "outbox"), { recursive: true });
 }
@@ -48,12 +51,18 @@ export function setKillswitch(patch) {
   return next;
 }
 
-export function isHalted(ks = loadKillswitch()) {
+export function isHalted(ks = loadKillswitch(), lane = null) {
   if (ks.halt === true) return { halted: true, reason: "file_halt" };
   if (String(process.env.CURSOR_DEV_AUTONOMY || "").toLowerCase() === "off") {
     return { halted: true, reason: "env_CURSOR_DEV_AUTONOMY=off" };
   }
   if (!ks.tier1_autonomy_enabled) return { halted: true, reason: "tier1_autonomy_enabled=false" };
+  if (lane === "wmgos_lane1" && ks.wmgos_lane1_display_enabled !== true) {
+    return { halted: true, reason: "wmgos_lane1_display_enabled=false" };
+  }
+  if (lane === "wmgos_lane2" && ks.wmgos_lane2_safe_features_enabled !== true) {
+    return { halted: true, reason: "wmgos_lane2_safe_features_enabled=false" };
+  }
   return { halted: false, reason: null };
 }
 
@@ -71,6 +80,18 @@ export function loadClassifier() {
     throw new Error("bug-change-classification.json missing — load ratified classifier before Tier 1");
   }
   return readJson(ratified);
+}
+
+export function loadWmgosDisplayFence() {
+  const f = path.join(CONFIG, "wmgos-display-fence.json");
+  if (!fs.existsSync(f)) throw new Error("wmgos-display-fence.json missing");
+  return readJson(f);
+}
+
+export function loadWmgosSafeFeatures() {
+  const f = path.join(CONFIG, "wmgos-safe-feature-allowlist.json");
+  if (!fs.existsSync(f)) throw new Error("wmgos-safe-feature-allowlist.json missing");
+  return readJson(f);
 }
 
 /** Append one JSONL line immediately (real-time log). */

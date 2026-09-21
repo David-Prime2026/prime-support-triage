@@ -1,12 +1,20 @@
 {
   "halt": false,
-  "reason": "DR-CS-PLATFORM-006 Step C - A1-A5 proven; Tier 1 fenced light bugs enabled straight-to-prod",
-  "set_at": "2026-09-18T22:45:11.804Z",
+  "reason": "DR-CS-PLATFORM-007R — Lane 1+2 ratified and enabled under proven guardrails; PRIME watches first WMG-OS fire",
+  "set_at": "2026-09-21T12:30:00.000Z",
   "set_by": "cursor",
   "straight_to_prod_enabled": true,
   "tier1_autonomy_enabled": true,
-  "note": "Kill switch: set halt=true to stop immediately. CURSOR_DEV_AUTONOMY=off also halts.",
+  "wmgos_lane1_display_enabled": true,
+  "wmgos_lane2_safe_features_enabled": true,
   "fence_version": "1.0.0",
   "classifier_version": "1.0.0",
-  "enabled_at": "2026-09-18T22:45:11.802Z"
+  "wmgos_display_fence_version": "1.0.0",
+  "wmgos_safe_feature_allowlist_version": "1.0.0",
+  "canonical_refs": {
+    "wmg_os_production_never_autonomous_deploy": "qcefkoxqkfwnlqfmwzmi",
+    "support_triage_authoritative": "apxbwdxszmdffbduhjen",
+    "rogue_mobile_unused": "rxhiydtqzmksaeegxyqo"
+  },
+  "note": "Kill switch: set halt=true to stop immediately. CURSOR_DEV_AUTONOMY=off also halts. Never auto-deploy to qcefkox — PRIME deploys. First Lane1/Lane2 fire: prepare + STOP for PRIME observation."
 }
