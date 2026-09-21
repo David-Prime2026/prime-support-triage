@@ -234,6 +234,30 @@ function priorityBadge(p: string | null) {
   return map[p ?? ""] ?? "bg-slate-600 text-slate-200";
 }
 
+/** Portal / surface where the request originated. */
+function originLabel(t: Ticket): string {
+  const s = (t.surface ?? "").trim().toLowerCase();
+  if (s === "buyer") return "Buyer portal";
+  if (s === "seller") return "Seller portal";
+  if (s === "internal") return "Internal";
+  if (s) return s;
+  return "Unknown origin";
+}
+
+function requesterLabel(t: Ticket): string {
+  const name = t.requester_name?.trim() || "";
+  const email = t.requester_email?.trim() || "";
+  if (name && email && name.toLowerCase() !== email.toLowerCase()) return `${name} · ${email}`;
+  return name || email || "Unknown requester";
+}
+
+/** Bricely suggested Px (prediagnosis), else ticket priority. */
+function bricelySuggestedPx(t: Ticket): string {
+  const pred = prediagnosisFromTicket(t);
+  const px = (pred.suggestedPriority || t.priority || "").toUpperCase();
+  return /^P[1-4]$/.test(px) ? px : "P?";
+}
+
 function slaToneClass(tone: SlaTone) {
   if (tone === "breach") return "text-rose-300";
   if (tone === "warn") return "text-amber-300";
@@ -1440,6 +1464,7 @@ export default function App() {
                 {visibleTickets.map((t) => {
                   const sla = slaCountdown(t);
                   const page = pageContextFromTicket(t);
+                  const bricelyPx = bricelySuggestedPx(t);
                   return (
                     <button
                       key={t.id}
@@ -1456,14 +1481,18 @@ export default function App() {
                         borderColor: selected?.id === t.id ? undefined : PRIME.border,
                       }}
                     >
-                      <div className="flex items-center gap-1.5 mb-1.5">
+                      <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
                         <span
-                          className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${priorityBadge(t.priority)}`}
+                          className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${priorityBadge(bricelyPx)}`}
+                          title="Bricely suggested type (Px)"
                         >
-                          {t.priority ?? "P?"}
+                          {bricelyPx}
                         </span>
                         <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-600/60 text-slate-200">
                           {stateLabel(t)}
+                        </span>
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-indigo-900/50 text-indigo-200">
+                          {originLabel(t)}
                         </span>
                         {page.screenLabel && (
                           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-emerald-900/50 text-emerald-200 truncate max-w-[9rem]">
@@ -1477,7 +1506,10 @@ export default function App() {
                       <p className="text-sm font-medium line-clamp-2">
                         {t.ai_summary || t.raw_message}
                       </p>
-                      <div className="mt-1.5 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+                      <p className="text-[11px] mt-1 truncate" style={{ color: PRIME.muted }}>
+                        {requesterLabel(t)}
+                      </p>
+                      <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
                         <p className="text-[11px] tabular-nums" style={{ color: PRIME.muted }}>
                           {new Date(t.created_at).toLocaleString(undefined, {
                             month: "short",
@@ -1506,16 +1538,32 @@ export default function App() {
                   const page = pageContextFromTicket(selected);
                   const pred = prediagnosisFromTicket(selected);
                   const sla = slaCountdown(selected);
+                  const bricelyPx = bricelySuggestedPx(selected);
+                  const appliedPx = (selected.priority ?? "").toUpperCase() || null;
                   return (
                   <div className="max-w-2xl space-y-4">
                     <div className="flex items-start justify-between gap-3">
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${priorityBadge(selected.priority)}`}>
-                            {selected.priority ?? "P?"}
+                          <span
+                            className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${priorityBadge(bricelyPx)}`}
+                            title="Bricely suggested type (Px)"
+                          >
+                            Bricely {bricelyPx}
                           </span>
+                          {appliedPx && appliedPx !== bricelyPx && (
+                            <span
+                              className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border border-slate-500 ${priorityBadge(appliedPx)}`}
+                              title="Applied priority on ticket"
+                            >
+                              Applied {appliedPx}
+                            </span>
+                          )}
                           <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-600/60">
                             {stateLabel(selected)}
+                          </span>
+                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-indigo-900/50 text-indigo-200">
+                            {originLabel(selected)}
                           </span>
                           {page.screenLabel && (
                             <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-emerald-900/50 text-emerald-200">
@@ -1529,17 +1577,35 @@ export default function App() {
                           )}
                         </div>
                         <h2 className="text-lg font-semibold">
-                          {pred.exactIssue || selected.ai_summary || "Ticket detail"}
+                          {pred.exactIssue ||
+                            selected.ai_summary ||
+                            selected.raw_message.slice(0, 120) ||
+                            "Ticket detail"}
                         </h2>
-                        <p className="text-xs mt-1" style={{ color: PRIME.muted }}>
-                          {new Date(selected.created_at).toLocaleString()} · {selected.source_channel}
-                          {selected.surface ? ` · ${selected.surface}` : ""}
-                          {(selected.human_override as { bug_id?: string } | null)?.bug_id
-                            ? ` · case log ${(selected.human_override as { bug_id: string }).bug_id}`
-                            : ""}
-                        </p>
+                        <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                          <dt style={{ color: PRIME.muted }}>Opened by</dt>
+                          <dd className="text-slate-100 truncate">{requesterLabel(selected)}</dd>
+                          <dt style={{ color: PRIME.muted }}>Came in from</dt>
+                          <dd className="text-slate-100">
+                            {originLabel(selected)}
+                            {selected.source_channel ? ` · ${selected.source_channel}` : ""}
+                            {page.screenLabel ? ` · ${page.screenLabel}` : ""}
+                          </dd>
+                          <dt style={{ color: PRIME.muted }}>Opened</dt>
+                          <dd className="text-slate-100 tabular-nums">
+                            {new Date(selected.created_at).toLocaleString()}
+                            {(selected.human_override as { bug_id?: string } | null)?.bug_id
+                              ? ` · case ${(selected.human_override as { bug_id: string }).bug_id}`
+                              : ""}
+                          </dd>
+                          <dt style={{ color: PRIME.muted }}>Bricely type</dt>
+                          <dd className="text-slate-100">
+                            {bricelyPx}
+                            {pred.suggestedLane ? ` · lane ${pred.suggestedLane}` : ""}
+                          </dd>
+                        </dl>
                       </div>
-                      <p className={`text-sm font-medium ${slaToneClass(sla.tone)}`}>
+                      <p className={`text-sm font-medium shrink-0 ${slaToneClass(sla.tone)}`}>
                         {sla.label}
                       </p>
                     </div>
