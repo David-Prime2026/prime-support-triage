@@ -1,4 +1,11 @@
 
+## DR-CS-PLATFORM-012 — Stage 3 GATE (2026-09-21) — STOP for bake
+
+- Approver session badge + Approve/Resolve gated
+- Desk postbox newest-first
+- Resolve → append Bricely thread notify (no wipe)
+- Proof: `proofs/DR-CS-PLATFORM-012/GATE-3.md`
+
 ## DR-CS-PLATFORM-012 — Stage 2 GATE (2026-09-21) — STOP for bake
 
 - Status flip fixed (`ticket_events` actor allowlist)

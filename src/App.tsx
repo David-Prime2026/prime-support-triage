@@ -91,10 +91,34 @@ type ChangeOrder = {
 
 type FilterChip = { id: string; label: string };
 
-const OPERATORS = [
-  "bricely@prime-timesystems.com",
-  "david@prime-timesystems.com",
+/** Console login posture — Approver can Approve/Resolve-notify; others see desk but gated. */
+type ConsoleRole = "approver" | "operator" | "viewer";
+type OperatorSession = {
+  id: string;
+  email: string;
+  label: string;
+  role: ConsoleRole;
+  canApprove: boolean;
+};
+
+const SESSIONS: OperatorSession[] = [
+  {
+    id: "david-approver",
+    email: "bricely@prime-timesystems.com",
+    label: "David Figueroa",
+    role: "approver",
+    canApprove: true,
+  },
+  {
+    id: "ops-no-approve",
+    email: "david@prime-timesystems.com",
+    label: "Console operator",
+    role: "operator",
+    canApprove: false,
+  },
 ];
+
+const OPERATORS = SESSIONS.map((s) => s.email);
 
 const LANES = ["auto_resolve", "needs_approval", "billable", "ambiguous"] as const;
 
@@ -257,7 +281,10 @@ export default function App() {
   >([]);
 
   const functionsBase = (import.meta.env.VITE_SUPABASE_URL as string)?.replace(/\/$/, "");
-  const me = OPERATORS[0];
+  const [sessionId, setSessionId] = useState(SESSIONS[0].id);
+  const session = SESSIONS.find((s) => s.id === sessionId) ?? SESSIONS[0];
+  const me = session.email;
+  const canApprove = session.canApprove;
 
   useEffect(() => {
     const id = window.setInterval(() => setNowTick(Date.now()), 30_000);
@@ -326,7 +353,7 @@ export default function App() {
       .select("id,ticket_id,client_id,author_role,channel,body,created_at")
       .eq("ticket_id", selected.id)
       .eq("channel", "admin")
-      .order("created_at", { ascending: true })
+      .order("created_at", { ascending: false })
       .then(({ data }) => setDeskMessages((data ?? []) as TicketDeskMessage[]));
   }, [selected]);
 
@@ -479,6 +506,10 @@ export default function App() {
 
   async function approveSelected(opts?: { applyRouting?: boolean }) {
     if (!selected) return;
+    if (!canApprove) {
+      setError("Approve → Cursor staging requires Approver role. You are logged in without approval authority.");
+      return;
+    }
     setBusy(true);
     try {
       let ticket = selected;
@@ -658,22 +689,117 @@ export default function App() {
 
   async function markResolved() {
     if (!supabase || !selected) return;
+    if (!canApprove) {
+      setError("Resolve + notify requires Approver role. Switch session or escalate.");
+      return;
+    }
+    if (selected.id.startsWith("b1000001-")) {
+      setError("Case-log seeds cannot resolve/notify.");
+      return;
+    }
     setBusy(true);
-    const { error: uErr } = await supabase
-      .from("support_tickets")
-      .update({ status: "resolved", resolved_at: new Date().toISOString() })
-      .eq("id", selected.id);
-    if (!uErr) {
-      await supabase.rpc("log_ticket_event", {
-        p_ticket_id: selected.id,
-        p_event_type: "resolved",
-        p_actor: "operator",
-        p_payload: {},
+    try {
+      const pred = prediagnosisFromTicket(selected);
+      const exact =
+        pred.exactIssue ||
+        selected.ai_summary ||
+        selected.raw_message.slice(0, 160) ||
+        "your request";
+      const notifyBody = `Update on your case: “${exact.slice(0, 180)}” — marked resolved. If anything still looks wrong, reply here and we’ll reopen.`;
+
+      const { error: uErr } = await supabase
+        .from("support_tickets")
+        .update({
+          status: "resolved",
+          resolved_at: new Date().toISOString(),
+          cursor_execution_status: "done",
+        })
+        .eq("id", selected.id);
+      if (uErr) throw uErr;
+
+      let notifyStatus: "sent" | "no_thread" | "failed" = "no_thread";
+      let threadId: string | null = null;
+      const surface = (selected.surface || "internal").trim();
+      const userKey = (selected.requester_email || "").trim().toLowerCase();
+      if (userKey) {
+        const { data: thread, error: tErr } = await supabase
+          .from("bricely_threads")
+          .select("id")
+          .eq("client_id", selected.client_id || WMG_CLIENT_ID)
+          .eq("surface", surface)
+          .eq("user_key", userKey)
+          .maybeSingle();
+        if (tErr) throw tErr;
+        if (thread?.id) {
+          threadId = thread.id as string;
+          const { error: nErr } = await supabase.from("bricely_thread_messages").insert({
+            thread_id: threadId,
+            client_id: selected.client_id || WMG_CLIENT_ID,
+            role: "bricely",
+            body: notifyBody,
+            card: {
+              ticket: selected.id.slice(0, 8),
+              type: "resolution",
+              status: "resolved",
+            },
+            client_msg_id: `resolve-${selected.id}-${Date.now()}`,
+          });
+          if (nErr) {
+            notifyStatus = "failed";
+            console.warn("Bricely notify failed:", nErr.message);
+          } else {
+            notifyStatus = "sent";
+            await supabase
+              .from("bricely_threads")
+              .update({ updated_at: new Date().toISOString() })
+              .eq("id", threadId);
+          }
+        }
+      }
+
+      await supabase.from("ticket_messages").insert({
+        ticket_id: selected.id,
+        client_id: selected.client_id || WMG_CLIENT_ID,
+        author_role: "rep",
+        channel: "admin",
+        body: `[Approver · ${me}] Resolved. Requester notify: ${notifyStatus}${threadId ? ` (thread ${threadId.slice(0, 8)})` : ""}.`,
       });
+      if (notifyStatus === "sent") {
+        await supabase.from("ticket_messages").insert({
+          ticket_id: selected.id,
+          client_id: selected.client_id || WMG_CLIENT_ID,
+          author_role: "bricely",
+          channel: "system",
+          body: notifyBody,
+        });
+      }
+      await supabase.from("ticket_events").insert({
+        ticket_id: selected.id,
+        event_type: "resolved_notified",
+        actor: "operator",
+        payload: {
+          by: me,
+          role: session.role,
+          notify_status: notifyStatus,
+          thread_id: threadId,
+          exact_issue: exact.slice(0, 240),
+        },
+      });
+
       await refresh();
       setSelected(null);
-    } else setError(uErr.message);
-    setBusy(false);
+      setError(
+        notifyStatus === "sent"
+          ? null
+          : notifyStatus === "failed"
+            ? "Resolved, but Bricely notify insert failed — check desk note."
+            : "Resolved. No matching Bricely thread (surface + requester email) — notify skipped.",
+      );
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
   }
 
   function emitHandoffA(co: ChangeOrder) {
@@ -719,7 +845,7 @@ export default function App() {
       .select("id,ticket_id,client_id,author_role,channel,body,created_at")
       .eq("ticket_id", ticketId)
       .eq("channel", "admin")
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: false });
     setDeskMessages((data ?? []) as TicketDeskMessage[]);
   }
 
@@ -833,7 +959,7 @@ export default function App() {
       .select("author_role,body,created_at")
       .eq("ticket_id", ticketId)
       .eq("channel", "admin")
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: false });
     return (data ?? []) as { author_role: string; body: string; created_at: string }[];
   }
 
@@ -953,6 +1079,43 @@ export default function App() {
           <p className="text-[10px] mt-1" style={{ color: PRIME.muted }}>
             Async triage & route · not a live desk
           </p>
+          <div
+            className="mt-3 rounded-lg border px-2.5 py-2 space-y-1.5"
+            style={{ borderColor: PRIME.border, background: "#0f172a" }}
+          >
+            <p className="text-[9px] uppercase tracking-wide font-semibold text-slate-500">
+              Signed in
+            </p>
+            <p className="text-xs text-slate-100 font-medium leading-snug">{session.label}</p>
+            <p className="text-[10px] truncate" style={{ color: PRIME.muted }}>
+              {session.email}
+            </p>
+            <span
+              className={`inline-flex text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
+                session.canApprove
+                  ? "bg-emerald-600/30 text-emerald-200 border border-emerald-500/40"
+                  : "bg-amber-700/30 text-amber-100 border border-amber-500/40"
+              }`}
+            >
+              {session.role}
+              {session.canApprove ? " · can approve" : " · no approve"}
+            </span>
+            <label className="block text-[9px] uppercase text-slate-500 pt-1">
+              Switch session
+              <select
+                className="mt-0.5 w-full rounded border bg-slate-950 text-xs px-1.5 py-1 text-slate-200"
+                style={{ borderColor: PRIME.border }}
+                value={session.id}
+                onChange={(e) => setSessionId(e.target.value)}
+              >
+                {SESSIONS.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.label} ({s.role})
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </div>
 
         <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-4 text-sm">
@@ -1445,8 +1608,13 @@ export default function App() {
                         Cursor desk · HITL / DEV / ENG
                       </p>
                       <p className="text-[10px] mb-2" style={{ color: PRIME.muted }}>
-                        Dialogue stays on this ticket. Packaging / Approve attaches the desk thread for Cursor
-                        (staging only — never auto-prod). Status:{" "}
+                        Dialogue stays on this ticket (newest first). Packaging / Approve attaches the
+                        desk for Cursor — staging only. You are{" "}
+                        <span className={canApprove ? "text-emerald-300 font-semibold" : "text-amber-200 font-semibold"}>
+                          {session.role}
+                        </span>
+                        {" · "}
+                        status:{" "}
                         <span className="text-sky-300 font-semibold">
                           {selected.cursor_execution_status ?? "idle"}
                         </span>
@@ -1582,8 +1750,13 @@ export default function App() {
                     <div className="flex flex-wrap gap-2 pt-2 border-t" style={{ borderColor: PRIME.border }}>
                       <button
                         type="button"
-                        disabled={busy || selected.status !== "awaiting_approval"}
+                        disabled={busy || !canApprove || selected.status !== "awaiting_approval"}
                         onClick={() => void approveSelected()}
+                        title={
+                          canApprove
+                            ? "Approver: accept routing and download Cursor staging package"
+                            : "Requires Approver session"
+                        }
                         className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-sm disabled:opacity-40"
                       >
                         <Download className="w-4 h-4" /> Accept routing → Approve → Cursor staging
@@ -1606,11 +1779,16 @@ export default function App() {
                       </button>
                       <button
                         type="button"
-                        disabled={busy}
+                        disabled={busy || !canApprove}
                         onClick={() => void markResolved()}
+                        title={
+                          canApprove
+                            ? "Approver: resolve and notify requester on Bricely thread"
+                            : "Requires Approver session"
+                        }
                         className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 px-3 py-1.5 text-sm text-emerald-200 disabled:opacity-40"
                       >
-                        <CheckCircle2 className="w-4 h-4" /> Resolve
+                        <CheckCircle2 className="w-4 h-4" /> Resolve → notify
                       </button>
                     </div>
                   </div>
