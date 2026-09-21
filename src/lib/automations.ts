@@ -1,11 +1,17 @@
 import type { Ticket } from "./supabase";
-import { pageContextFromTicket } from "./supabase";
+import { pageContextFromTicket, prediagnosisFromTicket } from "./supabase";
 import { DISPATCH_OUTBOX_PATH } from "./handoffs";
 
 /** Suggest-only Cursor CS digests — never auto-dispatch / never override operator Approve. */
 export type AutomationSuggestion = {
   id: string;
-  kind: "stale_awaiting" | "sla_breach" | "missing_page_context" | "priority_open";
+  kind:
+    | "stale_awaiting"
+    | "sla_breach"
+    | "missing_page_context"
+    | "priority_open"
+    | "routing_apply"
+    | "low_capture";
   title: string;
   rationale: string;
   ticket_ids: string[];
@@ -74,6 +80,34 @@ export function buildAutomationSuggestions(tickets: Ticket[]): AutomationSuggest
       rationale: "Priority digest for operator queue — no autonomous action.",
       ticket_ids: p1p2.map((t) => t.id),
       severity: "high",
+    });
+  }
+
+  const routing = open.filter((t) => {
+    const p = prediagnosisFromTicket(t);
+    return Boolean(p.suggestedLane || p.suggestedPriority || p.assigneeHint);
+  });
+  if (routing.length) {
+    out.push({
+      id: "routing_apply",
+      kind: "routing_apply",
+      title: `${routing.length} ticket(s) with Bricely routing suggestions`,
+      rationale:
+        "Apply suggested priority/lane/assignee on Approve — HITL assess only; do not re-diagnose high-confidence captures.",
+      ticket_ids: routing.map((t) => t.id),
+      severity: "info",
+    });
+  }
+
+  const lowCap = open.filter((t) => prediagnosisFromTicket(t).captureConfidence === "low");
+  if (lowCap.length) {
+    out.push({
+      id: "low_capture",
+      kind: "low_capture",
+      title: `${lowCap.length} low capture-confidence ticket(s)`,
+      rationale: "Only these may need one operator clarifying ask before Approve.",
+      ticket_ids: lowCap.map((t) => t.id),
+      severity: "warn",
     });
   }
 

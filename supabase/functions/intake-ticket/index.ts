@@ -82,11 +82,35 @@ Deno.serve(async (req) => {
     if (pageContext && (pageContext.screen_id || pageContext.screen_label)) {
       overrideBase.page_context = pageContext;
     }
+    const prediagnosis =
+      body.prediagnosis && typeof body.prediagnosis === "object"
+        ? (body.prediagnosis as Record<string, unknown>)
+        : null;
+    if (prediagnosis) {
+      overrideBase.prediagnosis = prediagnosis;
+    }
+    const suggestedLane =
+      typeof body.suggested_lane === "string"
+        ? String(body.suggested_lane).trim()
+        : typeof prediagnosis?.suggested_lane === "string"
+          ? String(prediagnosis.suggested_lane).trim()
+          : null;
+    if (suggestedLane) {
+      overrideBase.suggested_lane = suggestedLane;
+    }
     if (isMock) {
       overrideBase.mock = true;
       overrideBase.isolation = "no_customer_contact";
     }
     const humanOverride = Object.keys(overrideBase).length ? overrideBase : null;
+
+    const priorityRaw = body.priority ? String(body.priority).trim() : "P3";
+    const priority = ["P1", "P2", "P3", "P4"].includes(priorityRaw) ? priorityRaw : "P3";
+    const lane =
+      suggestedLane &&
+      ["needs_approval", "ambiguous", "auto_resolve", "billable"].includes(suggestedLane)
+        ? suggestedLane
+        : "needs_approval";
 
     const { data: ticket, error } = await sb
       .from("support_tickets")
@@ -100,7 +124,12 @@ Deno.serve(async (req) => {
         linked_account: body.linked_account ?? null,
         diagnosis_summary: diagnosis,
         surface,
-        priority: body.priority ?? "P3",
+        priority,
+        ai_lane: lane,
+        ai_summary:
+          typeof prediagnosis?.exact_issue === "string"
+            ? String(prediagnosis.exact_issue).slice(0, 240)
+            : null,
         escalation_flag: Boolean(diagnosis),
         status: "awaiting_approval",
         is_mock: isMock,

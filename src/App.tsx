@@ -18,6 +18,7 @@ import {
   type TicketEvent,
   sortCsQueue,
   pageContextFromTicket,
+  prediagnosisFromTicket,
 } from "./lib/supabase";
 import {
   buildDispatchPayload,
@@ -963,6 +964,7 @@ export default function App() {
                 )}
                 {selected && (() => {
                   const page = pageContextFromTicket(selected);
+                  const pred = prediagnosisFromTicket(selected);
                   const sla = slaCountdown(selected);
                   return (
                   <div className="max-w-2xl space-y-4">
@@ -980,9 +982,14 @@ export default function App() {
                               On {page.screenLabel}
                             </span>
                           )}
+                          {pred.captureConfidence && (
+                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-sky-900/50 text-sky-200">
+                              Capture {pred.captureConfidence}
+                            </span>
+                          )}
                         </div>
                         <h2 className="text-lg font-semibold">
-                          {selected.ai_summary || "Ticket detail"}
+                          {pred.exactIssue || selected.ai_summary || "Ticket detail"}
                         </h2>
                         <p className="text-xs mt-1" style={{ color: PRIME.muted }}>
                           {new Date(selected.created_at).toLocaleString()} · {selected.source_channel}
@@ -996,6 +1003,36 @@ export default function App() {
                         {sla.label}
                       </p>
                     </div>
+
+                    <section className="rounded-lg border border-amber-800/40 bg-amber-950/20 p-3 space-y-2">
+                      <p className="text-[10px] font-semibold uppercase text-amber-200/90">
+                        Bricely prediagnosis — HITL assess + approve (do not re-diagnose unless needed)
+                      </p>
+                      <p className="text-sm text-amber-50 whitespace-pre-wrap">
+                        {pred.exactIssue || "Exact issue not captured yet."}
+                      </p>
+                      <div className="flex flex-wrap gap-2 text-[11px] text-amber-100/90">
+                        <span className="rounded bg-amber-900/40 px-1.5 py-0.5">
+                          Priority {pred.suggestedPriority ?? "—"}
+                        </span>
+                        <span className="rounded bg-amber-900/40 px-1.5 py-0.5">
+                          Lane {pred.suggestedLane ?? "—"}
+                        </span>
+                        {pred.assigneeHint && (
+                          <span className="rounded bg-amber-900/40 px-1.5 py-0.5">
+                            Hint {pred.assigneeHint}
+                          </span>
+                        )}
+                        {pred.questionsAsked != null && (
+                          <span className="rounded bg-amber-900/40 px-1.5 py-0.5">
+                            Qs {pred.questionsAsked}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px]" style={{ color: PRIME.muted }}>
+                        {pred.hitlNote}
+                      </p>
+                    </section>
 
                     {page.screenLabel ? (
                       <section className="rounded-lg border border-emerald-800/40 bg-emerald-950/25 p-3">

@@ -1,4 +1,11 @@
 
+## DR-CS-PLATFORM-011 — IN PROGRESS (2026-09-21)
+
+- Method: `proofs/DR-CS-PLATFORM-011/METHOD.md`
+- Stage 1: prediagnosis + permission + exact_issue + console HITL panel + intake writeback
+- Doctrine: Bricely diagnoses; HITL assess/approve; Cursor fixes only within fence
+- Proof: `GATE-1.md`
+
 ## DR-CS-PLATFORM-010 — CLOSED (2026-09-21)
 
 - Stages 0–7 complete; WMG chat bake PASS; console page_context + suggest-only Automations live

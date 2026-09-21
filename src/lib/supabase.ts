@@ -79,6 +79,56 @@ export function pageContextFromTicket(t: Ticket): { screenId: string | null; scr
   return { screenId: null, screenLabel: fromDiag };
 }
 
+/** Bricely prediagnosis package (DR-011) — HITL assess/approve, not re-diagnose. */
+export type PrediagnosisView = {
+  exactIssue: string | null;
+  suggestedPriority: string | null;
+  suggestedLane: string | null;
+  assigneeHint: string | null;
+  captureConfidence: string | null;
+  questionsAsked: number | null;
+  hitlNote: string | null;
+};
+
+export function prediagnosisFromTicket(t: Ticket): PrediagnosisView {
+  const ov = t.human_override as
+    | {
+        prediagnosis?: {
+          exact_issue?: unknown;
+          suggested_priority?: unknown;
+          suggested_lane?: unknown;
+          assignee_hint?: unknown;
+          capture_confidence?: unknown;
+          questions_asked?: unknown;
+          hitl_note?: unknown;
+        };
+        suggested_lane?: unknown;
+      }
+    | null
+    | undefined;
+  const p = ov?.prediagnosis;
+  const exactFromDiag = t.diagnosis_summary?.match(/Exact issue:\s*([^·]+)/i)?.[1]?.trim() || null;
+  return {
+    exactIssue:
+      (typeof p?.exact_issue === "string" ? p.exact_issue.trim() : null) ||
+      t.ai_summary ||
+      exactFromDiag,
+    suggestedPriority:
+      (typeof p?.suggested_priority === "string" ? p.suggested_priority : null) || t.priority,
+    suggestedLane:
+      (typeof p?.suggested_lane === "string" ? p.suggested_lane : null) ||
+      (typeof ov?.suggested_lane === "string" ? ov.suggested_lane : null) ||
+      t.ai_lane,
+    assigneeHint: typeof p?.assignee_hint === "string" ? p.assignee_hint : null,
+    captureConfidence: typeof p?.capture_confidence === "string" ? p.capture_confidence : null,
+    questionsAsked: typeof p?.questions_asked === "number" ? p.questions_asked : null,
+    hitlNote:
+      typeof p?.hitl_note === "string"
+        ? p.hitl_note
+        : "HITL = assess + approve. Re-diagnose only if needed.",
+  };
+}
+
 export type TicketEvent = {
   id: string;
   ticket_id: string;
