@@ -1,4 +1,11 @@
 
+## DR-CS-PLATFORM-012 — CLOSED (2026-09-21) — Stage 5 GATE
+
+- CONTROL_PLANE closure snippet posts to desk on Resolve / status→done
+- Companion JSON download for SoR
+- Closeout: `proofs/DR-CS-PLATFORM-012/CLOSEOUT.md`
+- Proof: `GATE-5.md`
+
 ## DR-CS-PLATFORM-012 — Stage 4 GATE (2026-09-21) — STOP for bake
 
 - Desk ENG/DEV/HITL assign + @mention chips

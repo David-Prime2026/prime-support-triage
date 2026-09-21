@@ -42,6 +42,7 @@ import {
   buildCursorStagingProposal,
   routingPatchFromPrediagnosis,
 } from "./lib/cursorStaging";
+import { buildControlPlaneClosureSnippet } from "./lib/controlPlaneSnippet";
 import { bugsAsTickets, BUG_CASE_SEEDS, CASE_LOG_SOURCE } from "./seeds/bugsCaseLog";
 
 type QueueSort = "priority_fifo" | "newest" | "oldest";
@@ -772,6 +773,30 @@ export default function App() {
         channel: "admin",
         body: `[Approver · ${me}] Resolved. Requester notify: ${notifyStatus}${threadId ? ` (thread ${threadId.slice(0, 8)})` : ""}.`,
       });
+      const closedTicket = {
+        ...selected,
+        status: "resolved",
+        cursor_execution_status: "done",
+      } as Ticket;
+      const cpSnippet = buildControlPlaneClosureSnippet(closedTicket, {
+        closedBy: me,
+        role: session.role,
+        notifyStatus,
+        reason: "Resolve → notify path",
+      });
+      await supabase.from("ticket_messages").insert({
+        ticket_id: selected.id,
+        client_id: selected.client_id || WMG_CLIENT_ID,
+        author_role: "cursor",
+        channel: "admin",
+        body: cpSnippet,
+      });
+      downloadJson(`control-plane-closure-${selected.id.slice(0, 8)}-${Date.now()}.json`, {
+        schema: "prime.cs.control_plane_closure.v1",
+        snippet: cpSnippet,
+        ticket_id: selected.id,
+        at: new Date().toISOString(),
+      });
       if (notifyStatus === "sent") {
         await supabase.from("ticket_messages").insert({
           ticket_id: selected.id,
@@ -989,6 +1014,27 @@ export default function App() {
         body: `[Cursor] execution_status → ${status} (staging fence; human still owns promote)`,
       });
       if (mErr) throw mErr;
+      if (status === "done") {
+        const closed = { ...selected, cursor_execution_status: "done" } as Ticket;
+        const cpSnippet = buildControlPlaneClosureSnippet(closed, {
+          closedBy: me,
+          role: session.role,
+          reason: "Status → done (desk pipeline)",
+        });
+        await supabase.from("ticket_messages").insert({
+          ticket_id: selected.id,
+          client_id: selected.client_id || WMG_CLIENT_ID,
+          author_role: "cursor",
+          channel: "admin",
+          body: cpSnippet,
+        });
+        downloadJson(`control-plane-closure-${selected.id.slice(0, 8)}-${Date.now()}.json`, {
+          schema: "prime.cs.control_plane_closure.v1",
+          snippet: cpSnippet,
+          ticket_id: selected.id,
+          at: new Date().toISOString(),
+        });
+      }
       // Audit event — non-fatal if actor/event constraints drift
       const { error: eErr } = await supabase.from("ticket_events").insert({
         ticket_id: selected.id,
