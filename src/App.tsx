@@ -910,28 +910,74 @@ export default function App() {
     if (!selected || !noteDraft.trim()) return;
     const body = noteDraft.trim();
     const at = new Date().toISOString();
-    const role = deskRole;
+    // Humans always speak as HITL/ENG — never attribute your words to Cursor by accident.
+    // "cursor" post role is only for rare manual agent status notes.
+    const role: DeskAuthorRole =
+      deskRole === "cursor" && !window.confirm(
+        "Post as Cursor agent?\n\nThis labels the message as CURSOR (not you). Cancel to post as yourself (HITL).",
+      )
+        ? "rep"
+        : deskRole;
+    if (role === "rep") setDeskRole("rep");
     setBusy(true);
     try {
       if (supabase && !selected.id.startsWith("b1000001-")) {
+        const humanBody =
+          role === "cursor"
+            ? `[Cursor agent note · ${me}] ${body}`
+            : role === "eng"
+              ? `[ENG · ${me}] ${body}`
+              : `[HITL · ${me}] ${body}`;
         const { error: mErr } = await supabase.from("ticket_messages").insert({
           ticket_id: selected.id,
           client_id: selected.client_id || WMG_CLIENT_ID,
           author_role: role,
           channel: "admin",
-          body:
-            role === "cursor"
-              ? `[Cursor status] ${body}`
-              : role === "eng"
-                ? `[ENG] ${body}`
-                : `[HITL · ${me}] ${body}`,
+          body: humanBody,
         });
         if (mErr) throw mErr;
+
+        // Honest Cursor ack when HITL/ENG @mentions Cursor or asks to assess — not a fake code estimate.
+        const wantsCursor =
+          role !== "cursor" &&
+          (/@cursor\b/i.test(body) ||
+            /\bassess\b/i.test(body) ||
+            /\bestimat/i.test(body) ||
+            /\bimpact\b/i.test(body));
+        if (wantsCursor) {
+          await supabase.from("ticket_messages").insert({
+            ticket_id: selected.id,
+            client_id: selected.client_id || WMG_CLIENT_ID,
+            author_role: "cursor",
+            channel: "admin",
+            body: [
+              "[Cursor] Received.",
+              "I don’t invent scope / hours / code impact inside this console chat.",
+              "Next: Approver records a staging package (Approve → record), or paste the proposal into Cursor.",
+              "I’ll read code/schema/PRs there, then post findings back on this desk.",
+              "Fence: staging only — never auto qcefkox.",
+            ].join(" "),
+          });
+          if ((selected.cursor_execution_status ?? "idle") === "idle") {
+            await supabase
+              .from("support_tickets")
+              .update({ cursor_execution_status: "received" })
+              .eq("id", selected.id);
+            setSelected({ ...selected, cursor_execution_status: "received" });
+          }
+        }
+
         const { error: eErr } = await supabase.from("ticket_events").insert({
           ticket_id: selected.id,
           event_type: "cursor_desk_message",
           actor: role === "rep" ? "operator" : role,
-          payload: { body, author: me, author_role: role, channel: "admin" },
+          payload: {
+            body,
+            author: me,
+            author_role: role,
+            channel: "admin",
+            cursor_acked: wantsCursor,
+          },
         });
         if (eErr) throw eErr;
         await refreshDesk(selected.id);
@@ -955,6 +1001,8 @@ export default function App() {
         ]);
       }
       setNoteDraft("");
+      setDeskRole("rep");
+      setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -1677,9 +1725,10 @@ export default function App() {
                           <>
                       <p className="text-[10px] mb-2" style={{ color: PRIME.muted }}>
                         <span className="text-slate-200 font-semibold">Desk chat = discourse</span>
-                        {" — "}HITL / DEV / ENG talk here.{" "}
-                        <span className="text-slate-200 font-semibold">Approve records</span> the
-                        work package for Cursor (staging). Newest first. You are{" "}
+                        {" — "}you post as HITL.{" "}
+                        <span className="text-slate-200 font-semibold">@cursor</span> gets an ack here;
+                        real code/impact assessment happens after Approve → record (staging). Newest first.
+                        You are{" "}
                         <span className={canApprove ? "text-emerald-300 font-semibold" : "text-amber-200 font-semibold"}>
                           {session.role}
                         </span>
@@ -1792,9 +1841,9 @@ export default function App() {
                         <div className="flex flex-wrap gap-1">
                           {(
                             [
-                              ["rep", "HITL"],
-                              ["eng", "ENG"],
-                              ["cursor", "DEV/Cursor"],
+                              ["rep", "You (HITL)"],
+                              ["eng", "You as ENG"],
+                              ["cursor", "As Cursor agent"],
                             ] as const
                           ).map(([role, label]) => (
                             <button
@@ -1803,7 +1852,9 @@ export default function App() {
                               onClick={() => setDeskRole(role)}
                               className={`text-[10px] px-2 py-0.5 rounded border ${
                                 deskRole === role
-                                  ? "bg-violet-700 border-violet-500"
+                                  ? role === "cursor"
+                                    ? "bg-amber-800 border-amber-500"
+                                    : "bg-violet-700 border-violet-500"
                                   : "border-slate-600 text-slate-300"
                               }`}
                             >
@@ -1821,11 +1872,17 @@ export default function App() {
                             </button>
                           ))}
                         </div>
+                        {deskRole === "cursor" && (
+                          <p className="text-[10px] text-amber-200/90">
+                            Warning: posting as Cursor agent labels the message CURSOR — not you. Prefer
+                            You (HITL) + @cursor so Cursor can ack.
+                          </p>
+                        )}
                         <textarea
                           value={noteDraft}
                           onChange={(e) => setNoteDraft(e.target.value)}
                           rows={2}
-                          placeholder="HITL instruction, @eng / @cursor note…"
+                          placeholder="Your HITL note — use @cursor to request Cursor ack…"
                           className="w-full rounded-lg border bg-slate-950/40 px-2 py-1.5 text-sm"
                           style={{ borderColor: PRIME.border }}
                         />
@@ -1835,7 +1892,11 @@ export default function App() {
                           onClick={() => void postDeskMessage()}
                           className="rounded-lg bg-slate-600 px-3 py-1.5 text-xs disabled:opacity-40"
                         >
-                          Post to desk ({deskRole})
+                          {deskRole === "cursor"
+                            ? "Post as Cursor agent (confirm)"
+                            : deskRole === "eng"
+                              ? `Post as ENG · ${me.split("@")[0]}`
+                              : `Post as you (HITL) · ${me.split("@")[0]}`}
                         </button>
                         <ul className="space-y-1.5 text-xs max-h-72 overflow-y-auto">
                           {deskMessages.map((m) => (
@@ -1845,7 +1906,13 @@ export default function App() {
                               style={{ borderColor: PRIME.border }}
                             >
                               <p className="text-[10px] uppercase font-semibold text-violet-300/90">
-                                {m.author_role}
+                                {m.author_role === "rep"
+                                  ? "HITL (you)"
+                                  : m.author_role === "cursor"
+                                    ? "CURSOR"
+                                    : m.author_role === "eng"
+                                      ? "ENG"
+                                      : m.author_role}
                               </p>
                               <p className="text-slate-200 whitespace-pre-wrap">{m.body}</p>
                               <p className="mt-0.5" style={{ color: PRIME.muted }}>
