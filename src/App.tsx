@@ -522,7 +522,8 @@ export default function App() {
           handoffId = handoff?.id;
         }
       }
-      const staging = buildCursorStagingProposal(ticket, me);
+      const deskThread = await loadDeskThread(ticket.id);
+      const staging = buildCursorStagingProposal(ticket, me, deskThread);
       const payload = {
         ...buildDispatchPayload({
           ticket_id: ticket.id,
@@ -537,6 +538,10 @@ export default function App() {
               ticket.ai_suggested_action,
               ticket.diagnosis_summary,
               ticket.raw_message,
+              deskThread.length
+                ? `Desk thread (${deskThread.length}):\n` +
+                  deskThread.map((m) => `- [${m.author_role}] ${m.body}`).join("\n")
+                : null,
             ]
               .filter(Boolean)
               .join("\n\n") || ticket.raw_message,
@@ -553,6 +558,19 @@ export default function App() {
           : payload,
       );
       downloadJson(`cursor-staging-${ticket.id.slice(0, 8)}-${Date.now()}.json`, staging);
+      if (supabase && !ticket.id.startsWith("b1000001-")) {
+        await supabase.from("ticket_messages").insert({
+          ticket_id: ticket.id,
+          client_id: ticket.client_id || WMG_CLIENT_ID,
+          author_role: "cursor",
+          channel: "admin",
+          body: `[Cursor outbox] Approved → staging package with ${deskThread.length} desk note(s). Status → received.`,
+        });
+        await supabase
+          .from("support_tickets")
+          .update({ cursor_execution_status: "received" })
+          .eq("id", ticket.id);
+      }
       await refresh();
       setSelected(null);
     } catch (e) {
@@ -768,7 +786,7 @@ export default function App() {
       if (!supabase) throw new Error("Supabase not configured");
       const { error: uErr } = await supabase
         .from("support_tickets")
-        .update({ cursor_execution_status: status, updated_at: new Date().toISOString() })
+        .update({ cursor_execution_status: status })
         .eq("id", selected.id);
       if (uErr) throw uErr;
       const { error: mErr } = await supabase.from("ticket_messages").insert({
@@ -779,13 +797,16 @@ export default function App() {
         body: `[Cursor] execution_status → ${status} (staging fence; human still owns promote)`,
       });
       if (mErr) throw mErr;
+      // Audit event — non-fatal if actor/event constraints drift
       const { error: eErr } = await supabase.from("ticket_events").insert({
         ticket_id: selected.id,
         event_type: "cursor_execution_status",
         actor: "cursor",
         payload: { status, set_by: me },
       });
-      if (eErr) throw eErr;
+      if (eErr) {
+        console.warn("cursor_execution_status event skipped:", eErr.message);
+      }
       setSelected({ ...selected, cursor_execution_status: status });
       setTickets((list) =>
         list.map((t) => (t.id === selected.id ? { ...t, cursor_execution_status: status } : t)),
@@ -797,6 +818,114 @@ export default function App() {
         .eq("ticket_id", selected.id)
         .order("created_at", { ascending: false });
       setEvents((data ?? []) as TicketEvent[]);
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function loadDeskThread(ticketId: string) {
+    if (!supabase || ticketId.startsWith("b1000001-")) return deskMessages;
+    const { data } = await supabase
+      .from("ticket_messages")
+      .select("author_role,body,created_at")
+      .eq("ticket_id", ticketId)
+      .eq("channel", "admin")
+      .order("created_at", { ascending: true });
+    return (data ?? []) as { author_role: string; body: string; created_at: string }[];
+  }
+
+  async function packageForCursor(ticket: Ticket) {
+    const thread = await loadDeskThread(ticket.id);
+    const staging = buildCursorStagingProposal(ticket, me, thread);
+    downloadJson(`cursor-staging-${ticket.id.slice(0, 8)}-${Date.now()}.json`, staging);
+    if (supabase && !ticket.id.startsWith("b1000001-")) {
+      const ov = {
+        ...((ticket.human_override as Record<string, unknown> | null) ?? {}),
+        cursor_staging_last: {
+          at: staging.generated_at,
+          desk_count: thread.length,
+          status: ticket.cursor_execution_status ?? "idle",
+        },
+      };
+      await supabase
+        .from("support_tickets")
+        .update({
+          human_override: ov,
+          cursor_execution_status: ticket.cursor_execution_status ?? "received",
+        })
+        .eq("id", ticket.id);
+      await supabase.from("ticket_messages").insert({
+        ticket_id: ticket.id,
+        client_id: ticket.client_id || WMG_CLIENT_ID,
+        author_role: "cursor",
+        channel: "admin",
+        body: `[Cursor outbox] Staging package downloaded with ${thread.length} desk note(s). Execute in staging only.`,
+      });
+      await refreshDesk(ticket.id);
+    }
+    return staging;
+  }
+
+  /** Billable path: capture hours → draft CO → route back awaiting approval. */
+  async function requestBillableHours() {
+    if (!selected || !supabase || selected.id.startsWith("b1000001-")) return;
+    const raw = window.prompt("Estimated hours for billable work (number)", "8");
+    if (raw == null) return;
+    const hours = Number(raw);
+    if (!Number.isFinite(hours) || hours <= 0) {
+      setError("Enter a positive hours estimate");
+      return;
+    }
+    const note =
+      window.prompt("Billable note for desk / re-approval", selected.ai_summary || selected.raw_message.slice(0, 120)) ??
+      "";
+    setBusy(true);
+    try {
+      await supabase
+        .from("support_tickets")
+        .update({
+          status: "awaiting_approval",
+          ai_lane: "billable",
+          ai_billable: true,
+          cursor_execution_status: "awaiting_promote",
+        })
+        .eq("id", selected.id);
+      await supabase.from("change_order_drafts").insert({
+        ticket_id: selected.id,
+        client_id: selected.client_id || WMG_CLIENT_ID,
+        description: selected.ai_summary || selected.raw_message.slice(0, 200),
+        rationale: note.trim() || "Hours requested for billable work — re-approve before Cursor staging",
+        contract_clause_ref: selected.ai_contract_clause_ref,
+        estimated_scope: selected.ai_suggested_action,
+        estimated_hours: hours,
+        status: "draft",
+      });
+      await supabase.from("ticket_messages").insert({
+        ticket_id: selected.id,
+        client_id: selected.client_id || WMG_CLIENT_ID,
+        author_role: "rep",
+        channel: "admin",
+        body: `[HITL · billable] Requested ${hours}h. Routed back awaiting_approval. ${note.trim()}`.trim(),
+      });
+      await supabase.from("ticket_events").insert({
+        ticket_id: selected.id,
+        event_type: "billable_hours_requested",
+        actor: "operator",
+        payload: { hours, note: note.trim(), set_by: me },
+      });
+      await refresh();
+      setSelected({
+        ...selected,
+        status: "awaiting_approval",
+        ai_lane: "billable",
+        ai_billable: true,
+        cursor_execution_status: "awaiting_promote",
+      });
+      await refreshDesk(selected.id);
+      setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -1173,15 +1302,10 @@ export default function App() {
                         <button
                           type="button"
                           disabled={busy}
-                          onClick={() =>
-                            downloadJson(
-                              `cursor-staging-${selected.id.slice(0, 8)}-${Date.now()}.json`,
-                              buildCursorStagingProposal(selected, me),
-                            )
-                          }
+                          onClick={() => void packageForCursor(selected).catch((e) => setError(e instanceof Error ? e.message : String(e)))}
                           className="rounded-lg border border-sky-500/40 px-2.5 py-1 text-[11px] text-sky-100 disabled:opacity-40"
                         >
-                          Download Cursor staging proposal
+                          Package desk → Cursor staging
                         </button>
                       </div>
                     </section>
@@ -1321,8 +1445,8 @@ export default function App() {
                         Cursor desk · HITL / DEV / ENG
                       </p>
                       <p className="text-[10px] mb-2" style={{ color: PRIME.muted }}>
-                        Admin discourse only. Cursor executes staging + CONTROL_PLANE — console does not auto-fix.
-                        Status:{" "}
+                        Dialogue stays on this ticket. Packaging / Approve attaches the desk thread for Cursor
+                        (staging only — never auto-prod). Status:{" "}
                         <span className="text-sky-300 font-semibold">
                           {selected.cursor_execution_status ?? "idle"}
                         </span>
@@ -1471,6 +1595,14 @@ export default function App() {
                         className="rounded-lg border border-violet-500/50 px-3 py-1.5 text-sm text-violet-200 disabled:opacity-40"
                       >
                         → Change order
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy || !supabase || selected.id.startsWith("b1000001-")}
+                        onClick={() => void requestBillableHours()}
+                        className="rounded-lg border border-amber-500/50 px-3 py-1.5 text-sm text-amber-100 disabled:opacity-40"
+                      >
+                        Billable: request hours → re-approve
                       </button>
                       <button
                         type="button"

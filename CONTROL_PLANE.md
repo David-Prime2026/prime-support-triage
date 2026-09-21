@@ -1,4 +1,11 @@
 
+## DR-CS-PLATFORM-012 — Stage 2 GATE (2026-09-21) — STOP for bake
+
+- Status flip fixed (`ticket_events` actor allowlist)
+- Desk thread rides on Cursor staging package / Approve
+- Billable: request hours → CO draft → re-approve
+- Proof: `proofs/DR-CS-PLATFORM-012/GATE-2.md` · **STOP before Stage 3 notify**
+
 ## DR-CS-PLATFORM-012 — Stage 1 GATE (2026-09-21) — STOP for bake
 
 - Design: console = HITL/DEV/ENG discourse; Cursor = execution + CONTROL_PLANE; never auto qcefkox

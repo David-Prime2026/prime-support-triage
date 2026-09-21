@@ -1,6 +1,6 @@
 # DR-CS-PLATFORM-012 — Console Cursor desk (HITL / DEV / ENG → Cursor execution)
 
-**Status:** Stage 1 COMPLETE — GATE-1 for PRIME bake. **STOP before Stage 2/3.**  
+**Status:** Stage 2 COMPLETE — GATE-2 for PRIME bake. **STOP before Stage 3 (notify).**  
 **Date:** 2026-09-21  
 **Authority:** PRIME GO (design-aligned; do not rush)  
 **Runtime:** `apx…` sole · never auto `qcefkox…`
@@ -31,7 +31,7 @@ Target: **in-console discourse** (HITL/DEV/ENG notes + Cursor status) that still
 |-------|------|------|
 | **0** | Method + alignment (this file) | None — **Done** |
 | **1** | Ticket-linked **Cursor desk** thread: operator notes + Cursor status events (apx tables + console panel). Still no auto-exec. | Low — **Done · GATE-1** |
-| **2** | Wire desk → **staging proposal** / outbox (reuse `cursor_staging_proposal`); Cursor agent picks up or operator pastes | Low |
+| **2** | Wire desk → **staging proposal** / outbox (reuse `cursor_staging_proposal`); Cursor agent picks up or operator pastes. Billable hours → re-approve. | Low — **Done · GATE-2** |
 | **3** | Resolve → **notify requester** via Bricely thread message (exact_issue resolved). Email later optional. | Med (user-visible) |
 | **4** | DEV/ENG roles on desk (assign, @mention) + richer status machine (`received` → `in_staging` → `preview_ready` → `awaiting_promote`) | Med |
 | **5** | Optional: Cursor posts CONTROL_PLANE snippets back into desk on closure | Low |
