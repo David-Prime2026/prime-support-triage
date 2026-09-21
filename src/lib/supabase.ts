@@ -62,6 +62,23 @@ export type Ticket = {
   is_mock?: boolean | null;
 };
 
+/** Host page context from intake (stored under human_override.page_context). */
+export function pageContextFromTicket(t: Ticket): { screenId: string | null; screenLabel: string | null } {
+  const ov = t.human_override as
+    | { page_context?: { screen_id?: unknown; screen_label?: unknown } }
+    | null
+    | undefined;
+  const pc = ov?.page_context;
+  const screenId = typeof pc?.screen_id === "string" ? pc.screen_id.trim() || null : null;
+  const screenLabel =
+    typeof pc?.screen_label === "string" ? pc.screen_label.trim() || null : null;
+  if (screenId || screenLabel) return { screenId, screenLabel };
+  // Fallback: parse "Screen: …" from diagnosis_summary
+  const m = t.diagnosis_summary?.match(/Screen:\s*([^·|]+)/i);
+  const fromDiag = m?.[1]?.trim() || null;
+  return { screenId: null, screenLabel: fromDiag };
+}
+
 export type TicketEvent = {
   id: string;
   ticket_id: string;

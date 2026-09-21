@@ -1,19 +1,15 @@
-# Support Triage / CS Platform — status (DR-CS-PLATFORM-001 Phase 1)
+# Support Triage / CS Platform — status
 
 | Area | State | Notes |
 |------|-------|-------|
-| Bricely embed (3 surfaces) | **Grounded** | `feat/bricely-embed` — additive overlay |
-| Diagnostic loop §4.0 | **Grounded (staging)** | Ask → evidence (image/PDF) → safe step → ~5-turn cap |
-| Settings Support | **Grounded** | Mockup layout + 6-row pagination + quote popup |
-| Lightweight admin | **FIX-B shipped-to-staging** | Corrected shell: unified nav, summary bar, pills, 2-badge, SLA countdown |
-| Handoff A/B | **Grounded** | Appendix A shapes; flat-file outbox |
-| Schema Phase 1 + designed Phase 2 stubs | **Grounded** | `003_phase1_cs_platform_extensions.sql` — **support-triage DB only** |
-| Parallel CS repo | **Noted** | Stand up early; WMG as connecting tenant — PRIME name TBD |
-| Production | **STOP at gate** | Never merge / never `qcefkoxqkfwnlqfmwzmi` |
+| Runtime host | **apx** sole | rxhiyd cold archive only |
+| DR-010 | **CLOSED** | Stages 0–7; closeout in proofs |
+| Bricely chat | **LIVE + bake PASS** | Honest intro + fenced Claude assist |
+| Diagnostic fence | **LIVE** | Still owns tickets / money / escalate |
+| Support console | **LIVE** | page_context chips + suggest-only Automations |
+| Console auto-routing | **NOT BUILT** | Next phase candidate (DR-011) |
+| Cursor Automations (full) | **HELD** | Suggest digests only |
+| Autonomy Lane 1/2 | **ENABLED** | Never auto-deploy qcefkox |
 
-## FLAG — schema
-Migration `003_*` extends the **isolated** `prime-support-triage` local DB only.
-Not applied to WMG OS production. Git-staging still primary for the WMG embed.
-
-## Phase 2 (not building now)
-Full agent console, SLA countdowns, CO board depth, compliance, analytics, lift-and-shift completion.
+## Production guard
+Never autonomous deploy to `qcefkoxqkfwnlqfmwzmi`.

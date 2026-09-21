@@ -1,18 +1,61 @@
 
-## DR-CS-PLATFORM-010 — Stage 1 GATE (2026-09-21) — STOP for PRIME
+## DR-CS-PLATFORM-010 — CLOSED (2026-09-21)
 
-- Method: `proofs/DR-CS-PLATFORM-010/METHOD.md` · baseline: `BASELINE-TICKETS.json` (24 tickets on rxhiyd)
-- Preservation: **NOT** merge_branch (data-less; parent merge failed). Use dump/restore UUIDs.
-- **apx now has:** support schema (18 tables), WMG client seed, edge fns intake-ticket / bricely-thread / approve-handoff ACTIVE
-- **apx tickets:** 0 — data not moved
-- **rxhiyd:** still LIVE catch-net with 24 tickets
-- Next: PRIME **GO Stage 2** → restore ticket data to apx → verify IDs → then Stage 3 env cutover
+- Stages 0–7 complete; WMG chat bake PASS; console page_context + suggest-only Automations live
+- Closeout: `proofs/DR-CS-PLATFORM-010/CLOSEOUT.md`
+- **Not in lane:** console auto-routing / full Cursor CS assign — proposed next as DR-011
+- Never auto `qcefkox…`
 
-## DR-CS-PLATFORM-CURRENT-STATE — AUTHORITATIVE (reconciled 2026-09-21)
+## DR-CS-PLATFORM-010 — Stage 7 GATE (2026-09-21) — COMPLETE (bake PASS)
+
+- Honest AI disclosure restored in first bubble (7a)
+- `bricely-claude-assist` ACTIVE on apx (7b); client fence already wired
+- Vercel env + `ANTHROPIC_API_KEY` on apx may still need PRIME confirm (see GATE-7)
+- Proof: `proofs/DR-CS-PLATFORM-010/GATE-7.md`
+- Honesty: disclosure ≠ comprehension until assist env+key bake-proven
+
+## DR-CS-PLATFORM-010 — Stage 7 PROPOSED (2026-09-21) — superseded by GATE-7
+
+- PR #9 bake PASS (page-aware intro). Comprehension still = regex state machine (honest).
+- Charter `honest_ai_intro` exists but was diluted; open disclosure missing in first bubble.
+- Proposal: `proofs/DR-CS-PLATFORM-010/STAGE-7-PROPOSAL.md` — **7a** restore AI + ask/ticket disclosure; **7b** Claude assist (G3) behind fence.
+- Do not treat context chips as comprehension solved.
+
+## DR-CS-PLATFORM-010 — Stage 6 GATE (2026-09-21) — STOP for PRIME promotions
+
+- Intake `page_context` → `human_override` on **apx** (`intake-ticket` v2)
+- Console: page context chips/detail + Automations suggest-only digests
+- Console GH Pages redeployed Stage 6 (`7d026d4`) — page context + Automations suggest-only
+- Hydrate intro fix: https://github.com/David-Prime2026/Wmsosv2/pull/9 (not deployed until merge)
+- Proof: `proofs/DR-CS-PLATFORM-010/GATE-6.md`
+- Stage 3 smoke thread cleared; PR #8 merge bake noted (generic greeting + smoke history → fixed path above)
+- **Never auto qcefkox**
+
+## DR-CS-PLATFORM-010 — Stage 5 GATE (2026-09-21) — COMPLETE (PR #8 squash-merged)
+
+- PR: https://github.com/David-Prime2026/Wmsosv2/pull/8 — soft offramp + fenced Claude assist + page context
+- Proof: `proofs/DR-CS-PLATFORM-010/GATE-5.md`
+- Merged/squashed by PRIME; Vercel bake → Stage 6
+
+## DR-CS-PLATFORM-010 — Stage 4 GATE (2026-09-21) — COMPLETE
+
+- Method: `proofs/DR-CS-PLATFORM-010/METHOD.md` · gates: `GATE-1`…`GATE-4`
+- **Canonical runtime:** `apxbwdxszmdffbduhjen` = sole triage authority (intake + thread + console)
+- **rxhiyd:** **RETIRED from runtime doctrine** — cold archive only (`staging` branch may remain; do not retarget env)
+- Posture + killswitch pinned; CURRENT-STATE updated
+- Next: Stage 5 done — see Stage 5 GATE (PR #8 ready for PRIME merge)
+
+## DR-CS-PLATFORM-010 — Stage 3 GATE (2026-09-21) — COMPLETE
+
+- Runtime cutover executed: Vercel + GH Pages + posture → apx
+- Smoke: intake `a420b42e-…` · thread `79ebeff1-…` · WMG/console JS = apx only
+- rxhiyd left intact through Stage 3 as rollback; Stage 4 retired it from doctrine
+
+## DR-CS-PLATFORM-CURRENT-STATE — AUTHORITATIVE (reconciled 2026-09-21; Stage 4 doctrine pin)
 
 - Full record: `proofs/DR-CS-PLATFORM-CURRENT-STATE.md` (supersedes 007–009 scatter where they conflict)
-- Canonical: `qcefkox…` = WMG OS prod never auto · `apx…` = intended triage authority (**empty runtime today**) · `rxhiyd…` = **still LIVE intake/thread host** (23 tickets) — cutover pending
-- Catch-net: LIVE on users; intake env points at rxhiyd (doctrine drift)
+- Canonical: `qcefkox…` = WMG OS prod never auto · `apx…` = **LIVE sole triage authority** · `rxhiyd…` = **archive only (not runtime)**
+- Catch-net: LIVE on users; intake env points at **apx**
 - Bricely “comprehension-led” (008): **overstated** — prod is regex diagnostic engine; page-context UX on PR #8 not merged
 - Autonomy 006/007R: ENABLED; Lane1 first fire hit dead CreateLoadModal; Lane2 SF4 proven; Place Load Order helper + Bricely polish = hold merge on PR #8
 - Automations 009 / SendGrid / DR-002: still HELD
@@ -47,7 +90,7 @@
 
 ## DR-CS-PLATFORM-007R — ratified + enabled (first fire STOP) — 2026-09-21T12:33:36.800Z
 
-- Canonical: prod=qcefkoxqkfwnlqfmwzmi (never auto-deploy) · triage=apxbwdxszmdffbduhjen · rogue=rxhiydtqzmksaeegxyqo unused
+- Canonical (historical 007R wording): prod=qcefkox… · triage=apx… · rxhiyd later corrected by DR-010 (was briefly live, then archive)
 - W3 CSS TIGHTENED to purely aesthetic (no reflow/hide/position/clickability)
 - SF8 draft TIGHTENED to send_path=none (ai-draft only; never send/notify/EmailDrawer Send)
 - Lane 1 + Lane 2 governors live; unsure→escalate; kill switch reachable (halt:true)
@@ -55,6 +98,11 @@
 ﻿# Support Triage / CS Platform — Control Plane
 
 Isolated from WMG OS production (`qcefkoxqkfwnlqfmwzmi`).
+
+## Canonical hosts (DR-010 Stage 4 pin)
+- **WMG OS prod (never autonomous):** `qcefkoxqkfwnlqfmwzmi`
+- **Triage runtime (sole authority):** `apxbwdxszmdffbduhjen`
+- **Archive only (not runtime):** `rxhiydtqzmksaeegxyqo` (Supabase branch `staging` of apx — do not retarget env)
 
 ## Branches
 - Backend / admin: `feat/bricely-support-system` (`wmg-backend` / `support-triage/`)
@@ -67,7 +115,7 @@ Isolated from WMG OS production (`qcefkoxqkfwnlqfmwzmi`).
 - **`config/risk-fence.json`** — PRIME-ratified Tier 1 fence v1.0.0 (DR-006)
 - **`config/bug-change-classification.json`** — PRIME-ratified method v1.0.0 (defaults DOWN)
 - **`config/autonomy-killswitch.json`** — live kill switch (halt / tier1 / straight-to-prod)
-- **`config/catch-net-posture.json`** — users_live
+- **`config/catch-net-posture.json`** — users_live · runtime = apx
 - **PROPOSED (not enabled):** `config/wmgos-display-fence.proposed.*` · `config/wmgos-safe-feature-allowlist.proposed.*` (DR-007)
 
 ## Handoffs

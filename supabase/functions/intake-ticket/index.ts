@@ -60,6 +60,34 @@ Deno.serve(async (req) => {
     const isMock = Boolean(body.is_mock);
     const threadId = body.thread_id ? String(body.thread_id).trim() : null;
 
+    const pageContextRaw = body.page_context;
+    const pageContext =
+      pageContextRaw && typeof pageContextRaw === "object"
+        ? {
+            screen_id:
+              typeof (pageContextRaw as { screen_id?: unknown }).screen_id === "string"
+                ? String((pageContextRaw as { screen_id: string }).screen_id).trim() || null
+                : null,
+            screen_label:
+              typeof (pageContextRaw as { screen_label?: unknown }).screen_label === "string"
+                ? String((pageContextRaw as { screen_label: string }).screen_label).trim() || null
+                : null,
+          }
+        : null;
+
+    const overrideBase =
+      body.human_override && typeof body.human_override === "object"
+        ? { ...(body.human_override as Record<string, unknown>) }
+        : {};
+    if (pageContext && (pageContext.screen_id || pageContext.screen_label)) {
+      overrideBase.page_context = pageContext;
+    }
+    if (isMock) {
+      overrideBase.mock = true;
+      overrideBase.isolation = "no_customer_contact";
+    }
+    const humanOverride = Object.keys(overrideBase).length ? overrideBase : null;
+
     const { data: ticket, error } = await sb
       .from("support_tickets")
       .insert({
@@ -76,9 +104,7 @@ Deno.serve(async (req) => {
         escalation_flag: Boolean(diagnosis),
         status: "awaiting_approval",
         is_mock: isMock,
-        human_override: isMock
-          ? { mock: true, isolation: "no_customer_contact" }
-          : body.human_override ?? null,
+        human_override: humanOverride,
       })
       .select("*")
       .single();
@@ -131,6 +157,7 @@ Deno.serve(async (req) => {
         source_channel: source,
         has_diagnosis: Boolean(diagnosis),
         attachment_count: attachmentPayload.length,
+        page_context: pageContext,
       },
     });
     // Fire-and-forget AI pipeline

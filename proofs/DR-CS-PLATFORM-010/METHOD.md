@@ -1,6 +1,6 @@
 # DR-CS-PLATFORM-010 — Method & sequencing (Cursor)
 
-**Status:** Stage 0 COMPLETE — preservation method CONFIRMED. Stage 1 in progress (schema on apx). **STOP before data cutover / env promotion.**  
+**Status:** CLOSED — Stages 0–7 complete; chat bake PASS. See `CLOSEOUT.md`. Next phase proposed as DR-011 (console routing) — not started.  
 **Date:** 2026-09-21
 
 ## Chosen method (cutover-first, separable)

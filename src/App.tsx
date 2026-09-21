@@ -17,6 +17,7 @@ import {
   type Ticket,
   type TicketEvent,
   sortCsQueue,
+  pageContextFromTicket,
 } from "./lib/supabase";
 import {
   buildDispatchPayload,
@@ -26,6 +27,10 @@ import {
   downloadJson,
   handoffAToCsvRow,
 } from "./lib/handoffs";
+import {
+  buildAutomationSuggestions,
+  buildSuggestionDigestPayload,
+} from "./lib/automations";
 import { bugsAsTickets, BUG_CASE_SEEDS, CASE_LOG_SOURCE } from "./seeds/bugsCaseLog";
 
 type QueueSort = "priority_fifo" | "newest" | "oldest";
@@ -904,6 +909,7 @@ export default function App() {
                 )}
                 {visibleTickets.map((t) => {
                   const sla = slaCountdown(t);
+                  const page = pageContextFromTicket(t);
                   return (
                     <button
                       key={t.id}
@@ -929,8 +935,13 @@ export default function App() {
                         <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-600/60 text-slate-200">
                           {stateLabel(t)}
                         </span>
+                        {page.screenLabel && (
+                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-emerald-900/50 text-emerald-200 truncate max-w-[9rem]">
+                            {page.screenLabel}
+                          </span>
+                        )}
                         {t.escalation_flag && (
-                          <AlertTriangle className="w-3 h-3 text-rose-400 ml-auto" />
+                          <AlertTriangle className="w-3 h-3 text-rose-400 ml-auto shrink-0" />
                         )}
                       </div>
                       <p className="text-sm font-medium line-clamp-2">
@@ -950,17 +961,25 @@ export default function App() {
                     Select a ticket — every escalated item lands here (Phase 1 catch-net).
                   </div>
                 )}
-                {selected && (
+                {selected && (() => {
+                  const page = pageContextFromTicket(selected);
+                  const sla = slaCountdown(selected);
+                  return (
                   <div className="max-w-2xl space-y-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${priorityBadge(selected.priority)}`}>
                             {selected.priority ?? "P?"}
                           </span>
                           <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-600/60">
                             {stateLabel(selected)}
                           </span>
+                          {page.screenLabel && (
+                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-emerald-900/50 text-emerald-200">
+                              On {page.screenLabel}
+                            </span>
+                          )}
                         </div>
                         <h2 className="text-lg font-semibold">
                           {selected.ai_summary || "Ticket detail"}
@@ -973,11 +992,22 @@ export default function App() {
                             : ""}
                         </p>
                       </div>
-                      <p className={`text-sm font-medium ${slaToneClass(slaCountdown(selected).tone)}`}>
-                        {slaCountdown(selected).label}
+                      <p className={`text-sm font-medium ${slaToneClass(sla.tone)}`}>
+                        {sla.label}
                       </p>
                     </div>
 
+                    {page.screenLabel ? (
+                      <section className="rounded-lg border border-emerald-800/40 bg-emerald-950/25 p-3">
+                        <p className="text-[10px] font-semibold uppercase text-emerald-300/80">
+                          Page context
+                        </p>
+                        <p className="mt-1 text-sm text-emerald-50">
+                          {page.screenLabel}
+                          {page.screenId ? ` · id ${page.screenId}` : ""}
+                        </p>
+                      </section>
+                    ) : null}
                     <section>
                       <p className="text-[10px] font-semibold uppercase" style={{ color: PRIME.muted }}>
                         Request
@@ -1196,7 +1226,8 @@ export default function App() {
                       </button>
                     </div>
                   </div>
-                )}
+                  );
+                })()}
               </div>
             </>
           )}
@@ -1273,9 +1304,79 @@ export default function App() {
             </div>
           )}
 
+          {nav === "automations" && (
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className="max-w-2xl space-y-4">
+                <div>
+                  <h2 className="text-lg font-semibold">Automations (suggest-only)</h2>
+                  <p className="text-xs mt-1" style={{ color: PRIME.muted }}>
+                    Cursor CS bolt-on — digests for the operator queue. Never auto-dispatches, never
+                    overrides Approve. Drop downloaded digests into {DISPATCH_OUTBOX_PATH} if you
+                    want a paper trail.
+                  </p>
+                </div>
+                {(() => {
+                  const suggestions = buildAutomationSuggestions(tickets);
+                  if (!suggestions.length) {
+                    return (
+                      <p className="text-sm" style={{ color: PRIME.muted }}>
+                        No suggestions right now — queue looks clear.
+                      </p>
+                    );
+                  }
+                  return (
+                    <>
+                      <ul className="space-y-3">
+                        {suggestions.map((s) => (
+                          <li
+                            key={s.id}
+                            className="rounded-lg border p-3"
+                            style={{ background: PRIME.card, borderColor: PRIME.border }}
+                          >
+                            <div className="flex items-center gap-2 mb-1">
+                              <span
+                                className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
+                                  s.severity === "high"
+                                    ? "bg-rose-500/20 text-rose-200"
+                                    : s.severity === "warn"
+                                      ? "bg-amber-500/20 text-amber-200"
+                                      : "bg-slate-600/50 text-slate-200"
+                                }`}
+                              >
+                                {s.severity}
+                              </span>
+                              <span className="text-sm font-medium">{s.title}</span>
+                            </div>
+                            <p className="text-xs" style={{ color: PRIME.muted }}>
+                              {s.rationale}
+                            </p>
+                            <p className="text-[11px] mt-1.5 font-mono text-slate-400">
+                              {s.ticket_ids.length} id(s) · {s.kind}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-1 rounded-lg border border-blue-500/40 px-3 py-1.5 text-sm text-blue-200"
+                        onClick={() =>
+                          downloadJson(
+                            `automation-suggest-${Date.now()}.json`,
+                            buildSuggestionDigestPayload(suggestions),
+                          )
+                        }
+                      >
+                        <Download className="w-4 h-4" /> Download suggest digest
+                      </button>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+
           {(nav === "clients" ||
             nav === "kb" ||
-            nav === "automations" ||
             nav === "dashboard" ||
             nav === "audit" ||
             nav === "compliance") && (

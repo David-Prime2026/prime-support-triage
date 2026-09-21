@@ -14,7 +14,7 @@
   "canonical_refs": {
     "wmg_os_production_never_autonomous_deploy": "qcefkoxqkfwnlqfmwzmi",
     "support_triage_authoritative": "apxbwdxszmdffbduhjen",
-    "rogue_mobile_unused": "rxhiydtqzmksaeegxyqo"
+    "staging_branch_archive_not_runtime": "rxhiydtqzmksaeegxyqo"
   },
-  "note": "Kill switch: set halt=true to stop immediately. CURSOR_DEV_AUTONOMY=off also halts. Never auto-deploy to qcefkox — PRIME deploys via merge. Inaugural Lane1/Lane2 fires closed 2026-09-21."
+  "note": "Kill switch: set halt=true to stop immediately. CURSOR_DEV_AUTONOMY=off also halts. Never auto-deploy to qcefkox — PRIME deploys via merge. DR-010 Stage 4: apx sole triage runtime; rxhiyd archive only."
 }

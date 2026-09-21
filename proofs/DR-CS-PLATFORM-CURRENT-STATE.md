@@ -1,21 +1,22 @@
 # DR-CS-PLATFORM-CURRENT-STATE — Reconciled system of record
 
-**Status:** AUTHORITATIVE after Cursor reconcile 2026-09-21  
+**Status:** AUTHORITATIVE — DR-010 **CLOSED** 2026-09-21 (Stages 0–7; chat bake PASS)  
 **Owner:** PRIME (David Figueroa)  
-**Reconciled by:** Cursor against CONTROL_PLANE + live Supabase + Wmsosv2 main / PR #8  
-**Supersedes:** scattered DR-007 / 007R / 008 / 008R / 009 + roadmap claims where they conflict with this file
+**Reconciled by:** Cursor against CONTROL_PLANE + live Supabase + Wmsosv2 main (through PR #10)  
+**Supersedes:** scattered DR-007 / 007R / 008 / 008R / 009 + pre-cutover host drift claims  
+**Closeout:** `proofs/DR-CS-PLATFORM-010/CLOSEOUT.md` · Next phase proposed: console routing (DR-011) — not started
 
 ---
 
-## Canonical project refs (pinned)
+## Canonical project refs (pinned — Stage 4)
 
 | Ref | Role | Verified 2026-09-21 |
 |-----|------|---------------------|
 | `qcefkoxqkfwnlqfmwzmi` | WMG OS PRODUCTION — **never** autonomously touched/deployed | Hard-excluded in fences + killswitch |
-| `apxbwdxszmdffbduhjen` | **Intended** authoritative prime-support-triage (governors / repo of record) | **EMPTY runtime:** no `support` schema, **0** edge functions |
-| `rxhiydtqzmksaeegxyqo` | Labeled “rogue/unused” in 007R — **but still the LIVE intake host** | Edge fns ACTIVE: `intake-ticket`, `bricely-thread`, `approve-handoff`; **23 tickets** in `support.support_tickets` |
+| `apxbwdxszmdffbduhjen` | **Sole** authoritative prime-support-triage **runtime** | Schema + edge fns ACTIVE; tickets restored; Vercel + console + posture → apx |
+| `rxhiydtqzmksaeegxyqo` | Supabase branch `staging` of apx — **RETIRED from runtime** (cold archive OK) | Do **not** retarget env; data left intact as archive |
 
-**Drift (must fix):** Doctrine says apx = live CS platform; production Bricely env + `catch-net-posture.json` still point intake/thread at **rxhiyd**. Treat rxhiyd as *de facto runtime* until functions+schema are cut over to apx.
+**Drift resolved:** Runtime and doctrine agree — **apx** is intake/thread/console host.
 
 ---
 
@@ -25,18 +26,18 @@ Standalone multi-tenant PRIME CS platform; WMG beta tenant #1.
 
 ---
 
-## 2. LIVE — catch-net (users) — MOSTLY LIVE, with host drift
+## 2. LIVE — catch-net (users) — LIVE on apx
 
 | Claim | Verdict | Evidence |
 |-------|---------|----------|
 | Bricely on 3 surfaces | **LIVE** | Prod WMG OS + portals |
-| Intake wired; tickets land surface-tagged | **LIVE on rxhiyd, not apx** | Vercel/`VITE_BRICELY_*` → rxhiyd; tickets: awaiting_approval 21, sent_to_engineering 1, new 1 |
-| Console hosted | **LIVE** (wired to rxhiyd staging) | `catch-net-posture.json` console_url + prior CONTROL_PLANE |
-| Server thread persistence | **LIVE** (rxhiyd `bricely-thread`) | Function ACTIVE; client uses THREAD_URL |
+| Intake wired; tickets land surface-tagged | **LIVE on apx** | Vercel/`VITE_BRICELY_*` → apx; Stage 3 smoke ticket + restored baseline IDs |
+| Console hosted | **LIVE** (wired to apx) | GH Pages bake + `catch-net-posture.json` |
+| Server thread persistence | **LIVE** (apx `bricely-thread`) | Stage 3 smoke thread OK |
 | Guardrails (no billable, accounting soon, escalate) | **LIVE** | Client diagnostic + doctrine |
 | Fail-loud intake banner | **LIVE** | `BRICELY_INTAKE_WIRED` / intakeWarn |
 
-**Corrected wording for SoR:** Catch-net is open to users; **runtime DB/API = rxhiyd until cutover**. apx is governance target, not yet the ticket store.
+**SoR wording:** Catch-net is open to users; **runtime DB/API = apx**. rxhiyd is archive only.
 
 ---
 
@@ -97,17 +98,15 @@ Unsure→escalate; fence+dispatch authority; contractual merge gate to WMG OS; C
 
 ## Outside-DR improvements (recommended — do not invent as LIVE)
 
-These improve routing / context / console **using Cursor capabilities around already-written Bricely**, without claiming Automations are on:
-
-1. **Cutover intake host apx ← rxhiyd (P0)** — migrate `support` schema + deploy `intake-ticket` / `bricely-thread` / `approve-handoff` to apx; retarget Vercel `VITE_BRICELY_*` + console; then truly mark rxhiyd unused. Until then doctrine and runtime disagree.
-2. **Ship Bricely page-context PR #8 after UX pass (P0 for “friendly”)** — host `pageContext`, header “On …”, chips, how-to answers, less ticket-nag. Still client rules — not LLM comprehension.
+1. **~~Cutover intake host apx ← rxhiyd~~ — DONE (DR-010 Stages 1–4)** — apx sole runtime; rxhiyd archive only.
+2. **Ship Bricely page-context PR #8 after UX pass (P0 for “friendly”)** — host `pageContext`, header “On …”, chips, how-to answers, less ticket-nag. Still client rules — not LLM comprehension. **← Stage 5**
 3. **Comprehension layer (P1, Tier 2)** — optional Claude assist *behind* the existing diagnostic fence (same customer-safe rules; never invent money/scope). Replaces regex-only “reads the message” claim with real comprehension; keep state machine as fallback.
-4. **Console ticket context (P1)** — persist `page_context` / diagnosis summary on intake (PR #8 already sends `page_context`); surface on console cards for routing.
-5. **Cursor Automations (P2, stays DR-009)** — suggest-only triage digest / stale-ticket ping feeding **dispatch**, never overriding fence; auto-approve only Lane 1 LOOK after PRIME scopes it.
-6. **CONTROL_PLANE hygiene (P2)** — collapse prepend vs stale “007 PROPOSED” body; pin this CURRENT-STATE file at top.
+4. **Console ticket context (P1)** — persist `page_context` / diagnosis summary on intake (PR #8 already sends `page_context`); surface on console cards for routing. **← Stage 6**
+5. **Cursor Automations (P2, stays DR-009)** — suggest-only triage digest / stale-ticket ping feeding **dispatch**, never overriding fence; auto-approve only Lane 1 LOOK after PRIME scopes it. **← Stage 6 bolt-on**
+6. **CONTROL_PLANE hygiene (P2)** — collapse prepend vs stale “007 PROPOSED” body; pin this CURRENT-STATE file at top. **Partial (Stage 4 pin applied)**
 
 ---
 
 ## Net position (one paragraph)
 
-Catch-net and Bricely embeds are **real and in users’ hands**, with tickets and threads on **rxhiyd** (not apx). Autonomy fences for support-app Tier 1 and WMG-OS Lane 1/2 are **enabled and partially fire-proven**, with the Lane 1 inaugural fire hitting **dead UI**. Bricely is **not yet** the comprehension-led agent DR-008 describes on production; that work is **in flight on PR #8** plus a future optional LLM assist. Cursor Automations remain **held**. Next hard move: **apx cutover**, then merge polished Bricely context — not more W1 copy demos.
+Catch-net and Bricely embeds are **real and in users’ hands**, with tickets and threads on **apx** (rxhiyd retired from runtime doctrine; archive only). Autonomy fences for support-app Tier 1 and WMG-OS Lane 1/2 are **enabled and partially fire-proven**, with the Lane 1 inaugural fire hitting **dead UI** (later redirected to Place Load Order). Bricely is **not yet** the comprehension-led agent DR-008 describes on production; that work is **in flight on PR #8** plus a future optional LLM assist. Cursor Automations remain **held**. Next: **Stage 5 — merge polished Bricely context (PR #8)** — not more W1 copy demos.
