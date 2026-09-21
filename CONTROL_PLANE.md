@@ -1,4 +1,13 @@
 
+## DR-CS-PLATFORM-CURRENT-STATE — AUTHORITATIVE (reconciled 2026-09-21)
+
+- Full record: `proofs/DR-CS-PLATFORM-CURRENT-STATE.md` (supersedes 007–009 scatter where they conflict)
+- Canonical: `qcefkox…` = WMG OS prod never auto · `apx…` = intended triage authority (**empty runtime today**) · `rxhiyd…` = **still LIVE intake/thread host** (23 tickets) — cutover pending
+- Catch-net: LIVE on users; intake env points at rxhiyd (doctrine drift)
+- Bricely “comprehension-led” (008): **overstated** — prod is regex diagnostic engine; page-context UX on PR #8 not merged
+- Autonomy 006/007R: ENABLED; Lane1 first fire hit dead CreateLoadModal; Lane2 SF4 proven; Place Load Order helper + Bricely polish = hold merge on PR #8
+- Automations 009 / SendGrid / DR-002: still HELD
+
 ## DR — Place Load Order helper + Bricely page context — 2026-09-21
 
 - PR: feat/bricely-embed → main (Wmsosv2) — visible W1 on Place Load Order modal + host pageContext into Bricely
