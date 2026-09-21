@@ -1,4 +1,13 @@
 
+## DR-CS-PLATFORM-010 — Stage 1 GATE (2026-09-21) — STOP for PRIME
+
+- Method: `proofs/DR-CS-PLATFORM-010/METHOD.md` · baseline: `BASELINE-TICKETS.json` (24 tickets on rxhiyd)
+- Preservation: **NOT** merge_branch (data-less; parent merge failed). Use dump/restore UUIDs.
+- **apx now has:** support schema (18 tables), WMG client seed, edge fns intake-ticket / bricely-thread / approve-handoff ACTIVE
+- **apx tickets:** 0 — data not moved
+- **rxhiyd:** still LIVE catch-net with 24 tickets
+- Next: PRIME **GO Stage 2** → restore ticket data to apx → verify IDs → then Stage 3 env cutover
+
 ## DR-CS-PLATFORM-CURRENT-STATE — AUTHORITATIVE (reconciled 2026-09-21)
 
 - Full record: `proofs/DR-CS-PLATFORM-CURRENT-STATE.md` (supersedes 007–009 scatter where they conflict)

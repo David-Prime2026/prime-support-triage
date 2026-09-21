@@ -1,0 +1,43 @@
+{
+  "captured_at": "2026-09-21T16:30:00Z",
+  "source_project": "rxhiydtqzmksaeegxyqo",
+  "source_role": "live_staging_branch_of_apx",
+  "parent_project": "apxbwdxszmdffbduhjen",
+  "preservation_note": "merge_branch does NOT copy data; Stage 2 will dump/restore support schema rows with same UUIDs",
+  "counts": {
+    "support_tickets": 24,
+    "ticket_messages": 40,
+    "ticket_events": 22,
+    "ticket_attachments": 1,
+    "engineering_handoffs": 1,
+    "bricely_threads": 6,
+    "bricely_thread_messages": 10,
+    "clients": 1
+  },
+  "support_tickets": [
+    {"id": "c1000001-0001-4001-8001-000000000001", "status": "awaiting_approval", "surface": "seller", "is_mock": true},
+    {"id": "c1000001-0001-4001-8001-000000000002", "status": "new", "surface": "internal", "is_mock": true},
+    {"id": "c1000001-0001-4001-8001-000000000003", "status": "awaiting_approval", "surface": "buyer", "is_mock": true},
+    {"id": "17fdcd98-624a-4b48-84f9-f00788d56768", "status": "awaiting_approval", "surface": "internal", "is_mock": true},
+    {"id": "1c5fe0b1-9bcf-457f-92aa-947700621328", "status": "awaiting_approval", "surface": "buyer", "is_mock": true},
+    {"id": "a561f211-8a6d-4162-b5be-5044472993e7", "status": "awaiting_approval", "surface": "seller", "is_mock": true},
+    {"id": "3e22f509-3a6c-4fcb-9813-2c1c487d1f25", "status": "awaiting_approval", "surface": "internal", "is_mock": true},
+    {"id": "9971f098-058b-4382-96f1-dc061fb3a18a", "status": "awaiting_approval", "surface": "internal", "is_mock": true},
+    {"id": "e405d8dd-f99e-43ef-a0e3-7f73c7a14dd5", "status": "awaiting_approval", "surface": "internal", "is_mock": true},
+    {"id": "5fb8cf83-6fc9-4f6f-ae72-5263cb70d8fe", "status": "awaiting_approval", "surface": "internal", "is_mock": true},
+    {"id": "1ad5c3f6-2efa-44a2-9ed8-cb4b2a752f6c", "status": "awaiting_approval", "surface": "internal", "is_mock": true},
+    {"id": "17116358-4eca-4b15-a044-e71e7132c564", "status": "awaiting_approval", "surface": "internal", "is_mock": true},
+    {"id": "64d2b883-74c1-46d3-b27b-4da0cd32f226", "status": "awaiting_approval", "surface": "buyer", "is_mock": false},
+    {"id": "bb841682-f302-4fa7-9ed1-320d1fbcd0cb", "status": "awaiting_approval", "surface": "seller", "is_mock": false},
+    {"id": "fbd5e684-6bc8-4d0d-ada0-11f25589744d", "status": "sent_to_engineering", "surface": "seller", "is_mock": false},
+    {"id": "fba1aadb-f17a-4e90-8e4a-2a066de7444b", "status": "awaiting_approval", "surface": "internal", "is_mock": true},
+    {"id": "6ba47962-78b0-4f7b-91d8-7cced17bccab", "status": "awaiting_approval", "surface": "buyer", "is_mock": false},
+    {"id": "830eac42-41bc-44e3-a196-ecedf58a0ed0", "status": "awaiting_approval", "surface": "internal", "is_mock": false},
+    {"id": "cb03dab4-4661-4b25-bd93-af1ca13987ca", "status": "awaiting_approval", "surface": "buyer", "is_mock": false},
+    {"id": "03dba9af-0417-48d9-9ba7-1c63763a44d4", "status": "awaiting_approval", "surface": "seller", "is_mock": false},
+    {"id": "c9587505-aa9a-478f-b4b9-866aedfe31f2", "status": "awaiting_approval", "surface": "buyer", "is_mock": false},
+    {"id": "8aa2efda-242f-46e7-b86c-ee98f2c65dc5", "status": "awaiting_approval", "surface": "seller", "is_mock": false},
+    {"id": "11fae25a-22dd-4485-81bf-5fd9deb3f397", "status": "awaiting_approval", "surface": "internal", "is_mock": false},
+    {"id": "08a999c0-b0de-4993-bf7f-8b6a6b5d90f9", "status": "awaiting_approval", "surface": "internal", "is_mock": false}
+  ]
+}
