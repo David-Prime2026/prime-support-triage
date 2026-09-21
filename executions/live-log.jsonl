@@ -58,3 +58,10 @@
 {"at":"2026-09-18T22:45:11.819Z","type":"control_plane_append","title":"DR-CS-PLATFORM-006 — Tier 1 ENABLED (post A1-A5)"}
 {"at":"2026-09-18T22:45:11.951Z","type":"first_live_scan","queued":0,"outbox":0}
 {"at":"2026-09-18T22:45:11.972Z","type":"control_plane_append","title":"DR-CS-PLATFORM-006 — first live Tier 1 scan"}
+{"at":"2026-09-21T12:33:36.798Z","type":"dr007r_enabled","refs":{"wmg_os_prod":"qcefkoxqkfwnlqfmwzmi","support_triage":"apxbwdxszmdffbduhjen","rogue":"rxhiydtqzmksaeegxyqo"},"w3_forbidden_count":8,"sf8_send_path":"none","first_fire":"STOPPED_for_PRIME_observation"}
+{"at":"2026-09-21T12:33:36.802Z","type":"control_plane_append","title":"DR-CS-PLATFORM-007R — ratified + enabled (first fire STOP)"}
+{"at":"2026-09-21T12:42:07.519Z","type":"first_fire_authorized","by":"PRIME","watching":true}
+{"at":"2026-09-21T12:43:46.541Z","type":"first_fire_lane1_complete","fence":"W1","file":"src/app/components/LoadBoardKanban.tsx","change":"Create Load helper: for sales team -> for the sales team.","commit":"10f57fc","pr":"https://github.com/David-Prime2026/Wmsosv2/pull/7","deploy":"PRIME_gated_no_auto_deploy_qcefkox"}
+{"at":"2026-09-21T12:43:46.544Z","type":"control_plane_append","title":"FIRST FIRE Lane 1 (W1) — Create Load helper copy"}
+{"at":"2026-09-21T12:45:38.848Z","type":"first_fire_lane2_complete","feature":"SF4","name":"bricely_thread_new_chat_reset","surface":"internal","observed":"Support chat reset to intro after New conversation; prior probe cleared","irreversible":false,"customer_facing":false}
+{"at":"2026-09-21T12:45:38.851Z","type":"control_plane_append","title":"FIRST FIRE Lane 2 (SF4) — Bricely New chat reset"}

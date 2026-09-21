@@ -1,4 +1,17 @@
 
+## FIRST FIRE Lane 2 (SF4) — Bricely New chat reset — 2026-09-21T12:45:38.849Z
+
+- Invoked existing New conversation control on internal Support (SF4)
+- Reversible/internal — transcript queued locally; no ERP write; no email
+- Look for: Support chat returns to intro only after New conversation
+
+## FIRST FIRE Lane 1 (W1) — Create Load helper copy — 2026-09-21T12:43:46.542Z
+
+- LOOK-only static string in LoadBoardKanban Create Load modal
+- Commit 10f57fc — PR https://github.com/David-Prime2026/Wmsosv2/pull/7
+- PRIME merges/deploys (never auto qcefkox)
+- Look for: Load Board > Create Load > helper says for the sales team
+
 ## DR-CS-PLATFORM-007R — ratified + enabled (first fire STOP) — 2026-09-21T12:33:36.800Z
 
 - Canonical: prod=qcefkoxqkfwnlqfmwzmi (never auto-deploy) · triage=apxbwdxszmdffbduhjen · rogue=rxhiydtqzmksaeegxyqo unused
