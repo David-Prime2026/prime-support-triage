@@ -25,7 +25,7 @@ This DR makes Approve → record **durable and queryable** so Cursor (or an oper
 |-------|------|------|
 | **0** | Method (this file) | None — **Done** |
 | **1** | `cursor_staging_outbox` table on apx · Approve / Package insert · console “Pending for Cursor” queue · claim / complete buttons | Low — **Done · GATE-1** |
-| **2** | Cursor claim flow posts desk ack + status `in_staging` when claimed | Low — **included in Stage 1** |
+| **2** | No-download artifacts (repo sync) · ticket color coding (resolved inactive) | Low — **Done · GATE-2** |
 | **3** | Expand Bricely live-fix allowlist (PRIME-ratified list only — additive) | Med |
 | **4** | Optional: poll/watch helper doc for Cursor agents | Low |
 

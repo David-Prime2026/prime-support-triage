@@ -1,4 +1,10 @@
 
+## DR-CS-PLATFORM-013 — Stage 2 GATE (2026-09-21) — STOP for bake
+
+- No browser download on Approve — durable outbox + repo sync
+- Ticket list color-coded; resolved muted
+- Proof: `proofs/DR-CS-PLATFORM-013/GATE-2.md`
+
 ## DR-CS-PLATFORM-013 — Stage 1 GATE (2026-09-21) — STOP for bake
 
 - Durable `cursor_staging_outbox` on apx

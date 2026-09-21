@@ -1,17 +1,17 @@
-# Outbox for Handoff B (Cursor dispatch)
+# Outbox for Cursor staging (DR-013)
 
-**Mechanism:** flat-file first. Payload shape matches the future webhook/API.
+**Command plane:** Cursor chat / `node scripts/sync-cursor-outbox.mjs`  
+**SoR:** `support.cursor_staging_outbox` on apx  
+**Repo artifacts:** this folder (synced from apx — not browser downloads)
 
-**Watched dir (repo-relative):** `support-triage/dispatches/outbox`  
-**[PRIME TO CONFIRM]** absolute path on production/operator hosts.
+## Flow
+1. Approver **Approve → record** or **Queue to Cursor outbox** in console  
+2. Row lands in apx `cursor_staging_outbox` (`pending`)  
+3. Cursor/operator runs sync → JSON written here  
+4. Claim / Complete in console **Cursor outbox** module  
+5. Human still owns promote — never auto `qcefkox`
 
-## File naming
-`dispatch-<ticketOrCoId>-<timestamp>.json`
-
-## Guardrails (every payload)
+## Guardrails
 - `target_environment = WMG_OS_STAGING`
 - `production_ref_forbidden = qcefkoxqkfwnlqfmwzmi`
-- Require `staging_preview_url` before promotion
 - Never auto-merge / never target production
-
-Operator flow: Approve in navy console → browser downloads JSON → drop into this folder (or future watcher/API).

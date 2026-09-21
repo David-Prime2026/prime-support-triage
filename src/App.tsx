@@ -239,6 +239,68 @@ function stateLabel(t: Ticket): string {
   return t.status.replace(/_/g, " ");
 }
 
+/** Visual state for list cards — resolved/closed must not look active. */
+function ticketCardVisual(t: Ticket): {
+  bg: string;
+  border: string;
+  opacity: number;
+  titleClass: string;
+  bar: string;
+} {
+  if (CLOSED_STATUSES.has(t.status)) {
+    return {
+      bg: "#0f1419",
+      border: "#1e293b",
+      opacity: 0.48,
+      titleClass: "text-slate-500 line-through decoration-slate-600",
+      bar: "#334155",
+    };
+  }
+  if (t.status === "sent_to_engineering") {
+    return {
+      bg: "#0c1a24",
+      border: "#0e7490",
+      opacity: 1,
+      titleClass: "text-slate-100",
+      bar: "#06b6d4",
+    };
+  }
+  if (t.status === "awaiting_approval" || t.status === "billable_review") {
+    return {
+      bg: "#1a1520",
+      border: "#b45309",
+      opacity: 1,
+      titleClass: "text-slate-100",
+      bar: "#f59e0b",
+    };
+  }
+  if (t.priority === "P1") {
+    return {
+      bg: "#1a1014",
+      border: "#be123c",
+      opacity: 1,
+      titleClass: "text-slate-100",
+      bar: "#e11d48",
+    };
+  }
+  if (t.ai_lane === "ambiguous") {
+    return {
+      bg: "#16141c",
+      border: "#6d28d9",
+      opacity: 1,
+      titleClass: "text-slate-100",
+      bar: "#8b5cf6",
+    };
+  }
+  return {
+    bg: PRIME.card,
+    border: PRIME.border,
+    opacity: 1,
+    titleClass: "text-slate-100",
+    bar: "#3b82f6",
+  };
+}
+
 function priorityBadge(p: string | null) {
   const map: Record<string, string> = {
     P1: "bg-rose-600 text-white",
@@ -642,21 +704,21 @@ export default function App() {
         bricely_prediagnosis: pred,
         cursor_staging_proposal: staging,
       };
-      downloadJson(
-        `dispatch-${ticket.id.slice(0, 8)}-${Date.now()}.json`,
-        dispatchFromEdge
-          ? { ...(dispatchFromEdge as object), bricely_prediagnosis: pred, cursor_staging_proposal: staging }
-          : payload,
-      );
-      downloadJson(`cursor-staging-${ticket.id.slice(0, 8)}-${Date.now()}.json`, staging);
       if (supabase && !ticket.id.startsWith("b1000001-")) {
-        const outbox = await enqueueCursorOutbox(ticket, staging as Record<string, unknown>, me);
+        const outbox = await enqueueCursorOutbox(
+          ticket,
+          {
+            ...staging,
+            dispatch_envelope: dispatchFromEdge ?? payload,
+          } as Record<string, unknown>,
+          me,
+        );
         await supabase.from("ticket_messages").insert({
           ticket_id: ticket.id,
           client_id: ticket.client_id || WMG_CLIENT_ID,
           author_role: "cursor",
           channel: "admin",
-          body: `[RECORD] Approver approved — durable outbox ${outbox?.id?.slice(0, 8) ?? "?"} (${deskThread.length} desk note(s)). Status → received. Staging fence only.`,
+          body: `[RECORD] Approver approved — durable outbox ${outbox?.id?.slice(0, 8) ?? "?"} (${deskThread.length} desk note(s)). Artifact: apx cursor_staging_outbox + repo dispatches/outbox (Cursor sync). Status → received. Staging fence only.`,
         });
         await supabase
           .from("support_tickets")
@@ -843,12 +905,6 @@ export default function App() {
         channel: "admin",
         body: cpSnippet,
       });
-      downloadJson(`control-plane-closure-${selected.id.slice(0, 8)}-${Date.now()}.json`, {
-        schema: "prime.cs.control_plane_closure.v1",
-        snippet: cpSnippet,
-        ticket_id: selected.id,
-        at: new Date().toISOString(),
-      });
       if (notifyStatus === "sent") {
         await supabase.from("ticket_messages").insert({
           ticket_id: selected.id,
@@ -970,7 +1026,6 @@ export default function App() {
         .from("support_tickets")
         .update({ cursor_execution_status: "in_staging" })
         .eq("id", row.ticket_id);
-      downloadJson(`cursor-staging-claimed-${row.id.slice(0, 8)}.json`, row.proposal);
       await refresh();
       setError(null);
     } catch (e) {
@@ -1220,12 +1275,6 @@ export default function App() {
           channel: "admin",
           body: cpSnippet,
         });
-        downloadJson(`control-plane-closure-${selected.id.slice(0, 8)}-${Date.now()}.json`, {
-          schema: "prime.cs.control_plane_closure.v1",
-          snippet: cpSnippet,
-          ticket_id: selected.id,
-          at: new Date().toISOString(),
-        });
       }
       // Audit event — non-fatal if actor/event constraints drift
       const { error: eErr } = await supabase.from("ticket_events").insert({
@@ -1270,7 +1319,6 @@ export default function App() {
   async function packageForCursor(ticket: Ticket) {
     const thread = await loadDeskThread(ticket.id);
     const staging = buildCursorStagingProposal(ticket, me, thread);
-    downloadJson(`cursor-staging-${ticket.id.slice(0, 8)}-${Date.now()}.json`, staging);
     if (supabase && !ticket.id.startsWith("b1000001-")) {
       const outbox = await enqueueCursorOutbox(ticket, staging as Record<string, unknown>, me);
       const ov = {
@@ -1294,7 +1342,7 @@ export default function App() {
         client_id: ticket.client_id || WMG_CLIENT_ID,
         author_role: "cursor",
         channel: "admin",
-        body: `[RECORD] Staging package queued in durable outbox ${outbox?.id?.slice(0, 8) ?? "?"} (${thread.length} desk note(s)). Execute in staging only.`,
+        body: `[RECORD] Staging package queued in durable outbox ${outbox?.id?.slice(0, 8) ?? "?"} (${thread.length} desk note(s)). No browser download — Cursor/cmd syncs to repo dispatches/outbox.`,
       });
       await refreshDesk(ticket.id);
       await refresh();
@@ -1642,6 +1690,8 @@ export default function App() {
                   const sla = slaCountdown(t);
                   const page = pageContextFromTicket(t);
                   const bricelyPx = bricelySuggestedPx(t);
+                  const look = ticketCardVisual(t);
+                  const settled = CLOSED_STATUSES.has(t.status);
                   return (
                     <button
                       key={t.id}
@@ -1650,44 +1700,64 @@ export default function App() {
                         setSelected(t);
                         setSelectedCo(null);
                       }}
-                      className={`w-full text-left rounded-lg border p-3 hover:border-blue-500/40 ${
-                        selected?.id === t.id ? "border-blue-500/60" : ""
+                      className={`w-full text-left rounded-lg border p-3 relative overflow-hidden ${
+                        selected?.id === t.id ? "ring-1 ring-blue-400/50" : "hover:brightness-110"
                       }`}
                       style={{
-                        background: PRIME.card,
-                        borderColor: selected?.id === t.id ? undefined : PRIME.border,
+                        background: look.bg,
+                        borderColor: selected?.id === t.id ? "#3b82f6" : look.border,
+                        opacity: look.opacity,
                       }}
                     >
-                      <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                      <span
+                        className="absolute left-0 top-0 bottom-0 w-1"
+                        style={{ background: look.bar }}
+                        aria-hidden
+                      />
+                      <div className="flex items-center gap-1.5 mb-1.5 flex-wrap pl-1">
                         <span
                           className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${priorityBadge(bricelyPx)}`}
                           title="Bricely suggested type (Px)"
                         >
                           {bricelyPx}
                         </span>
-                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-600/60 text-slate-200">
+                        <span
+                          className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                            settled
+                              ? "bg-slate-800/80 text-slate-500"
+                              : "bg-slate-600/60 text-slate-200"
+                          }`}
+                        >
                           {stateLabel(t)}
                         </span>
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-indigo-900/50 text-indigo-200">
-                          {originLabel(t)}
-                        </span>
-                        {page.screenLabel && (
+                        {!settled && (
+                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-indigo-900/50 text-indigo-200">
+                            {originLabel(t)}
+                          </span>
+                        )}
+                        {!settled && page.screenLabel && (
                           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-emerald-900/50 text-emerald-200 truncate max-w-[9rem]">
                             {page.screenLabel}
                           </span>
                         )}
-                        {t.escalation_flag && (
+                        {!settled && t.escalation_flag && (
                           <AlertTriangle className="w-3 h-3 text-rose-400 ml-auto shrink-0" />
                         )}
                       </div>
-                      <p className="text-sm font-medium line-clamp-2">
+                      <p className={`text-sm font-medium line-clamp-2 pl-1 ${look.titleClass}`}>
                         {t.ai_summary || t.raw_message}
                       </p>
-                      <p className="text-[11px] mt-1 truncate" style={{ color: PRIME.muted }}>
+                      <p
+                        className={`text-[11px] mt-1 truncate pl-1 ${settled ? "text-slate-600" : ""}`}
+                        style={settled ? undefined : { color: PRIME.muted }}
+                      >
                         {requesterLabel(t)}
                       </p>
-                      <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
-                        <p className="text-[11px] tabular-nums" style={{ color: PRIME.muted }}>
+                      <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5 pl-1">
+                        <p
+                          className={`text-[11px] tabular-nums ${settled ? "text-slate-600" : ""}`}
+                          style={settled ? undefined : { color: PRIME.muted }}
+                        >
                           {new Date(t.created_at).toLocaleString(undefined, {
                             month: "short",
                             day: "numeric",
@@ -1696,8 +1766,12 @@ export default function App() {
                             minute: "2-digit",
                           })}
                         </p>
-                        <p className={`text-[11px] font-medium ${slaToneClass(sla.tone)}`}>
-                          {sla.label}
+                        <p
+                          className={`text-[11px] font-medium ${
+                            settled ? "text-slate-600" : slaToneClass(sla.tone)
+                          }`}
+                        >
+                          {settled ? "Closed" : sla.label}
                         </p>
                       </div>
                     </button>
@@ -1834,7 +1908,7 @@ export default function App() {
                           onClick={() => void packageForCursor(selected).catch((e) => setError(e instanceof Error ? e.message : String(e)))}
                           className="rounded-lg border border-sky-500/40 px-2.5 py-1 text-[11px] text-sky-100 disabled:opacity-40"
                         >
-                          Package desk → Cursor staging
+                          Queue to Cursor outbox
                         </button>
                       </div>
                     </section>
@@ -2365,8 +2439,8 @@ export default function App() {
             <div className="flex-1 overflow-y-auto p-4">
               <h2 className="text-lg font-semibold mb-1">Cursor staging outbox</h2>
               <p className="text-xs mb-4" style={{ color: PRIME.muted }}>
-                Durable queue from Approve / Package. Claim → work in Cursor (staging) → Complete.
-                Never auto-promote to production.
+                Durable queue from Approve / Queue. Claim → work in Cursor (this chat / repo) → Complete.
+                Artifacts stay in apx + `dispatches/outbox/` — no browser download required.
               </p>
               {outboxRows.length === 0 && (
                 <p className="text-sm" style={{ color: PRIME.muted }}>
@@ -2427,7 +2501,7 @@ export default function App() {
                           }
                           className="rounded-lg border border-slate-600 px-3 py-1.5 text-xs text-slate-200"
                         >
-                          Download proposal
+                          Export copy (optional)
                         </button>
                         <button
                           type="button"
