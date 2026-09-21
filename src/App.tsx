@@ -603,7 +603,7 @@ export default function App() {
           client_id: ticket.client_id || WMG_CLIENT_ID,
           author_role: "cursor",
           channel: "admin",
-          body: `[Cursor outbox] Approved → staging package with ${deskThread.length} desk note(s). Status → received.`,
+          body: `[RECORD] Approver approved — work package recorded for Cursor staging (${deskThread.length} desk note(s)). Status → received.`,
         });
         await supabase
           .from("support_tickets")
@@ -1431,9 +1431,20 @@ export default function App() {
                       <p className="text-sm font-medium line-clamp-2">
                         {t.ai_summary || t.raw_message}
                       </p>
-                      <p className={`text-[11px] mt-1.5 font-medium ${slaToneClass(sla.tone)}`}>
-                        {sla.label}
-                      </p>
+                      <div className="mt-1.5 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+                        <p className="text-[11px] tabular-nums" style={{ color: PRIME.muted }}>
+                          {new Date(t.created_at).toLocaleString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                        <p className={`text-[11px] font-medium ${slaToneClass(sla.tone)}`}>
+                          {sla.label}
+                        </p>
+                      </div>
                     </button>
                   );
                 })}
@@ -1539,137 +1550,7 @@ export default function App() {
                       </div>
                     </section>
 
-                    {page.screenLabel ? (
-                      <section className="rounded-lg border border-emerald-800/40 bg-emerald-950/25 p-3">
-                        <p className="text-[10px] font-semibold uppercase text-emerald-300/80">
-                          Page context
-                        </p>
-                        <p className="mt-1 text-sm text-emerald-50">
-                          {page.screenLabel}
-                          {page.screenId ? ` · id ${page.screenId}` : ""}
-                        </p>
-                      </section>
-                    ) : null}
-                    <section>
-                      <p className="text-[10px] font-semibold uppercase" style={{ color: PRIME.muted }}>
-                        Request
-                      </p>
-                      <p className="mt-1 whitespace-pre-wrap text-sm">{selected.raw_message}</p>
-                    </section>
-
-                    {selected.diagnosis_summary ? (
-                      <section className="rounded-lg border border-sky-800/50 bg-sky-950/30 p-3">
-                        <p className="text-[10px] font-semibold uppercase text-sky-300/80">
-                          Bricely diagnosis
-                        </p>
-                        <p className="mt-1 text-sm text-sky-50 whitespace-pre-wrap">
-                          {selected.diagnosis_summary}
-                        </p>
-                      </section>
-                    ) : (
-                      <section className="rounded-lg border border-slate-700/60 bg-slate-900/40 p-3">
-                        <p className="text-[10px] font-semibold uppercase text-slate-400">
-                          Bricely diagnosis
-                        </p>
-                        <p className="mt-1 text-sm text-slate-400">
-                          No diagnosis on this item (manual / imported / never chatted). Triage and
-                          Approve → dispatch still work from the request text.
-                        </p>
-                      </section>
-                    )}
-
-                    <section className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <p className="text-[10px] font-semibold uppercase" style={{ color: PRIME.muted }}>
-                          Classification (internal)
-                        </p>
-                        <p className="mt-1">
-                          {selected.ai_lane ?? "—"} · {selected.ai_category ?? "—"} · conf{" "}
-                          {selected.ai_confidence != null
-                            ? Number(selected.ai_confidence).toFixed(2)
-                            : "—"}
-                        </p>
-                        {selected.ai_contract_clause_ref && (
-                          <p className="text-xs mt-1 text-violet-200">{selected.ai_contract_clause_ref}</p>
-                        )}
-                        {selected.ai_billable != null && (
-                          <p className="text-xs mt-0.5" style={{ color: PRIME.muted }}>
-                            Billable (internal): {selected.ai_billable ? "yes" : "no"}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-semibold uppercase" style={{ color: PRIME.muted }}>
-                          Suggested action
-                        </p>
-                        <p className="mt-1 whitespace-pre-wrap">{selected.ai_suggested_action ?? "—"}</p>
-                      </div>
-                    </section>
-
-                    <section>
-                      <p className="text-[10px] font-semibold uppercase mb-1" style={{ color: PRIME.muted }}>
-                        Priority
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {(["P1", "P2", "P3", "P4"] as const).map((p) => (
-                          <button
-                            key={p}
-                            type="button"
-                            disabled={busy}
-                            onClick={() => void setPriority(p)}
-                            className={`text-[10px] font-bold px-2 py-1 rounded ${
-                              selected.priority === p ? priorityBadge(p) : "border border-slate-600 text-slate-300"
-                            }`}
-                          >
-                            {p}
-                          </button>
-                        ))}
-                      </div>
-                    </section>
-
-                    <section>
-                      <p className="text-[10px] font-semibold uppercase mb-1" style={{ color: PRIME.muted }}>
-                        Assign
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {OPERATORS.map((op) => (
-                          <button
-                            key={op}
-                            type="button"
-                            disabled={busy}
-                            onClick={() => void assignTo(op)}
-                            className={`text-[10px] px-2 py-1 rounded border ${
-                              (selected as Ticket & { assigned_to?: string }).assigned_to === op
-                                ? "bg-blue-600 border-blue-500"
-                                : "border-slate-600 text-slate-300"
-                            }`}
-                          >
-                            {op.split("@")[0]}
-                          </button>
-                        ))}
-                      </div>
-                    </section>
-
-                    <section>
-                      <p className="text-[10px] font-semibold uppercase mb-1" style={{ color: PRIME.muted }}>
-                        Override lane
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {LANES.map((lane) => (
-                          <button
-                            key={lane}
-                            type="button"
-                            disabled={busy}
-                            onClick={() => void overrideLane(lane)}
-                            className="text-[10px] uppercase font-semibold px-2 py-1 rounded border border-slate-600 hover:bg-slate-800"
-                          >
-                            {lane}
-                          </button>
-                        ))}
-                      </div>
-                    </section>
-
-                    <section>
+<section>
                       <p className="text-[10px] font-semibold uppercase mb-1" style={{ color: PRIME.muted }}>
                         Cursor desk · HITL / DEV / ENG
                       </p>
@@ -1683,8 +1564,10 @@ export default function App() {
                         return (
                           <>
                       <p className="text-[10px] mb-2" style={{ color: PRIME.muted }}>
-                        Newest first. Assign DEV/ENG + @mention who should act. Status pipeline is
-                        forward-only for operators; Approvers can jump. You are{" "}
+                        <span className="text-slate-200 font-semibold">Desk chat = discourse</span>
+                        {" — "}HITL / DEV / ENG talk here.{" "}
+                        <span className="text-slate-200 font-semibold">Approve records</span> the
+                        work package for Cursor (staging). Newest first. You are{" "}
                         <span className={canApprove ? "text-emerald-300 font-semibold" : "text-amber-200 font-semibold"}>
                           {session.role}
                         </span>
@@ -1842,7 +1725,7 @@ export default function App() {
                         >
                           Post to desk ({deskRole})
                         </button>
-                        <ul className="space-y-1.5 text-xs max-h-48 overflow-y-auto">
+                        <ul className="space-y-1.5 text-xs max-h-72 overflow-y-auto">
                           {deskMessages.map((m) => (
                             <li
                               key={m.id}
@@ -1902,9 +1785,139 @@ export default function App() {
                       })()}
                     </section>
 
+                                        {page.screenLabel ? (
+                      <section className="rounded-lg border border-emerald-800/40 bg-emerald-950/25 p-3">
+                        <p className="text-[10px] font-semibold uppercase text-emerald-300/80">
+                          Page context
+                        </p>
+                        <p className="mt-1 text-sm text-emerald-50">
+                          {page.screenLabel}
+                          {page.screenId ? ` · id ${page.screenId}` : ""}
+                        </p>
+                      </section>
+                    ) : null}
+                    <section>
+                      <p className="text-[10px] font-semibold uppercase" style={{ color: PRIME.muted }}>
+                        Request
+                      </p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm">{selected.raw_message}</p>
+                    </section>
+
+                    {selected.diagnosis_summary ? (
+                      <section className="rounded-lg border border-sky-800/50 bg-sky-950/30 p-3">
+                        <p className="text-[10px] font-semibold uppercase text-sky-300/80">
+                          Bricely diagnosis
+                        </p>
+                        <p className="mt-1 text-sm text-sky-50 whitespace-pre-wrap">
+                          {selected.diagnosis_summary}
+                        </p>
+                      </section>
+                    ) : (
+                      <section className="rounded-lg border border-slate-700/60 bg-slate-900/40 p-3">
+                        <p className="text-[10px] font-semibold uppercase text-slate-400">
+                          Bricely diagnosis
+                        </p>
+                        <p className="mt-1 text-sm text-slate-400">
+                          No diagnosis on this item (manual / imported / never chatted). Triage and
+                          Approve → dispatch still work from the request text.
+                        </p>
+                      </section>
+                    )}
+
+                    <section className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase" style={{ color: PRIME.muted }}>
+                          Classification (internal)
+                        </p>
+                        <p className="mt-1">
+                          {selected.ai_lane ?? "—"} · {selected.ai_category ?? "—"} · conf{" "}
+                          {selected.ai_confidence != null
+                            ? Number(selected.ai_confidence).toFixed(2)
+                            : "—"}
+                        </p>
+                        {selected.ai_contract_clause_ref && (
+                          <p className="text-xs mt-1 text-violet-200">{selected.ai_contract_clause_ref}</p>
+                        )}
+                        {selected.ai_billable != null && (
+                          <p className="text-xs mt-0.5" style={{ color: PRIME.muted }}>
+                            Billable (internal): {selected.ai_billable ? "yes" : "no"}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase" style={{ color: PRIME.muted }}>
+                          Suggested action
+                        </p>
+                        <p className="mt-1 whitespace-pre-wrap">{selected.ai_suggested_action ?? "—"}</p>
+                      </div>
+                    </section>
+
                     <section>
                       <p className="text-[10px] font-semibold uppercase mb-1" style={{ color: PRIME.muted }}>
-                        Audit / timestamps
+                        Priority
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {(["P1", "P2", "P3", "P4"] as const).map((p) => (
+                          <button
+                            key={p}
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void setPriority(p)}
+                            className={`text-[10px] font-bold px-2 py-1 rounded ${
+                              selected.priority === p ? priorityBadge(p) : "border border-slate-600 text-slate-300"
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+
+                    <section>
+                      <p className="text-[10px] font-semibold uppercase mb-1" style={{ color: PRIME.muted }}>
+                        Assign
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {OPERATORS.map((op) => (
+                          <button
+                            key={op}
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void assignTo(op)}
+                            className={`text-[10px] px-2 py-1 rounded border ${
+                              (selected as Ticket & { assigned_to?: string }).assigned_to === op
+                                ? "bg-blue-600 border-blue-500"
+                                : "border-slate-600 text-slate-300"
+                            }`}
+                          >
+                            {op.split("@")[0]}
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+
+                    <section>
+                      <p className="text-[10px] font-semibold uppercase mb-1" style={{ color: PRIME.muted }}>
+                        Override lane
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {LANES.map((lane) => (
+                          <button
+                            key={lane}
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void overrideLane(lane)}
+                            className="text-[10px] uppercase font-semibold px-2 py-1 rounded border border-slate-600 hover:bg-slate-800"
+                          >
+                            {lane}
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+
+                    <section>
+                      <p className="text-[10px] font-semibold uppercase mb-1" style={{ color: PRIME.muted }}>
+                        Audit (system) — discourse lives in desk chat above
                       </p>
                       <ul className="space-y-1 text-xs" style={{ color: PRIME.muted }}>
                         <li>Created {new Date(selected.created_at).toLocaleString()}</li>
@@ -1924,12 +1937,12 @@ export default function App() {
                         onClick={() => void approveSelected()}
                         title={
                           canApprove
-                            ? "Approver: accept routing and download Cursor staging package"
+                            ? "Approver: record approved work package for Cursor (staging)"
                             : "Requires Approver session"
                         }
                         className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-sm disabled:opacity-40"
                       >
-                        <Download className="w-4 h-4" /> Accept routing → Approve → Cursor staging
+                        <Download className="w-4 h-4" /> Approve → record for Cursor staging
                       </button>
                       <button
                         type="button"
