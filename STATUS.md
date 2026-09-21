@@ -2,13 +2,14 @@
 
 | Area | State | Notes |
 |------|-------|-------|
-| DR-010 | **CLOSED** | Stages 0–7 on prod (`6ffaa14`+) |
-| DR-011 | **IN PROGRESS** | Stage 1 merged (PR #11) — bake |
-| Bricely | **LIVE** | Prediagnosis + permission + exact_issue → intake |
-| Console | **LIVE** | Prediagnosis HITL panel + routing Automations digests |
-| HITL role | **Assess + Approve** | Re-diagnose only if capture low |
-| Cursor within fence | **Enabled path** | liveFixes / allowlist / staging handoff — not free rewrite |
-| Full auto-dispatch | **HELD** | Approve still required |
+| DR-010 | **CLOSED** | Stages 0–7 |
+| DR-011 | **CLOSED** | Prediagnosis + routing + staging JSON |
+| DR-012 | **CLOSED** | Desk discourse · Approve record · Resolve notify |
+| DR-013 | **IN PROGRESS** | Stage 1 durable Cursor outbox — bake |
+| Bricely | **LIVE** | Diagnose + thin live-fix fence (display name) |
+| Console | **LIVE** | Desk + Cursor outbox module |
+| HITL | **Assess + Approve** | Approver session gated |
+| Full auto-dispatch / qcefkox | **HELD** | Never autonomous |
 
 ## Production guard
 Never autonomous deploy to `qcefkoxqkfwnlqfmwzmi`.

@@ -1,4 +1,11 @@
 
+## DR-CS-PLATFORM-013 — Stage 1 GATE (2026-09-21) — STOP for bake
+
+- Durable `cursor_staging_outbox` on apx
+- Approve/Package enqueue · console Claim / Complete
+- Proof: `proofs/DR-CS-PLATFORM-013/GATE-1.md`
+- **STOP before Stage 3 live-fix allowlist expansion**
+
 ## DR-CS-PLATFORM-012 — CLOSED (2026-09-21) — Stage 5 GATE
 
 - CONTROL_PLANE closure snippet posts to desk on Resolve / status→done

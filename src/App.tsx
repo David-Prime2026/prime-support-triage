@@ -72,12 +72,27 @@ type NavKey =
   | "ambiguous"
   | "assigned"
   | "change-orders"
+  | "cursor-outbox"
   | "clients"
   | "kb"
   | "automations"
   | "dashboard"
   | "audit"
   | "compliance";
+
+type CursorOutboxRow = {
+  id: string;
+  ticket_id: string;
+  client_id: string;
+  status: string;
+  proposal: Record<string, unknown>;
+  approved_by: string | null;
+  claimed_by: string | null;
+  claimed_at: string | null;
+  completed_at: string | null;
+  notes: string | null;
+  created_at: string;
+};
 
 type ChangeOrder = {
   id: string;
@@ -293,6 +308,7 @@ export default function App() {
   const [nav, setNav] = useState<NavKey>("all");
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [changeOrders, setChangeOrders] = useState<ChangeOrder[]>([]);
+  const [outboxRows, setOutboxRows] = useState<CursorOutboxRow[]>([]);
   const [selected, setSelected] = useState<Ticket | null>(null);
   const [selectedCo, setSelectedCo] = useState<ChangeOrder | null>(null);
   const [events, setEvents] = useState<TicketEvent[]>([]);
@@ -329,14 +345,21 @@ export default function App() {
       setError(null);
       setTickets([]);
       setChangeOrders(DEMO_COS);
+      setOutboxRows([]);
       return;
     }
     setLoading(true);
     setError(null);
-    const [{ data, error: qErr }, { data: cos, error: coErr }] = await Promise.all([
-      supabase.from("support_tickets").select("*").order("created_at", { ascending: false }).limit(300),
-      supabase.from("change_order_drafts").select("*").order("created_at", { ascending: false }).limit(100),
-    ]);
+    const [{ data, error: qErr }, { data: cos, error: coErr }, { data: box, error: boxErr }] =
+      await Promise.all([
+        supabase.from("support_tickets").select("*").order("created_at", { ascending: false }).limit(300),
+        supabase.from("change_order_drafts").select("*").order("created_at", { ascending: false }).limit(100),
+        supabase
+          .from("cursor_staging_outbox")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(100),
+      ]);
     setLoading(false);
     if (qErr) {
       setError(qErr.message);
@@ -349,6 +372,10 @@ export default function App() {
       const rows = (cos ?? []) as ChangeOrder[];
       setChangeOrders(rows.length ? rows : DEMO_COS);
     }
+    if (boxErr) {
+      console.warn("cursor_staging_outbox:", boxErr.message);
+      setOutboxRows([]);
+    } else setOutboxRows((box ?? []) as CursorOutboxRow[]);
   }, []);
 
   useEffect(() => {
@@ -623,12 +650,13 @@ export default function App() {
       );
       downloadJson(`cursor-staging-${ticket.id.slice(0, 8)}-${Date.now()}.json`, staging);
       if (supabase && !ticket.id.startsWith("b1000001-")) {
+        const outbox = await enqueueCursorOutbox(ticket, staging as Record<string, unknown>, me);
         await supabase.from("ticket_messages").insert({
           ticket_id: ticket.id,
           client_id: ticket.client_id || WMG_CLIENT_ID,
           author_role: "cursor",
           channel: "admin",
-          body: `[RECORD] Approver approved — work package recorded for Cursor staging (${deskThread.length} desk note(s)). Status → received.`,
+          body: `[RECORD] Approver approved — durable outbox ${outbox?.id?.slice(0, 8) ?? "?"} (${deskThread.length} desk note(s)). Status → received. Staging fence only.`,
         });
         await supabase
           .from("support_tickets")
@@ -895,6 +923,98 @@ export default function App() {
     downloadJson(`dispatch-co-${payload.dispatch_id}-${Date.now()}.json`, payload);
   }
 
+  async function enqueueCursorOutbox(
+    ticket: Ticket,
+    staging: Record<string, unknown>,
+    approvedBy: string,
+  ) {
+    if (!supabase || ticket.id.startsWith("b1000001-")) return null;
+    const { data, error } = await supabase
+      .from("cursor_staging_outbox")
+      .insert({
+        ticket_id: ticket.id,
+        client_id: ticket.client_id || WMG_CLIENT_ID,
+        status: "pending",
+        proposal: staging,
+        approved_by: approvedBy,
+      })
+      .select("*")
+      .single();
+    if (error) throw error;
+    return data as CursorOutboxRow;
+  }
+
+  async function claimOutboxRow(row: CursorOutboxRow) {
+    if (!supabase) return;
+    setBusy(true);
+    try {
+      const { error } = await supabase
+        .from("cursor_staging_outbox")
+        .update({
+          status: "claimed",
+          claimed_by: me,
+          claimed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", row.id)
+        .eq("status", "pending");
+      if (error) throw error;
+      await supabase.from("ticket_messages").insert({
+        ticket_id: row.ticket_id,
+        client_id: row.client_id || WMG_CLIENT_ID,
+        author_role: "cursor",
+        channel: "admin",
+        body: `[Cursor] Claimed staging outbox ${row.id.slice(0, 8)} — assessing code/schema/PRs in staging fence.`,
+      });
+      await supabase
+        .from("support_tickets")
+        .update({ cursor_execution_status: "in_staging" })
+        .eq("id", row.ticket_id);
+      downloadJson(`cursor-staging-claimed-${row.id.slice(0, 8)}.json`, row.proposal);
+      await refresh();
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function completeOutboxRow(row: CursorOutboxRow) {
+    if (!supabase) return;
+    const notes = window.prompt("Closure note for desk / CONTROL_PLANE", "Staging work complete — awaiting promote") ?? "";
+    setBusy(true);
+    try {
+      const { error } = await supabase
+        .from("cursor_staging_outbox")
+        .update({
+          status: "done",
+          completed_at: new Date().toISOString(),
+          notes: notes.trim() || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", row.id);
+      if (error) throw error;
+      await supabase.from("ticket_messages").insert({
+        ticket_id: row.ticket_id,
+        client_id: row.client_id || WMG_CLIENT_ID,
+        author_role: "cursor",
+        channel: "admin",
+        body: `[Cursor] Outbox ${row.id.slice(0, 8)} marked done. ${notes.trim() || "Awaiting human promote."} Fence: never auto qcefkox.`,
+      });
+      await supabase
+        .from("support_tickets")
+        .update({ cursor_execution_status: "awaiting_promote" })
+        .eq("id", row.ticket_id);
+      await refresh();
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function refreshDesk(ticketId: string) {
     if (!supabase || ticketId.startsWith("b1000001-")) return;
     const { data } = await supabase
@@ -1152,12 +1272,14 @@ export default function App() {
     const staging = buildCursorStagingProposal(ticket, me, thread);
     downloadJson(`cursor-staging-${ticket.id.slice(0, 8)}-${Date.now()}.json`, staging);
     if (supabase && !ticket.id.startsWith("b1000001-")) {
+      const outbox = await enqueueCursorOutbox(ticket, staging as Record<string, unknown>, me);
       const ov = {
         ...((ticket.human_override as Record<string, unknown> | null) ?? {}),
         cursor_staging_last: {
           at: staging.generated_at,
           desk_count: thread.length,
           status: ticket.cursor_execution_status ?? "idle",
+          outbox_id: outbox?.id ?? null,
         },
       };
       await supabase
@@ -1172,9 +1294,10 @@ export default function App() {
         client_id: ticket.client_id || WMG_CLIENT_ID,
         author_role: "cursor",
         channel: "admin",
-        body: `[Cursor outbox] Staging package downloaded with ${thread.length} desk note(s). Execute in staging only.`,
+        body: `[RECORD] Staging package queued in durable outbox ${outbox?.id?.slice(0, 8) ?? "?"} (${thread.length} desk note(s)). Execute in staging only.`,
       });
       await refreshDesk(ticket.id);
+      await refresh();
     }
     return staging;
   }
@@ -1347,6 +1470,12 @@ export default function App() {
                 label="Change Orders"
                 count={changeOrders.length}
                 onClick={() => setNav("change-orders")}
+              />
+              <NavBtn
+                active={nav === "cursor-outbox"}
+                label="Cursor outbox"
+                count={outboxRows.filter((r) => r.status === "pending" || r.status === "claimed").length}
+                onClick={() => setNav("cursor-outbox")}
               />
               <NavBtn active={nav === "clients"} label="Clients / Tenants" onClick={() => setNav("clients")} />
               <NavBtn active={nav === "kb"} label="Knowledge Base" onClick={() => setNav("kb")} />
@@ -2229,6 +2358,95 @@ export default function App() {
                   Last focused: {selectedCo.description}
                 </p>
               )}
+            </div>
+          )}
+
+          {nav === "cursor-outbox" && (
+            <div className="flex-1 overflow-y-auto p-4">
+              <h2 className="text-lg font-semibold mb-1">Cursor staging outbox</h2>
+              <p className="text-xs mb-4" style={{ color: PRIME.muted }}>
+                Durable queue from Approve / Package. Claim → work in Cursor (staging) → Complete.
+                Never auto-promote to production.
+              </p>
+              {outboxRows.length === 0 && (
+                <p className="text-sm" style={{ color: PRIME.muted }}>
+                  No outbox rows yet — Approve a ticket or Package desk → Cursor staging.
+                </p>
+              )}
+              <div className="space-y-3 max-w-3xl">
+                {outboxRows.map((row) => {
+                  const title =
+                    typeof row.proposal?.title === "string"
+                      ? row.proposal.title
+                      : typeof row.proposal?.exact_issue === "string"
+                        ? row.proposal.exact_issue
+                        : row.ticket_id.slice(0, 8);
+                  return (
+                    <div
+                      key={row.id}
+                      className="rounded-xl border p-4 space-y-2"
+                      style={{ background: PRIME.card, borderColor: PRIME.border }}
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-sky-700/40 text-sky-100">
+                          {row.status}
+                        </span>
+                        <span className="text-[10px] tabular-nums" style={{ color: PRIME.muted }}>
+                          {new Date(row.created_at).toLocaleString()}
+                        </span>
+                        <span className="text-[10px]" style={{ color: PRIME.muted }}>
+                          ticket {row.ticket_id.slice(0, 8)}
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium line-clamp-2">{title}</p>
+                      <p className="text-xs" style={{ color: PRIME.muted }}>
+                        Approved by {row.approved_by ?? "—"}
+                        {row.claimed_by ? ` · claimed ${row.claimed_by}` : ""}
+                      </p>
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <button
+                          type="button"
+                          disabled={busy || row.status !== "pending"}
+                          onClick={() => void claimOutboxRow(row)}
+                          className="rounded-lg bg-sky-700 px-3 py-1.5 text-xs disabled:opacity-40"
+                        >
+                          Claim for Cursor
+                        </button>
+                        <button
+                          type="button"
+                          disabled={busy || (row.status !== "claimed" && row.status !== "in_staging")}
+                          onClick={() => void completeOutboxRow(row)}
+                          className="rounded-lg border border-emerald-500/40 px-3 py-1.5 text-xs text-emerald-200 disabled:opacity-40"
+                        >
+                          Mark done → awaiting promote
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            downloadJson(`cursor-staging-${row.id.slice(0, 8)}.json`, row.proposal)
+                          }
+                          className="rounded-lg border border-slate-600 px-3 py-1.5 text-xs text-slate-200"
+                        >
+                          Download proposal
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const t = tickets.find((x) => x.id === row.ticket_id);
+                            if (t) {
+                              setSelected(t);
+                              setNav("all");
+                            }
+                          }}
+                          className="rounded-lg border border-slate-600 px-3 py-1.5 text-xs text-slate-200"
+                        >
+                          Open ticket
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
