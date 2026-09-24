@@ -27,6 +27,7 @@ import {
   handoffAToCsvRow,
 } from "./lib/handoffs";
 import { bugsAsTickets, BUG_CASE_SEEDS, CASE_LOG_SOURCE } from "./seeds/bugsCaseLog";
+import { INCOMING_CHANGE_ORDERS, INCOMING_REQUEST_TICKETS } from "./seeds/incomingRequests";
 
 type QueueSort = "priority_fifo" | "newest" | "oldest";
 
@@ -254,7 +255,7 @@ export default function App() {
     if (!supabase) {
       setError(null);
       setTickets([]);
-      setChangeOrders(DEMO_COS);
+      setChangeOrders([...INCOMING_CHANGE_ORDERS, ...DEMO_COS]);
       return;
     }
     setLoading(true);
@@ -270,10 +271,10 @@ export default function App() {
       return;
     }
     setTickets((data ?? []) as Ticket[]);
-    if (coErr) setChangeOrders(DEMO_COS);
+    if (coErr) setChangeOrders([...INCOMING_CHANGE_ORDERS, ...DEMO_COS]);
     else {
       const rows = (cos ?? []) as ChangeOrder[];
-      setChangeOrders(rows.length ? rows : DEMO_COS);
+      setChangeOrders(rows.length ? rows : [...INCOMING_CHANGE_ORDERS, ...DEMO_COS]);
     }
   }, []);
 
@@ -283,7 +284,7 @@ export default function App() {
 
   /** Merge BUG-001… case log seed so the console always shows the bugs log as cases. */
   const ticketsWithCaseLog = useMemo(() => {
-    const seeded = bugsAsTickets();
+    const seeded = [...bugsAsTickets(), ...INCOMING_REQUEST_TICKETS];
     const byId = new Map<string, Ticket>();
     for (const t of seeded) byId.set(t.id, t);
     for (const t of tickets) byId.set(t.id, t);
@@ -295,7 +296,7 @@ export default function App() {
       setEvents([]);
       return;
     }
-    if (selected.id.startsWith("b1000001-")) {
+    if (selected.id.startsWith("b1000001-") || selected.id.startsWith("c1000001-")) {
       setEvents([]);
       return;
     }
