@@ -1,0 +1,13 @@
+{
+  "designated": "bricely@prime-timesystems.com",
+  "cc": ["david@prime-timesystems.com"],
+  "waiting_for_approval_default_cc": ["david@prime-timesystems.com"],
+  "never_default_cc": ["alisa@wilsonmarketing.com"],
+  "wmg_client_id": "a1000001-0001-4001-8001-000000000001",
+  "aliases": {
+    "bricely@prime-timesystems.com": "a1000001-0001-4001-8001-000000000001",
+    "wmg-os@support.primetimesystems.ai": "a1000001-0001-4001-8001-000000000001"
+  },
+  "triage_project": "apxbwdxszmdffbduhjen",
+  "note": "Old support@prime-timesystems.com is not the designated seat. Mail to Bricely opens tickets on this project only — never WMG OS prod."
+}

@@ -1,3 +1,32 @@
+## DR-CS-PLATFORM-008 — Bricely Gmail designated intake — 2026-09-24 — **SHIPPED (pipe) / STOP (function deploy token)**
+
+PRIME: designated support email is **bricely@prime-timesystems.com**. Mail must open tickets on `apxbwdxszmdffbduhjen` and run catch-net. Never `qcefkoxqkfwnlqfmwzmi`.
+
+SENT NOW (then corrected):
+- CO-015 waiting-for-approval → skip@wilsonmarketing.com. First send `1a0d4ac2a483a47c` copied Alisa and attached a homemade PDF — **wrong**. Gmail cannot recall.
+- Correction (Skip + David only, no Alisa, no PDF): Gmail `1a0d4b2fc89d4c5c`. Ignore the earlier attachment; review on Your Support; official PDF only after execution with customer-accept + PRIME send-approval stamps.
+
+CO PDF RULES (PRIME 2026-09-24):
+- Official form only: `quotes/templates/2026-PRIME-TIME-Systems-Quote-Proposal.docx` (West / SecureShow blanked)
+- `CHANGE ORDER WAITING FOR APPROVAL` = Your Support link, `attach_pdf: false`, default CC David — never Alisa
+- `CHANGE ORDER APPROVED` PDF only if `customer_accepted_at` + `prime_send_approved_at` + `prime_send_approved_by`
+
+SHIPPED (this repo):
+- Doctrine Exhibit A channel + support email → Bricely (operators.primary already Bricely)
+- `email-intake` alias map includes Bricely + `wmg-os@…`; `source_channel: email`; thread dedup; `CHANGE ORDER WAITING FOR APPROVAL` / `CHANGE ORDER APPROVED` notify payloads
+- `process-ticket-ai` honors `AUTONOMY_HALT` (kill switch mid-flight)
+- Gmail poll → `scripts/gmail-intake-once.ts`
+- Live WMG embed already points intake + thread at **this** project (not empty, not OS prod)
+
+PROVED:
+- Unread Bricely support thread + two proof sends created real email tickets on `apxbwdxszmdffbduhjen` (see `proofs/DR-CS-PLATFORM-008/GMAIL-INTAKE.md`)
+- `npm run proof:gmail-intake`
+- Password-reset ticket `fa4f4296-…` is the Tier A sample; dashboard ticket `c6dda146-…` is the non-allowlist sample (no auto-bill — classifier not live yet)
+
+BLOCKER: `email-intake` / `process-ticket-ai` / `bricely-diagnose` are **404** on parent; live `intake-ticket` lacks followup append. This VM has no `SUPABASE_ACCESS_TOKEN`. Push from `wmg-backend-bricely` with `scripts/deploy-triage-functions.sh`. Kill switch stays `halt: false` until you must stop.
+
+---
+
 ## HOTFIX — desk Enter / resolve path / post-ticket dialogue — 2026-09-24
 
 Operator: command box Enter only inserted a newline; `@eng` looked like a Cursor session; console did not say how to close tickets; Bricely died after OPEN TICKET.

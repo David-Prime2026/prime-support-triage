@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "db:reset": "supabase db reset --workdir .",
-    "proof:dr-008": "node --experimental-strip-types scripts/bricely-diagnose-proof.ts"
+    "proof:dr-008": "node --experimental-strip-types scripts/bricely-diagnose-proof.ts",
+    "proof:gmail-intake": "node --experimental-strip-types scripts/bricely-gmail-intake-proof.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
