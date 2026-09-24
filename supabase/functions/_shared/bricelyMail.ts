@@ -19,6 +19,49 @@ export const BRICELY_SIGNATURE = [
 export const YOUR_SUPPORT_URL =
   "https://wmgos.primetimesystems.ai/?view=settings#your-support";
 
+/** Official change-order / quote form. Never a homemade PDF. */
+export const OFFICIAL_QUOTE_TEMPLATE =
+  "quotes/templates/2026-PRIME-TIME-Systems-Quote-Proposal.docx";
+
+export const PRIME_INTERNAL_COPY = "david@prime-timesystems.com";
+
+export type CoExecutionStamps = {
+  customer_accepted_at?: string;
+  customer_accepted_by?: string;
+  prime_send_approved_at?: string;
+  prime_send_approved_by?: string;
+};
+
+export function waitingCc(explicit?: string[]): string[] {
+  const src = explicit ?? [PRIME_INTERNAL_COPY];
+  return Array.from(
+    new Set(src.map((e) => e.trim().toLowerCase()).filter(Boolean)),
+  );
+}
+
+export function approvedCc(explicit?: string[]): string[] {
+  return Array.from(
+    new Set(
+      [...(explicit ?? []), PRIME_INTERNAL_COPY]
+        .map((e) => e.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  );
+}
+
+export function missingExecutionStamps(p: CoExecutionStamps): string[] {
+  const missing: string[] = [];
+  if (!p.customer_accepted_at) missing.push("customer_accepted_at");
+  if (!p.prime_send_approved_at) missing.push("prime_send_approved_at");
+  if (!p.prime_send_approved_by) missing.push("prime_send_approved_by");
+  return missing;
+}
+
+/** PDF only after customer accept + PRIME (David) send-approval. */
+export function canAttachExecutedPdf(p: CoExecutionStamps): boolean {
+  return missingExecutionStamps(p).length === 0;
+}
+
 export function clientIdForRecipient(to: string): string | null {
   const hay = to.toLowerCase();
   const alias = Object.keys(ALIAS_TO_CLIENT).find((a) => hay.includes(a.toLowerCase()));
@@ -45,7 +88,7 @@ export type CoWaitingPayload = {
   review_url?: string;
 };
 
-export type CoApprovedPayload = {
+export type CoApprovedPayload = CoExecutionStamps & {
   type: "CHANGE ORDER APPROVED";
   change_order_id: string;
   title: string;
@@ -75,7 +118,7 @@ export function coWaitingBody(p: CoWaitingPayload): string {
     "Open and review here:",
     url,
     "",
-    "Nothing starts until you approve. After you approve, we stamp your name and the time on the signature line and email you a PDF copy.",
+    "Nothing starts until you approve. After you approve, we stamp your name and the time on the signature line. A PDF is emailed only after execution — it will show your acceptance timestamp together with PRIME's send-approval timestamp.",
     "",
     BRICELY_SIGNATURE,
   ]
@@ -88,14 +131,19 @@ export function coApprovedSubject(p: CoApprovedPayload): string {
 }
 
 export function coApprovedBody(p: CoApprovedPayload): string {
-  const who = p.approver_name ? `${p.approver_name}` : "you";
-  const when = p.approved_at ? ` at ${p.approved_at}` : "";
+  const customerWho = p.customer_accepted_by || p.approver_name || "the customer";
+  const customerWhen = p.customer_accepted_at || p.approved_at || "";
+  const primeWho = p.prime_send_approved_by || "PRIME";
+  const primeWhen = p.prime_send_approved_at || "";
   return [
-    `The change order is approved. We stamped ${who}${when} on the signature line.`,
+    "The change order is executed.",
     "",
     `${p.change_order_id} — ${p.title}${p.quote_id ? ` (Quote ${p.quote_id})` : ""}`,
     "",
-    "A PDF copy is attached.",
+    `Customer accepted: ${customerWho}${customerWhen ? ` at ${customerWhen}` : ""}.`,
+    `PRIME approved sending this copy: ${primeWho}${primeWhen ? ` at ${primeWhen}` : ""}.`,
+    "",
+    "A PDF of the official 2026 PRIME-TIME Systems Quote/Proposal is attached. It carries both timestamps.",
     "",
     BRICELY_SIGNATURE,
   ].join("\n");

@@ -13,4 +13,6 @@ dist/
 .env.production.local
 .tmp*
 tmp-*
+tsconfig.tsbuildinfo
+quotes/*.pdf
 

@@ -8,10 +8,14 @@ Authority: PRIME 2026-09-24. Channel: `bricely@prime-timesystems.com`. Triage: `
 |---|---|
 | From | `bricely@prime-timesystems.com` |
 | To | `skip@wilsonmarketing.com` |
-| CC | `alisa@wilsonmarketing.com`, `david@prime-timesystems.com` |
+| CC (first send — **wrong**) | `alisa@wilsonmarketing.com`, `david@prime-timesystems.com` |
 | Subject | Change order waiting for your approval — CO-015 Portal dashboard (Quote 1002026-015) |
 | Gmail message | `1a0d4ac2a483a47c` |
-| Attachment | `quotes/CO-015-portal-dashboard-multi-location.pdf` (generated in this worktree; official file was not in the isolated CS repo) |
+| Attachment (first send — **wrong**) | homemade `quotes/CO-015-portal-dashboard-multi-location.pdf` — **deleted**. Not the official 2026 PRIME-TIME Systems Quote/Proposal. |
+
+PRIME correction 2026-09-24: that PDF was not the template; West/SecureShow leftover was stripped from `quotes/templates/2026-PRIME-TIME-Systems-Quote-Proposal.docx`. CO PDF is not sent until after execution, with customer acceptance timestamp + PRIME send-approval timestamp (David’s approval to send). Waiting mail is Your Support link only. Do not default-CC Alisa. Gmail cannot recall the first send.
+
+Correction mailed (no Alisa, no PDF): Gmail `1a0d4b2fc89d4c5c` — To Skip, CC David only. Same thread.
 
 Plain body + Bricely signature. No SLA/billable words. Link: `https://wmgos.primetimesystems.ai/?view=settings#your-support`
 
@@ -64,4 +68,4 @@ Or `scripts/deploy-triage-functions.sh apxbwdxszmdffbduhjen`.
 
 Set function secret `AUTONOMY_HALT=false` (kill switch `halt:true` → `true` to stop mid-flight). HMAC: `INTAKE_HMAC_SECRET` if you want the Gmail pipe locked.
 
-Going forward: WMG app POSTs `{ type: "CHANGE ORDER WAITING FOR APPROVAL", ... }` to `email-intake` → Bricely mails the customer with the Your Support link. `{ type: "CHANGE ORDER APPROVED" }` → stamped PDF to approver + David.
+Going forward: WMG app POSTs `{ type: "CHANGE ORDER WAITING FOR APPROVAL", ... }` to `email-intake` → Bricely mails the customer with the Your Support link (`attach_pdf: false`; default CC David only). `{ type: "CHANGE ORDER APPROVED" }` → official Quote/Proposal PDF only when `customer_accepted_at` + `prime_send_approved_at` + `prime_send_approved_by` are set; otherwise 409 and no mail.
