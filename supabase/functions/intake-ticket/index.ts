@@ -54,6 +54,31 @@ Deno.serve(async (req) => {
       return json({ error: "Unknown or inactive client" }, 404);
     }
 
+    const followupId = body.followup_ticket_id ? String(body.followup_ticket_id).trim() : "";
+    if (followupId) {
+      const { data: existing, error: exErr } = await sb
+        .from("support_tickets")
+        .select("id, client_id, status")
+        .eq("id", followupId)
+        .maybeSingle();
+      if (exErr) throw exErr;
+      if (!existing) return json({ error: "ticket not found" }, 404);
+      await sb.from("ticket_messages").insert({
+        ticket_id: followupId,
+        client_id: existing.client_id,
+        author_role: "customer",
+        channel: source === "email" ? "email" : "widget",
+        body: rawMessage,
+      });
+      await sb.rpc("log_ticket_event", {
+        p_ticket_id: followupId,
+        p_event_type: "customer_followup",
+        p_actor: "system",
+        p_payload: { source_channel: source },
+      });
+      return json({ ok: true, followup: true, ticket_id: followupId, status: existing.status });
+    }
+
     const diagnosis = body.diagnosis ? String(body.diagnosis).trim() : null;
     const surface = body.surface ? String(body.surface).trim() : null;
     const attachmentPayload = Array.isArray(body.attachments) ? body.attachments : [];

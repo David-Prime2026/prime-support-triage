@@ -46,5 +46,24 @@ export async function wCe(e: LiveWceInput): Promise<{
   if (!res.ok || !data?.reply || !data?.next || !data?.terminal) {
     throw new Error(data?.error ?? "bricely-diagnose failed");
   }
+
+  const followupId = data.append_to_ticket_id as string | undefined;
+  const intake = (import.meta as { env?: Record<string, string> }).env?.VITE_BRICELY_INTAKE_URL;
+  if (followupId && intake && e.text?.trim()) {
+    try {
+      await fetch(intake, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          client_id: (e.state as { client_id?: string } | undefined)?.client_id,
+          source_channel: "widget",
+          message: e.text.trim(),
+          followup_ticket_id: followupId,
+        }),
+      });
+    } catch {
+      /* thread persist still keeps the chat; ticket follow-up is best-effort */
+    }
+  }
   return data;
 }

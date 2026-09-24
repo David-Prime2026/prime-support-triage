@@ -52,6 +52,8 @@ If unset, the drop-in derives it from `VITE_BRICELY_INTAKE_URL` (same replace as
 
 3. Redeploy WMG. Hard-refresh. Re-run tester cases + A–D. Use New chat between scenarios.
 
+**Post-ticket wall (live `wCe`):** delete or skip the `if (t.openTicketId) return { reply: "That's already with our specialist…" }` branch. After a ticket, keep chatting and POST `followup_ticket_id` to `intake-ticket` (see `embed/wCe.remote.ts`).
+
 ## Isolation
 
 - Functions: `rxhiydtqzmksaeegxyqo` only

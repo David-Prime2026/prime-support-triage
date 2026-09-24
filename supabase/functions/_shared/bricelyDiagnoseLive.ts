@@ -69,6 +69,7 @@ export type LiveDiagnoseResult = {
   liveFix?: { kind: "display_name"; desiredName: string };
   action: DiagnoseAction | "reset_chat" | "close_chat" | "live_fix" | "open_ticket";
   internal_reason: string;
+  append_to_ticket_id?: string;
 };
 
 const NEW_CHAT =
@@ -289,10 +290,11 @@ export function diagnoseLiveTurn(input: LiveDiagnoseInput): LiveDiagnoseResult {
     if (prior.openTicketId) {
       return liveOut(
         { ...next, phase: "escalate" },
-        "You already have an open ticket from this chat. Add details here, or tap New chat for a different issue.",
+        "That ticket is already open. Tell me what else to add to it — I am still here. Tap New chat only for a different issue.",
         "continue",
         "open_ticket",
         "ticket_already_open",
+        { append_to_ticket_id: prior.openTicketId },
       );
     }
     return liveOut(
@@ -308,12 +310,22 @@ export function diagnoseLiveTurn(input: LiveDiagnoseInput): LiveDiagnoseResult {
   }
 
   if (prior.openTicketId) {
+    if (NO_MORE.test(text) && text.length < 48) {
+      return liveOut(
+        { ...next, phase: "escalate" },
+        "You're all set — we have the ticket. I'll stay on this chat if you think of more.",
+        "continue",
+        "escalate",
+        "ticket_followup_thanks",
+      );
+    }
     return liveOut(
       { ...next, phase: "escalate" },
-      "That's already with our specialist team under your open ticket — reply here with anything new and they'll see it. Or tap New chat to start a different issue.",
+      "I've added that to your open ticket. Keep talking here if there's more — or tap New chat for a different issue.",
       "continue",
-      "escalate",
-      "existing_open_ticket",
+      "clarify",
+      "ticket_followup_accepted",
+      { append_to_ticket_id: prior.openTicketId },
     );
   }
 

@@ -1,3 +1,18 @@
+## HOTFIX — desk Enter / resolve path / post-ticket dialogue — 2026-09-24
+
+Operator: command box Enter only inserted a newline; `@eng` looked like a Cursor session; console did not say how to close tickets; Bricely died after OPEN TICKET.
+
+SHIPPED (this repo):
+- Console command box: **Enter sends**, Shift+Enter newline; `@eng` / `@cursor` chips with honest copy (not a live Cursor pair)
+- Ticket detail: **How to finish this ticket** + labeled Approve / Resolve — close / Change order
+- `bricely-diagnose` live adapter: after `openTicketId`, keep talking and set `append_to_ticket_id` (no “already with specialist” wall)
+- `intake-ticket` accepts `followup_ticket_id` to append customer detail to the existing ticket
+- Proof L9: post-ticket follow-up stays `continue`
+
+PENDING: deploy console (gh-pages) + `intake-ticket` / `bricely-diagnose` to `apxbwdxszmdffbduhjen`; swap live `wCe` `if (openTicketId) wall` for the remote drop-in. Live widget still walls until that push.
+
+---
+
 ## DR-CS-PLATFORM-008 — EXECUTED (policy + live wCe contract) — 2026-09-19 — **STOP — push from wmg-backend**
 
 Tester report: Bricely “asks the same questions,” “keeps asking for screenshots and removing filters,” “isn’t reading the question, just firing canned responses.”

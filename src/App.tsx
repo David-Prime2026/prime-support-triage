@@ -236,6 +236,8 @@ export default function App() {
   const [queueSort, setQueueSort] = useState<QueueSort>("priority_fifo");
   const [nowTick, setNowTick] = useState(Date.now());
   const [noteDraft, setNoteDraft] = useState("");
+  const [deskRole, setDeskRole] = useState<"rep" | "eng" | "cursor">("rep");
+  const [deskHint, setDeskHint] = useState<string | null>(null);
   const [localNotes, setLocalNotes] = useState<
     { id: string; ticketId: string; body: string; author: string; at: string }[]
   >([]);
@@ -633,20 +635,51 @@ export default function App() {
     downloadJson(`dispatch-co-${payload.dispatch_id}-${Date.now()}.json`, payload);
   }
 
-  async function addOperatorNote() {
+  function insertDeskMention(tag: string) {
+    setNoteDraft((prev) => {
+      const pad = prev && !prev.endsWith(" ") && !prev.endsWith("\n") ? " " : "";
+      return `${prev}${pad}${tag} `;
+    });
+    if (tag === "@cursor") {
+      setDeskHint("Enter sends a request for Cursor to ack. This is not a live Cursor chat — Cursor replies after Approve → Handoff B.");
+    } else if (tag === "@eng") {
+      setDeskHint("@eng tags engineering on this ticket. You are still posting as yourself. Enter sends.");
+    } else {
+      setDeskHint("Enter sends. Shift+Enter adds a new line.");
+    }
+  }
+
+  async function submitDeskCommand() {
     if (!selected || !noteDraft.trim()) return;
-    const body = noteDraft.trim();
+    const raw = noteDraft.trim();
+    const tag = deskRole === "eng" ? "ENG" : deskRole === "cursor" ? "Cursor" : "HITL";
+    const body = `[${tag} · ${me}] ${raw}`;
     const at = new Date().toISOString();
+    const wantsCursor =
+      deskRole !== "cursor" && (/@cursor\b/i.test(raw) || /\bassess\b/i.test(raw) || /\bestimat/i.test(raw));
     setBusy(true);
+    setDeskHint(null);
     try {
       if (supabase && !selected.id.startsWith("b1000001-")) {
         const { error: eErr } = await supabase.from("ticket_events").insert({
           ticket_id: selected.id,
-          event_type: "operator_note",
-          actor: "operator",
-          payload: { body, author: me, kind: "note" },
+          event_type: "cursor_desk_message",
+          actor: deskRole === "rep" ? "operator" : deskRole,
+          payload: { body: raw, author: me, author_role: deskRole, channel: "admin", cursor_acked: wantsCursor },
         });
         if (eErr) throw eErr;
+        if (wantsCursor) {
+          const { error: ackErr } = await supabase.from("ticket_events").insert({
+            ticket_id: selected.id,
+            event_type: "cursor_desk_ack",
+            actor: "cursor",
+            payload: {
+              body: "[Cursor] Received. I do not invent scope or hours in this box. Approver: Approve → Handoff B (staging). Paste into a Cloud Agent thread for real code work.",
+              author: "cursor",
+            },
+          });
+          if (ackErr) throw ackErr;
+        }
         const { data } = await supabase
           .from("ticket_events")
           .select("*")
@@ -655,17 +688,13 @@ export default function App() {
         setEvents((data ?? []) as TicketEvent[]);
       } else {
         setLocalNotes((n) => [
-          {
-            id: `ln-${Date.now()}`,
-            ticketId: selected.id,
-            body,
-            author: me,
-            at,
-          },
+          { id: `ln-${Date.now()}`, ticketId: selected.id, body, author: me, at },
           ...n,
         ]);
       }
       setNoteDraft("");
+      setDeskRole("rep");
+      setDeskHint(wantsCursor ? "Posted. Cursor ack is on the thread — not a live pair session." : "Posted.");
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -1097,26 +1126,103 @@ export default function App() {
                       </div>
                     </section>
 
+                    <section
+                      className="rounded-xl border p-3 space-y-2"
+                      style={{ borderColor: "#1d4ed8", background: "rgba(30,58,138,0.22)" }}
+                    >
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-blue-200">
+                        How to finish this ticket
+                      </p>
+                      <ol className="text-xs text-slate-200 space-y-1 list-decimal pl-4">
+                        <li>
+                          <strong>Needs engineering / Cursor:</strong> type the ask, click{" "}
+                          <span className="font-mono">@cursor</span>, press <strong>Enter</strong> (not just a
+                          new line). Then click <strong>Approve → Handoff B</strong>.
+                        </li>
+                        <li>
+                          <strong>Work is done:</strong> click <strong>Resolve — close ticket</strong>. That is
+                          the close action.
+                        </li>
+                        <li>
+                          <strong>Billable / new feature:</strong> click <strong>→ Change order</strong>.
+                        </li>
+                      </ol>
+                      <p className="text-[11px] text-amber-100/90">
+                        {selected.status === "awaiting_approval"
+                          ? "This ticket is waiting here. It will not move until you Approve or Resolve."
+                          : selected.status === "sent_to_engineering"
+                            ? "Approved — dispatch is with engineering. Resolve when the requester is done."
+                            : `Status: ${stateLabel(selected)}.`}
+                      </p>
+                    </section>
+
                     <section>
                       <p className="text-[10px] font-semibold uppercase mb-1" style={{ color: PRIME.muted }}>
-                        Operator notes
+                        Command box — talk to the desk (not a live Cursor chat)
+                      </p>
+                      <p className="text-[11px] mb-2" style={{ color: PRIME.muted }}>
+                        <strong>Enter sends. Shift+Enter</strong> new line.{" "}
+                        <span className="font-mono">@eng</span> tags engineering (you still post as you).{" "}
+                        <span className="font-mono">@cursor</span> requests a Cursor ack — Cursor does not
+                        pair-program in this box.
                       </p>
                       <div className="space-y-2">
+                        <div className="flex flex-wrap gap-1">
+                          {(
+                            [
+                              ["rep", "You (HITL)"],
+                              ["eng", "You as ENG"],
+                              ["cursor", "Label as Cursor"],
+                            ] as const
+                          ).map(([id, label]) => (
+                            <button
+                              key={id}
+                              type="button"
+                              onClick={() => setDeskRole(id)}
+                              className={`text-[10px] px-2 py-0.5 rounded border ${
+                                deskRole === id
+                                  ? id === "cursor"
+                                    ? "bg-amber-800 border-amber-500"
+                                    : "bg-violet-700 border-violet-500"
+                                  : "border-slate-600 text-slate-300"
+                              }`}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                          {(["@eng", "@cursor", "@hitl", "@approver"] as const).map((tag) => (
+                            <button
+                              key={tag}
+                              type="button"
+                              onClick={() => insertDeskMention(tag)}
+                              className="text-[10px] px-2 py-0.5 rounded border border-slate-700 text-sky-200/90"
+                            >
+                              {tag}
+                            </button>
+                          ))}
+                        </div>
                         <textarea
                           value={noteDraft}
                           onChange={(e) => setNoteDraft(e.target.value)}
-                          rows={2}
-                          placeholder="Observation, decision, or instructed action…"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              void submitDeskCommand();
+                            }
+                          }}
+                          rows={3}
+                          placeholder="Type the command, then Enter to send…"
                           className="w-full rounded-lg border bg-slate-950/40 px-2 py-1.5 text-sm"
                           style={{ borderColor: PRIME.border }}
                         />
+                        {deskHint && <p className="text-[11px] text-amber-100/90">{deskHint}</p>}
                         <button
                           type="button"
                           disabled={busy || !noteDraft.trim()}
-                          onClick={() => void addOperatorNote()}
-                          className="rounded-lg bg-slate-600 px-3 py-1.5 text-xs disabled:opacity-40"
+                          onClick={() => void submitDeskCommand()}
+                          className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs disabled:opacity-40"
                         >
-                          Add note (timestamped · {me.split("@")[0]})
+                          Send (Enter) · {deskRole === "eng" ? "as ENG" : deskRole === "cursor" ? "labeled Cursor" : "as you"}
                         </button>
                         <ul className="space-y-1.5 text-xs">
                           {localNotes
@@ -1134,7 +1240,9 @@ export default function App() {
                               </li>
                             ))}
                           {events
-                            .filter((ev) => ev.event_type === "operator_note")
+                            .filter((ev) =>
+                              ["operator_note", "cursor_desk_message", "cursor_desk_ack"].includes(ev.event_type),
+                            )
                             .map((ev) => (
                               <li
                                 key={ev.id}
@@ -1169,31 +1277,43 @@ export default function App() {
                       </ul>
                     </section>
 
-                    <div className="flex flex-wrap gap-2 pt-2 border-t" style={{ borderColor: PRIME.border }}>
-                      <button
-                        type="button"
-                        disabled={busy || selected.status !== "awaiting_approval"}
-                        onClick={() => void approveSelected()}
-                        className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-sm disabled:opacity-40"
-                      >
-                        <Download className="w-4 h-4" /> Approve → Handoff B
-                      </button>
-                      <button
-                        type="button"
-                        disabled={busy}
-                        onClick={() => void markBillableCo()}
-                        className="rounded-lg border border-violet-500/50 px-3 py-1.5 text-sm text-violet-200 disabled:opacity-40"
-                      >
-                        → Change order
-                      </button>
-                      <button
-                        type="button"
-                        disabled={busy}
-                        onClick={() => void markResolved()}
-                        className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 px-3 py-1.5 text-sm text-emerald-200 disabled:opacity-40"
-                      >
-                        <CheckCircle2 className="w-4 h-4" /> Resolve
-                      </button>
+                    <div className="flex flex-col gap-2 pt-2 border-t" style={{ borderColor: PRIME.border }}>
+                      <p className="text-[10px] font-semibold uppercase" style={{ color: PRIME.muted }}>
+                        Finish ticket
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          disabled={busy || selected.status !== "awaiting_approval"}
+                          title={
+                            selected.status !== "awaiting_approval"
+                              ? "Approve is only for tickets waiting in Awaiting"
+                              : "Send to engineering / Cursor (staging Handoff B)"
+                          }
+                          onClick={() => void approveSelected()}
+                          className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-sm disabled:opacity-40"
+                        >
+                          <Download className="w-4 h-4" /> Approve → send to engineering
+                        </button>
+                        <button
+                          type="button"
+                          disabled={busy || CLOSED_STATUSES.has(selected.status)}
+                          title="Close the ticket. Use this when the requester is done."
+                          onClick={() => void markResolved()}
+                          className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 px-3 py-1.5 text-sm text-emerald-200 disabled:opacity-40"
+                        >
+                          <CheckCircle2 className="w-4 h-4" /> Resolve — close ticket
+                        </button>
+                        <button
+                          type="button"
+                          disabled={busy}
+                          title="Billable / new work — not a close"
+                          onClick={() => void markBillableCo()}
+                          className="rounded-lg border border-violet-500/50 px-3 py-1.5 text-sm text-violet-200 disabled:opacity-40"
+                        >
+                          → Change order (billable)
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
