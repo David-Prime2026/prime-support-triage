@@ -224,6 +224,21 @@ const liveProofs: LiveProof[] = [
     expectTerminal: "continue",
     require: [/keep digging|specialist/i],
   },
+  {
+    id: "L9",
+    title: "Live wCe: after ticket — keep talking, do not wall",
+    text: "Also the pickup street is 412 Maple not 410",
+    state: {
+      exchanges: 3,
+      phase: "escalate",
+      introAcked: true,
+      openTicketId: "5dc41a1a-6810-4f03-a040-2972852345f2",
+      notes: ["change pickup address", "open ticket"],
+    },
+    expectTerminal: "continue",
+    require: [/added that to your open ticket|Keep talking/i],
+    forbid: [/already with our specialist team under your open ticket/i],
+  },
 ];
 
 for (const p of liveProofs) {
