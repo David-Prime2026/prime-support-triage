@@ -4,7 +4,12 @@ import {
   clientIdForRecipient,
   coWaitingSubject,
   coWaitingBody,
+  coApprovedBody,
   isCoNotifyType,
+  waitingCc,
+  canAttachExecutedPdf,
+  missingExecutionStamps,
+  OFFICIAL_QUOTE_TEMPLATE,
   WMG_CLIENT_ID,
 } from "../supabase/functions/_shared/bricelyMail.ts";
 
@@ -39,6 +44,38 @@ const body = coWaitingBody(waiting);
 check("CO body has Your Support link", body.includes("wmgos.primetimesystems.ai/?view=settings#your-support"));
 check("CO body has no SLA jargon", !/SLA|billable|out of scope|Exhibit/i.test(body));
 check("CO body has signature", body.includes("BRICELY ESCOBAR"));
+check("waiting mail promises PDF only after execution", /only after execution/i.test(body));
+check("waiting mail does not send a PDF now", !/A PDF copy is attached/i.test(body));
+check("waiting default CC is David only", waitingCc().join(",") === "david@prime-timesystems.com");
+check("waiting default CC is not Alisa", !waitingCc().some((e) => e.includes("alisa@")));
+check("official template path", OFFICIAL_QUOTE_TEMPLATE.includes("2026-PRIME-TIME-Systems-Quote-Proposal.docx"));
+check("executed PDF blocked without stamps", !canAttachExecutedPdf({}));
+check(
+  "executed PDF allowed with both stamps",
+  canAttachExecutedPdf({
+    customer_accepted_at: "2026-09-24T18:00:00Z",
+    prime_send_approved_at: "2026-09-24T18:05:00Z",
+    prime_send_approved_by: "david@prime-timesystems.com",
+  }),
+);
+check(
+  "missing stamps lists the three required fields",
+  missingExecutionStamps({}).join(",") ===
+    "customer_accepted_at,prime_send_approved_at,prime_send_approved_by",
+);
+const approved = coApprovedBody({
+  type: "CHANGE ORDER APPROVED",
+  change_order_id: "CO-015",
+  title: "Portal dashboard — multi-location access",
+  quote_id: "1002026-015",
+  to: ["skip@wilsonmarketing.com"],
+  customer_accepted_at: "2026-09-24T18:00:00Z",
+  customer_accepted_by: "Skip Wilson",
+  prime_send_approved_at: "2026-09-24T18:05:00Z",
+  prime_send_approved_by: "David Figueroa",
+});
+check("approved body has both timestamps", /Customer accepted/i.test(approved) && /PRIME approved sending/i.test(approved));
+check("approved body names official template", /2026 PRIME-TIME Systems Quote\/Proposal/i.test(approved));
 
 function haltedLane(halt: boolean, lane: string): string {
   if (lane === "auto_resolve" && halt) return "needs_approval";
@@ -51,4 +88,4 @@ if (failed) {
   console.log(`\n${failed} FAIL`);
   process.exit(1);
 }
-console.log("\n12/12 local Gmail-intake proofs PASS");
+console.log("\n22/22 local Gmail-intake proofs PASS");

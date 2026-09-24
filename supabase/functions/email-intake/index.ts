@@ -10,6 +10,11 @@ import {
   coWaitingBody,
   coApprovedSubject,
   coApprovedBody,
+  waitingCc,
+  approvedCc,
+  canAttachExecutedPdf,
+  missingExecutionStamps,
+  OFFICIAL_QUOTE_TEMPLATE,
   type CoWaitingPayload,
   type CoApprovedPayload,
 } from "../_shared/bricelyMail.ts";
@@ -132,27 +137,47 @@ Deno.serve(async (req) => {
         const queued = queueMail(
           notifyType,
           p.to,
-          p.cc ?? ["alisa@wilsonmarketing.com", "david@prime-timesystems.com"],
+          waitingCc(p.cc),
           coWaitingSubject(p),
           coWaitingBody(p),
-          { change_order_id: p.change_order_id, quote_id: p.quote_id ?? null },
+          {
+            change_order_id: p.change_order_id,
+            quote_id: p.quote_id ?? null,
+            attach_pdf: false,
+            template: OFFICIAL_QUOTE_TEMPLATE,
+          },
         );
-        return json({ ok: true, queued: true, notify: notifyType, mail: queued });
+        return json({ ok: true, queued: true, notify: notifyType, attach_pdf: false, mail: queued });
       }
       const p = body as unknown as CoApprovedPayload;
       if (!p.change_order_id || !p.title || !p.to?.length) {
         return json({ error: "change_order_id, title, to required" }, 400);
       }
-      const cc = Array.from(new Set([...(p.cc ?? []), "david@prime-timesystems.com"]));
+      if (!canAttachExecutedPdf(p)) {
+        return json({
+          error: "CO PDF cannot be sent until after execution",
+          missing: missingExecutionStamps(p),
+          attach_pdf: false,
+          required: ["customer_accepted_at", "prime_send_approved_at", "prime_send_approved_by"],
+        }, 409);
+      }
       const queued = queueMail(
         notifyType,
         p.to,
-        cc,
+        approvedCc(p.cc),
         coApprovedSubject(p),
         coApprovedBody(p),
-        { change_order_id: p.change_order_id, stamped_pdf: true },
+        {
+          change_order_id: p.change_order_id,
+          attach_pdf: true,
+          template: OFFICIAL_QUOTE_TEMPLATE,
+          customer_accepted_at: p.customer_accepted_at,
+          customer_accepted_by: p.customer_accepted_by ?? p.approver_name ?? null,
+          prime_send_approved_at: p.prime_send_approved_at,
+          prime_send_approved_by: p.prime_send_approved_by,
+        },
       );
-      return json({ ok: true, queued: true, notify: notifyType, mail: queued });
+      return json({ ok: true, queued: true, notify: notifyType, attach_pdf: true, mail: queued });
     }
 
     const to = String(body.to ?? body.recipient ?? "bricely@prime-timesystems.com");

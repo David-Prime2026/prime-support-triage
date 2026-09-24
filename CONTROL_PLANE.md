@@ -2,8 +2,14 @@
 
 PRIME: designated support email is **bricely@prime-timesystems.com**. Mail must open tickets on `apxbwdxszmdffbduhjen` and run catch-net. Never `qcefkoxqkfwnlqfmwzmi`.
 
-SENT NOW:
-- CO-015 waiting-for-approval → skip@wilsonmarketing.com, CC Alisa + David. Gmail `1a0d4ac2a483a47c`. PDF attached (`quotes/CO-015-portal-dashboard-multi-location.pdf`).
+SENT NOW (then corrected):
+- CO-015 waiting-for-approval → skip@wilsonmarketing.com. First send `1a0d4ac2a483a47c` copied Alisa and attached a homemade PDF — **wrong**. Gmail cannot recall.
+- Correction (Skip + David only, no Alisa, no PDF): Gmail `1a0d4b2fc89d4c5c`. Ignore the earlier attachment; review on Your Support; official PDF only after execution with customer-accept + PRIME send-approval stamps.
+
+CO PDF RULES (PRIME 2026-09-24):
+- Official form only: `quotes/templates/2026-PRIME-TIME-Systems-Quote-Proposal.docx` (West / SecureShow blanked)
+- `CHANGE ORDER WAITING FOR APPROVAL` = Your Support link, `attach_pdf: false`, default CC David — never Alisa
+- `CHANGE ORDER APPROVED` PDF only if `customer_accepted_at` + `prime_send_approved_at` + `prime_send_approved_by`
 
 SHIPPED (this repo):
 - Doctrine Exhibit A channel + support email → Bricely (operators.primary already Bricely)
