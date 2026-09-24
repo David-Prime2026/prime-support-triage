@@ -1,3 +1,17 @@
+## CO-GWKS-DEFAULT-PICKUP-HOURS — diagnosed, not built — 2026-09-24
+
+Jessica Wallace (Goodwill KS, `jwallace@goodwillks.org`) via Alisa: can Alisa save highlighted New Portal **pickup** (`3636 N Oliver Wichita KS`) and **shipping hours** (`8AM-2PM`) so Jessica does not re-enter them every load request?
+
+**Answer: no.** Those two fields are per-request. Confirmation-email checkboxes already default from account settings.
+
+Live WMG (`GCe`): pickup `U` and notes `B` start `""` and clear after submit. `get-seller-portal-context` prefills `last_commodity` + `confirmation_email_events` only. No `shipping_hours` field. Internal `list_seller_pickup_locations` (load history / billing) is not wired to the seller form. Alisa has no CRM save that writes onto Jessica’s portal.
+
+Lane: change order · `new_feature` · §19 · Sev 3 / P3. Ticket seed `c1000001-0001-4001-8001-000000000001`. Package: `handoffs/CO-GWKS-DEFAULT-PICKUP-HOURS/` (Alisa reply + Handoff A). Live intake not filed — no parent token on this VM.
+
+**STOP — PRIME:** quote / approve before any wmg-backend build. Fast slice = last-used pickup/notes like `last_commodity`. Alisa slice = editable `default_pickup_location` + `default_shipping_hours`. Never `qcefkoxqkfwnlqfmwzmi`.
+
+---
+
 ## HOTFIX — desk Enter / resolve path / post-ticket dialogue — 2026-09-24
 
 Operator: command box Enter only inserted a newline; `@eng` looked like a Cursor session; console did not say how to close tickets; Bricely died after OPEN TICKET.

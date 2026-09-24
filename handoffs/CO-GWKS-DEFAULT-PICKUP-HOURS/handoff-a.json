@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "change_order_id": "CO-GWKS-DEFAULT-PICKUP-HOURS",
+  "source_ticket_id": "c1000001-0001-4001-8001-000000000001",
+  "generated_at": "2026-09-24T01:20:00.000Z",
+  "generated_by": "prime-support-triage",
+  "state": "ready_to_quote",
+  "client": {
+    "id": "wmg",
+    "name": "Wilson Marketing Group",
+    "system": "WMG OS",
+    "contract_ref": "MSA-WMG-2026"
+  },
+  "billable_basis": {
+    "is_billable": true,
+    "contract_clause_ref": "M&S §19 — Excluded Services (new features)",
+    "reason": "New account-level defaults on the seller load-request form. Not a defect — pickup is documented as site name for this order; shipping hours are free-text notes. Confirmation emails already default from account settings."
+  },
+  "request": {
+    "verbatim": "Where I highlighted are you able to edit it on your end and able to save it to where I don't have to add our address and shipping hours every time I request a load?",
+    "summary": "Persist Goodwill KS default pickup (3636 N Oliver, Wichita KS) and shipping hours (8AM–2PM) on the New Portal load-request form so Jessica Wallace does not re-enter them each request.",
+    "requested_by": "Jessica Wallace <jwallace@goodwillks.org> via Alisa Figueroa",
+    "requested_via": "Email 2026-09-23 15:37 + New Portal screenshot"
+  },
+  "scope": {
+    "description": "Seller New Portal remembers account default pickup location and shipping hours. Alisa can edit those defaults in CRM. Prefill the existing pickup input and notes (or a dedicated hours field) from get-seller-portal-context. Mirror last_commodity persistence as the fast path.",
+    "deliverables": [
+      "get-seller-portal-context returns default and/or last pickup + shipping hours",
+      "Seller form GCe prefills pickup (U) and hours/notes (B) on open; reset after submit still reloads defaults",
+      "Alisa CRM control to set default_pickup_location and default_shipping_hours for a seller account",
+      "Optional: persist last-used on submit-load-request like last_commodity",
+      "Seed Goodwill KS: 3636 N Oliver Wichita KS / 8AM–2PM",
+      "Staging proof — Jessica (or Alisa-as-Jessica) opens New Portal and both fields are filled"
+    ],
+    "risks": [
+      "Multi-site Goodwill orgs — a single default may be wrong if Jessica later requests from another site; keep the field editable per request",
+      "Shipping hours today live in notes; a dedicated field avoids polluting additional-requests text",
+      "list_seller_pickup_locations is internal-create only today; do not assume seller portal can call it without RLS review"
+    ],
+    "dependencies": [
+      "wmg-backend seller portal + get-seller-portal-context + submit-load-request",
+      "WMG embed / Vercel push (not this isolated CS repo)",
+      "PRIME approve quote before build; staging only; never qcefkoxqkfwnlqfmwzmi"
+    ],
+    "sequencing_notes": "Fast slice last-used pickup/notes unblocks Jessica without a new CRM screen. Alisa-editable defaults are the asked-for UX and can follow in the same PR if default_pickup_location is already on the seller row."
+  },
+  "lift": {
+    "hours": { "snr": 8, "ai": 0, "sec": 0, "data": 4, "total": 12 },
+    "confidence": "medium",
+    "assessment_notes": "Internal ballpark 10–14h. Context + prefill ~3, CRM edit ~4, last-used persist ~2, hours field vs notes ~2, staging proof ~2.",
+    "affected_areas": [
+      "get-seller-portal-context",
+      "submit-load-request",
+      "seller portal GCe load-request form",
+      "seller account CRM defaults",
+      "optional list_seller_pickup_locations reuse"
+    ],
+    "assessed_by": "cursor",
+    "assessed_at": "2026-09-24T01:20:00.000Z"
+  },
+  "rate_card_ref": {
+    "version": "wmg-2026-v1",
+    "effective_date": "2026-09-01",
+    "note": "Reference only. Real pricing is set in the external quoting platform."
+  },
+  "internal_value_estimate": {
+    "low": 1800,
+    "high": 3000,
+    "currency": "USD",
+    "note": "Internal ballpark for pipeline sizing only. NOT the quote."
+  },
+  "handoff": {
+    "destination": "external_quoting_platform",
+    "formats_emitted": ["json", "csv"],
+    "external_quote_id": null,
+    "return_status_endpoint": "/api/change-orders/CO-GWKS-DEFAULT-PICKUP-HOURS/decision"
+  }
+}

@@ -7,6 +7,7 @@
 | Settings Support | **Grounded** | Mockup layout + 6-row pagination + quote popup |
 | Lightweight admin | **FIX-B shipped-to-staging** | Corrected shell: unified nav, summary bar, pills, 2-badge, SLA countdown |
 | Handoff A/B | **Grounded** | Appendix A shapes; flat-file outbox |
+| CO-GWKS-DEFAULT-PICKUP-HOURS | **Diagnosed / STOP** | Jessica/Alisa cannot persist New Portal pickup + hours today. Package in `handoffs/CO-GWKS-DEFAULT-PICKUP-HOURS/`. |
 | Schema Phase 1 + designed Phase 2 stubs | **Grounded** | `003_phase1_cs_platform_extensions.sql` — **support-triage DB only** |
 | Parallel CS repo | **Noted** | Stand up early; WMG as connecting tenant — PRIME name TBD |
 | Production | **STOP at gate** | Never merge / never `qcefkoxqkfwnlqfmwzmi` |
