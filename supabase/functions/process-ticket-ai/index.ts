@@ -9,6 +9,12 @@ const cors = {
 
 const AUTO_CONFIDENCE = Number(Deno.env.get("AI_AUTO_RESOLVE_CONFIDENCE") ?? "0.85");
 
+/** Live kill switch. halt:true in config/autonomy-killswitch.json → set AUTONOMY_HALT=true on the function. */
+function autonomyHalted(): boolean {
+  const raw = (Deno.env.get("AUTONOMY_HALT") ?? "").trim().toLowerCase();
+  return raw === "true" || raw === "1" || raw === "yes";
+}
+
 type Lane = "auto_resolve" | "needs_approval" | "billable" | "ambiguous";
 
 interface ClassifyJson {
@@ -202,7 +208,10 @@ Deno.serve(async (req) => {
     const allowHit = allowType && allowTypes.includes(allowType);
 
     if (lane === "auto_resolve") {
-      if (!allowHit || confidence < AUTO_CONFIDENCE) {
+      if (autonomyHalted()) {
+        lane = "needs_approval";
+        parsed.reasoning = `${parsed.reasoning ?? ""} | auto_resolve blocked (kill switch halt=true)`.trim();
+      } else if (!allowHit || confidence < AUTO_CONFIDENCE) {
         lane = "ambiguous";
         parsed.reasoning = `${parsed.reasoning ?? ""} | auto_resolve blocked (allowlist/confidence)`.trim();
       }

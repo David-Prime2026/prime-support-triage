@@ -4,6 +4,7 @@
 |------|-------|-------|
 | Bricely embed (3 surfaces) | **Grounded** | `feat/bricely-embed` — additive overlay |
 | Diagnostic loop §4.0 | **DR-008 policy in this repo** | Comprehension-led (`bricely-diagnose`); ~5-turn **target** + continue-or-ticket; soft backstop 12. Live WMG embed still needs to call this API. |
+| Bricely Gmail intake | **Tickets live / functions undeployed** | Designated seat `bricely@prime-timesystems.com`. CO-015 mailed. Email tickets on `apxbwdxszmdffbduhjen`. Deploy `email-intake` + `process-ticket-ai` from wmg-backend-bricely. |
 | Settings Support | **Grounded** | Mockup layout + 6-row pagination + quote popup |
 | Lightweight admin | **FIX-B shipped-to-staging** | Corrected shell: unified nav, summary bar, pills, 2-badge, SLA countdown |
 | Handoff A/B | **Grounded** | Appendix A shapes; flat-file outbox |
