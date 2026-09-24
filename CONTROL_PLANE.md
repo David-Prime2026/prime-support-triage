@@ -1,3 +1,19 @@
+## DR-CS-PLATFORM-008 — Bricely Gmail designated intake — 2026-09-24 — **SHIPPED (pipe) / STOP (function deploy token)**
+
+PRIME: designated support email is **bricely@prime-timesystems.com**. Mail must open tickets on `apxbwdxszmdffbduhjen` and run catch-net. Never `qcefkoxqkfwnlqfmwzmi`. Support sends; operator does not.
+
+SENT NOW (historical):
+- CO-015 waiting-for-approval → skip@wilsonmarketing.com. First send copied Alisa and attached a homemade PDF — **wrong**. Correction: Skip + David only, no PDF until execution stamps.
+
+SHIPPED (this repo):
+- Doctrine Exhibit A channel + support email → Bricely
+- `email-intake` alias map includes Bricely + `wmg-os@…`; `source_channel: email`; thread dedup; CO notify payloads
+- Gmail poll → `scripts/gmail-intake-once.ts`
+
+Never point email-intake at WMG inbound-email or the WMG SendGrid path.
+
+---
+
 ## CO-GWKS-DEFAULT-PICKUP-HOURS — diagnosed, not built — 2026-09-24
 
 Jessica Wallace (Goodwill KS, `jwallace@goodwillks.org`) via Alisa: can Alisa save highlighted New Portal **pickup** (`3636 N Oliver Wichita KS`) and **shipping hours** (`8AM-2PM`) so Jessica does not re-enter them every load request?
@@ -8,7 +24,7 @@ Live WMG (`GCe`): pickup `U` and notes `B` start `""` and clear after submit. `g
 
 Lane: change order · `new_feature` · §19 · Sev 3 / P3. Ticket seed `c1000001-0001-4001-8001-000000000001`. Package: `handoffs/CO-GWKS-DEFAULT-PICKUP-HOURS/` (Alisa reply + Handoff A). Live intake not filed — no parent token on this VM.
 
-**STOP — PRIME:** quote / approve before any wmg-backend build. Fast slice = last-used pickup/notes like `last_commodity`. Alisa slice = editable `default_pickup_location` + `default_shipping_hours`. Never `qcefkoxqkfwnlqfmwzmi`.
+**STOP — PRIME:** later reclassified as a form defect (DR-014 Stage 2), not a new-feature CO. Never `qcefkoxqkfwnlqfmwzmi`.
 
 ---
 

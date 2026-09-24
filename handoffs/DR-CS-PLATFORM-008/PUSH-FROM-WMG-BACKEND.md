@@ -4,8 +4,16 @@ This isolated repo **is** the `support-triage/` tree. Friday’s live path was:
 
 `C:\Users\daves\wmg-backend\support-triage`
 
-Live widget already calls staging **`rxhiydtqzmksaeegxyqo`** (`intake-ticket` + `bricely-thread`).  
-`bricely-diagnose` is **not** deployed yet (404). Deploy it from wmg-backend. **Never** `db push` to WMG OS prod `qcefkoxqkfwnlqfmwzmi`.
+Live WMG embed now calls parent **`apxbwdxszmdffbduhjen`** (`intake-ticket` + `bricely-thread`).  
+`email-intake`, `process-ticket-ai`, and `bricely-diagnose` are **404** until you deploy. **Never** `db push` / functions deploy to WMG OS prod `qcefkoxqkfwnlqfmwzmi`.
+
+From `C:\Users\daves\wmg-backend-bricely` (this channel):
+
+```bat
+scripts\deploy-triage-functions.sh apxbwdxszmdffbduhjen
+```
+
+Or one-by-one: `email-intake`, `intake-ticket`, `process-ticket-ai`, `bricely-thread`, `bricely-diagnose` `--project-ref apxbwdxszmdffbduhjen --no-verify-jwt`.
 
 ## 1. Copy function files into wmg-backend
 
@@ -14,9 +22,16 @@ From this PR, copy onto `wmg-backend/support-triage/`:
 ```
 supabase/functions/_shared/bricelyDiagnose.ts
 supabase/functions/_shared/bricelyDiagnoseLive.ts
+supabase/functions/_shared/bricelyMail.ts
 supabase/functions/bricely-diagnose/index.ts
+supabase/functions/email-intake/index.ts
+supabase/functions/intake-ticket/index.ts
+supabase/functions/process-ticket-ai/index.ts
 doctrine/SLA_RULES.md
+doctrine/MS_SLA_EXHIBIT_A.md
 config/resolution-tiers.json
+config/email-aliases.json
+scripts/deploy-triage-functions.sh
 ```
 
 ## 2. Deploy function only (staging live state)

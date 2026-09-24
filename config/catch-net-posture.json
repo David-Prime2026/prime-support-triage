@@ -10,6 +10,8 @@
   "wmg_url": "https://wmgos.primetimesystems.ai",
   "intake_url": "https://apxbwdxszmdffbduhjen.supabase.co/functions/v1/intake-ticket",
   "thread_url": "https://apxbwdxszmdffbduhjen.supabase.co/functions/v1/bricely-thread",
+  "email_intake_url": "https://apxbwdxszmdffbduhjen.supabase.co/functions/v1/email-intake",
+  "designated_email": "bricely@prime-timesystems.com",
   "intake_host_note": "Stage 4: apx is sole runtime authority. rxhiyd is retired from runtime doctrine (Supabase staging branch may remain as cold archive; not a live target).",
   "authoritative_project": "apxbwdxszmdffbduhjen",
   "archive_project": "rxhiydtqzmksaeegxyqo",

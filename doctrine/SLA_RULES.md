@@ -12,7 +12,7 @@
 ## Operators
 - Primary: `bricely@prime-timesystems.com`
 - CC: `david@prime-timesystems.com`
-- Designated channel (Exhibit A): `support@prime-timesystems.com`
+- Designated channel (Exhibit A): `bricely@prime-timesystems.com`
 
 ## Confidence
 - Auto-resolve (Tier A) confidence threshold: **0.85** (config-tunable).

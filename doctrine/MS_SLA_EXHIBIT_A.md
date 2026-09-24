@@ -8,7 +8,7 @@
 > “your SLA,” “your contract,” or “your plan” in chat.
 
 **Source:** PRIME Master License / M&S terms (Maintenance and Support election + §§18–35 + Exhibit A).  
-**Channel (internal ops):** `support@prime-timesystems.com`  
+**Channel (internal ops):** `bricely@prime-timesystems.com`  
 **Support Hours (internal):** Mon–Fri 9:00 a.m.–5:00 p.m. Eastern, excluding US federal holidays.  
 **Not** 24×365 unless an Order Form expressly states otherwise.
 
@@ -165,7 +165,7 @@ This SLA does not provide 24-hour, 365-day support unless expressly stated in an
 
 Support requests must be submitted through:
 
-- **Support email:** `support@prime-timesystems.com`
+- **Support email:** `bricely@prime-timesystems.com`
 
 A support request should include: a description of the issue; business impact; affected users; screenshots or logs, where available; steps to reproduce the issue; and the requested severity level.
 
