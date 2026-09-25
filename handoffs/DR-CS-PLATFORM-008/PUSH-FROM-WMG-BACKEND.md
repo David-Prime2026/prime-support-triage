@@ -1,23 +1,15 @@
-# DR-CS-PLATFORM-008 — push from wmg-backend (live state)
+# DR-CS-PLATFORM-008 — CS diagnose on apxbwdx (not WMG)
 
-This isolated repo **is** the `support-triage/` tree. Friday’s live path was:
+**DR-015:** Nested `wmg-backend/support-triage` is a freeze. Do not develop there. Do not tell operator to pull WMG main for diagnose.
 
-`C:\Users\daves\wmg-backend\support-triage`
+Copy path for operator (if they need files): this repo’s `cursor/integrate-cs-1-6-ac30` (or successor), then `main` after merge.
 
-Live WMG embed now calls parent **`apxbwdxszmdffbduhjen`** (`intake-ticket` + `bricely-thread`).  
-`email-intake`, `process-ticket-ai`, and `bricely-diagnose` are **404** until you deploy. **Never** `db push` / functions deploy to WMG OS prod `qcefkoxqkfwnlqfmwzmi`.
+Live WMG embed already calls **`apxbwdxszmdffbduhjen`** for `intake-ticket` + `bricely-thread`.  
+Functions and CS schema: **`apxbwdxszmdffbduhjen` only**. Never `db push` / `apply_migration` / `deploy_edge_function` against `qcefkoxqkfwnlqfmwzmi`. Never point diagnose / intake / email-intake at WMG inbound-email or WMG SendGrid.
 
-From `C:\Users\daves\wmg-backend-bricely` (this channel):
+**Diagnose 200 is not a live widget.** Prove HTTP on the support project, then record the version. Remaining CS work: 5-turn then email, no canned fallback, stale pickup copy — `handoffs/BACKEND-REQUESTS/BRICELY-FIVE-TURN-EMAIL.md`.
 
-```bat
-scripts\deploy-triage-functions.sh apxbwdxszmdffbduhjen
-```
-
-Or one-by-one: `email-intake`, `intake-ticket`, `process-ticket-ai`, `bricely-thread`, `bricely-diagnose` `--project-ref apxbwdxszmdffbduhjen --no-verify-jwt`.
-
-## 1. Copy function files into wmg-backend
-
-From this PR, copy onto `wmg-backend/support-triage/`:
+## 1. Files in this repo
 
 ```
 supabase/functions/_shared/bricelyDiagnose.ts
@@ -28,50 +20,42 @@ supabase/functions/email-intake/index.ts
 supabase/functions/intake-ticket/index.ts
 supabase/functions/process-ticket-ai/index.ts
 doctrine/SLA_RULES.md
-doctrine/MS_SLA_EXHIBIT_A.md
 config/resolution-tiers.json
 config/email-aliases.json
-scripts/deploy-triage-functions.sh
 ```
 
-## 2. Deploy function only (staging live state)
+## 2. Deploy on the support project only
 
 ```bat
-cd C:\Users\daves\wmg-backend\support-triage
-npx supabase link --project-ref rxhiydtqzmksaeegxyqo
-npx supabase functions deploy bricely-diagnose --project-ref rxhiydtqzmksaeegxyqo --no-verify-jwt
+npx supabase functions deploy bricely-diagnose --project-ref apxbwdxszmdffbduhjen --no-verify-jwt
 ```
+
+Do **not** deploy to `rxhiydtqzmksaeegxyqo` (archive) or `qcefkoxqkfwnlqfmwzmi`.
 
 Prove:
 
 ```bat
-curl -s -X POST https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/bricely-diagnose ^
+curl -s -X POST https://apxbwdxszmdffbduhjen.supabase.co/functions/v1/bricely-diagnose ^
   -H "Content-Type: application/json" ^
-  -d "{\"text\":\"The load board still shows yesterday's loads even after I cleared the filters.\"}"
+  -d "{\"text\":\"Please send and set a user. Full access and primary contacts.\"}"
 ```
 
-Expect `terminal: "escalate"` and **no** screenshot / clear-filters speech.
+Expect a Portals / `principal` / `seller` answer — **not** screenshot / “try that path again”.
 
-## 3. Wire the live widget (not wmg-backend)
+Pickup prove (location should already fill; do not tell them to keep typing):
 
-Live canned loop is client `wCe` in `feat/bricely-embed` / `src/bricely/` (baked on https://wmgos.primetimesystems.ai).
-
-1. Replace `wCe` with `handoffs/DR-CS-PLATFORM-008/embed/wCe.remote.ts` (same `{ text, state, newAttachments }` → `{ reply, next, terminal }`).
-2. On WMG Vercel (Production / Preview / Development):
-
-```
-VITE_BRICELY_DIAGNOSE_URL=https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/bricely-diagnose
+```bat
+curl -s -X POST https://apxbwdxszmdffbduhjen.supabase.co/functions/v1/bricely-diagnose ^
+  -H "Content-Type: application/json" ^
+  -d "{\"text\":\"Jessica has to type the pickup address every time. It is set and does not work.\"}"
 ```
 
-If unset, the drop-in derives it from `VITE_BRICELY_INTAKE_URL` (same replace as thread).
+## 3. Live widget (operator Wmsosv2 only)
 
-3. Redeploy WMG. Hard-refresh. Re-run tester cases + A–D. Use New chat between scenarios.
-
-**Post-ticket wall (live `wCe`):** delete or skip the `if (t.openTicketId) return { reply: "That's already with our specialist…" }` branch. After a ticket, keep chatting and POST `followup_ticket_id` to `intake-ticket` (see `embed/wCe.remote.ts`).
+Only if the embed still uses canned fallback: `handoffs/DR-CS-PLATFORM-008/embed/wCe.remote.ts` and `VITE_BRICELY_DIAGNOSE_URL` on Wmsosv2. That is a WMG packet (`handoffs/BACKEND-REQUESTS/`), not a CS merge into wmg-backend.
 
 ## Isolation
 
-- Functions: `rxhiydtqzmksaeegxyqo` only
-- No schema change required
-- No WMG OS prod database
-- Kill switch / Tier 1 fence unchanged
+- Functions: `apxbwdxszmdffbduhjen` only
+- Omaha / Wichita / release-09: operator ops or already-shipped schema — not new WMG rediscovery packets
+- Split-load pickup: `handoffs/BACKEND-REQUESTS/SPLIT-LOAD-PICKUP.md`

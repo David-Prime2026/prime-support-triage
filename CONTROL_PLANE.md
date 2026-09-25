@@ -45,19 +45,6 @@ Live WMG (`GCe`): pickup `U` and notes `B` start `""` and clear after submit. `g
 Lane: change order · `new_feature` · §19 · Sev 3 / P3. Ticket seed `c1000001-0001-4001-8001-000000000001`. Package: `handoffs/CO-GWKS-DEFAULT-PICKUP-HOURS/` (Alisa reply + Handoff A). Live intake not filed — no parent token on this VM.
 
 **STOP — PRIME:** later reclassified as a form defect (DR-014 Stage 2), not a new-feature CO. Never `qcefkoxqkfwnlqfmwzmi`.
-=======
-## OPS FIX — Omaha contacts + GWKS pickup — 2026-09-25
-
-Users blocked. Bricely missed both (ticket `f206e13f` capture fail; Wichita “I don’t see that feature”).
-
-**Omaha — possible today.** Julie roster on ticket `87b47aae`. Portals `invite-portal-user`: Full = `principal` (Ryan, Dakota, Chris). Partial = `seller` (Julie, Melissa). Remove `mchowdhury@`. Hold accounting@ / roc@. No shared password. Playbook: `handoffs/OMAHA-PORTAL-CONTACTS/README.md`. Needs an operator click on WMG (this VM has no OS session).
-
-**Wichita pickup — defect.** Alisa already set CRM default; New Portal ignores it. Tickets `a282b3e2` / `c283c80a`. Prefill drop-in: `handoffs/FIX-SELLER-DEFAULT-PICKUP/`. Values: 3636 N Oliver Wichita KS · 8AM–2PM.
-
-Bricely now answers both instead of gauntlet / “feature missing.” Proofs T9/T10/L10/L11.
-
-Never `qcefkoxqkfwnlqfmwzmi`.
->>>>>>> 438c0f6 (Unblock Omaha portal contacts and GWKS pickup defaults.)
 
 ---
 
