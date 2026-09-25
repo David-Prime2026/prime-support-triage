@@ -107,6 +107,32 @@ const proofs: Proof[] = [
     expectAction: ["escalate", "offer_continue_or_ticket", "safe_step", "clarify"],
     forbid: [/which screen is this on/i],
   },
+  {
+    id: "T9",
+    title: "Omaha / portal contacts — answer the live Portals path, no gauntlet",
+    messages: [
+      {
+        role: "user",
+        text: "Bricely, please send and set a user. Full access for Ryan and partial access for Julie. Primary contacts on the Omaha portal.",
+      },
+    ],
+    expectAction: "answer",
+    require: [/Portals/i, /principal/i, /seller/i],
+    forbid: [/screenshot/i, /clear (any )?active filters/i, /I don't see that/i, /\bSLA\b/, /billable/i],
+  },
+  {
+    id: "T10",
+    title: "Wichita pickup default set but form blank — name the defect",
+    messages: [
+      {
+        role: "user",
+        text: "Jessica has to type the pickup address every time she requests a load. It is set and does not work.",
+      },
+    ],
+    expectAction: "answer",
+    require: [/does not read it|starts blank/i],
+    forbid: [/I don't see that/i, /screenshot/i, /billable/i],
+  },
 ];
 
 function actionOk(got: DiagnoseAction, expect: DiagnoseAction | DiagnoseAction[]): boolean {
@@ -238,6 +264,22 @@ const liveProofs: LiveProof[] = [
     expectTerminal: "continue",
     require: [/added that to your open ticket|Keep talking/i],
     forbid: [/already with our specialist team under your open ticket/i],
+  },
+  {
+    id: "L10",
+    title: "Live wCe: set portal user / primary contacts — answer Portals, not password gauntlet",
+    text: "Please send and set a user as they are non technical. Full access and primary contacts. Email them their login.",
+    expectTerminal: "continue",
+    require: [/Portals/i, /principal/i],
+    forbid: [/Try that path again/i, /screenshot/i, /Which screen are you on/i],
+  },
+  {
+    id: "L11",
+    title: "Live wCe: pickup typed every request — name the defect",
+    text: "my customer at GW Wichita has to type the pickup address every single time she does a request. it is set and does not work",
+    expectTerminal: "continue",
+    require: [/does not read it|starts blank/i],
+    forbid: [/I don't see that/i, /screenshot/i, /clear any active filters/i],
   },
 ];
 

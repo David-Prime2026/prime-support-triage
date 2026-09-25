@@ -10,6 +10,8 @@
 | Schema Phase 1 + designed Phase 2 stubs | **Grounded** | `003_phase1_cs_platform_extensions.sql` — **support-triage DB only** |
 | Parallel CS repo | **Noted** | Stand up early; WMG as connecting tenant — PRIME name TBD |
 | Production | **STOP at gate** | Never merge / never `qcefkoxqkfwnlqfmwzmi` |
+| Omaha portal contacts | **Executable today** | Ticket `87b47aae` — Portals invite, no shared password |
+| GWKS default pickup | **Defect / drop-in ready** | CRM set; New Portal ignores it. Tickets `a282b3e2` / `c283c80a` |
 
 ## FLAG — schema
 Migration `003_*` extends the **isolated** `prime-support-triage` local DB only.

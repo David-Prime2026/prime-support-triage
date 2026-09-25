@@ -1,15 +1,17 @@
-# DR-CS-PLATFORM-008 — push from wmg-backend (live state)
+# DR-CS-PLATFORM-008 — push Bricely diagnosis from wmg-backend
 
-This isolated repo **is** the `support-triage/` tree. Friday’s live path was:
+This isolated repo **is** the `support-triage/` tree. Live path:
 
 `C:\Users\daves\wmg-backend\support-triage`
 
-Live widget already calls staging **`rxhiydtqzmksaeegxyqo`** (`intake-ticket` + `bricely-thread`).  
-`bricely-diagnose` is **not** deployed yet (404). Deploy it from wmg-backend. **Never** `db push` to WMG OS prod `qcefkoxqkfwnlqfmwzmi`.
+Live WMG embed already calls **`apxbwdxszmdffbduhjen`** for `intake-ticket` + `bricely-thread`.  
+`bricely-diagnose` is **404** on that project until you deploy. **Never** `db push` to `qcefkoxqkfwnlqfmwzmi`.
+
+Diagnosis source (already committed/pushed):  
+https://github.com/David-Prime2026/prime-support-triage/pull/4  
+Files include Omaha Portals how-to + Wichita pickup-defect answers (T9/T10/L10/L11).
 
 ## 1. Copy function files into wmg-backend
-
-From this PR, copy onto `wmg-backend/support-triage/`:
 
 ```
 supabase/functions/_shared/bricelyDiagnose.ts
@@ -19,44 +21,53 @@ doctrine/SLA_RULES.md
 config/resolution-tiers.json
 ```
 
-## 2. Deploy function only (staging live state)
+## 2. Deploy to the live parent (not retired staging)
 
 ```bat
 cd C:\Users\daves\wmg-backend\support-triage
-npx supabase link --project-ref rxhiydtqzmksaeegxyqo
-npx supabase functions deploy bricely-diagnose --project-ref rxhiydtqzmksaeegxyqo --no-verify-jwt
+npx supabase functions deploy bricely-diagnose --project-ref apxbwdxszmdffbduhjen --no-verify-jwt
 ```
+
+Do **not** point a new deploy at `rxhiydtqzmksaeegxyqo` (archive). Do **not** deploy to `qcefkoxqkfwnlqfmwzmi`.
 
 Prove:
 
 ```bat
-curl -s -X POST https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/bricely-diagnose ^
+curl -s -X POST https://apxbwdxszmdffbduhjen.supabase.co/functions/v1/bricely-diagnose ^
   -H "Content-Type: application/json" ^
-  -d "{\"text\":\"The load board still shows yesterday's loads even after I cleared the filters.\"}"
+  -d "{\"text\":\"Please send and set a user. Full access and primary contacts.\"}"
 ```
 
-Expect `terminal: "escalate"` and **no** screenshot / clear-filters speech.
+Expect a Portals / `principal` / `seller` answer — **not** screenshot / “try that path again”.
 
-## 3. Wire the live widget (not wmg-backend)
+Second prove:
 
-Live canned loop is client `wCe` in `feat/bricely-embed` / `src/bricely/` (baked on https://wmgos.primetimesystems.ai).
-
-1. Replace `wCe` with `handoffs/DR-CS-PLATFORM-008/embed/wCe.remote.ts` (same `{ text, state, newAttachments }` → `{ reply, next, terminal }`).
-2. On WMG Vercel (Production / Preview / Development):
-
-```
-VITE_BRICELY_DIAGNOSE_URL=https://rxhiydtqzmksaeegxyqo.supabase.co/functions/v1/bricely-diagnose
+```bat
+curl -s -X POST https://apxbwdxszmdffbduhjen.supabase.co/functions/v1/bricely-diagnose ^
+  -H "Content-Type: application/json" ^
+  -d "{\"text\":\"Jessica has to type the pickup address every time. It is set and does not work.\"}"
 ```
 
-If unset, the drop-in derives it from `VITE_BRICELY_INTAKE_URL` (same replace as thread).
+Expect “New Portal does not read it” / form starts blank — **not** “I don’t see that feature”.
 
-3. Redeploy WMG. Hard-refresh. Re-run tester cases + A–D. Use New chat between scenarios.
+## 3. Wire the live widget
 
-**Post-ticket wall (live `wCe`):** delete or skip the `if (t.openTicketId) return { reply: "That's already with our specialist…" }` branch. After a ticket, keep chatting and POST `followup_ticket_id` to `intake-ticket` (see `embed/wCe.remote.ts`).
+1. Replace live `wCe` with `handoffs/DR-CS-PLATFORM-008/embed/wCe.remote.ts`.
+2. Vercel (Production / Preview / Development):
+
+```
+VITE_BRICELY_DIAGNOSE_URL=https://apxbwdxszmdffbduhjen.supabase.co/functions/v1/bricely-diagnose
+```
+
+If unset, the drop-in derives it from `VITE_BRICELY_INTAKE_URL`.
+
+3. Redeploy WMG. Hard-refresh. New chat between cases.
+
+**Post-ticket wall:** skip `if (t.openTicketId) return { reply: "That's already with our specialist…" }`. After a ticket, keep chatting and POST `followup_ticket_id` to `intake-ticket`.
 
 ## Isolation
 
-- Functions: `rxhiydtqzmksaeegxyqo` only
-- No schema change required
-- No WMG OS prod database
-- Kill switch / Tier 1 fence unchanged
+- Functions: `apxbwdxszmdffbduhjen` only  
+- No schema change  
+- No WMG OS prod database  
+- Omaha invites + Wichita form prefill are **DR-014** (other lane) — not this deploy  
