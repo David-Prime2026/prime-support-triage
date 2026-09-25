@@ -1,3 +1,17 @@
+## DR-CS-PLATFORM-014 — other lane execute (2026-09-25)
+
+WMG lane only. CS lane already pushed Bricely diagnosis (this branch / PR #4).
+
+- Method: `proofs/DR-CS-PLATFORM-014/METHOD.md`
+- Execute card: `proofs/DR-CS-PLATFORM-014/EXECUTE.md`
+- **Stage 1** Omaha Portals invites (ticket `87b47aae`)
+- **Stage 2** GWKS New Portal pickup prefill (ticket `a282b3e2`)
+- Diagnose deploy remains `handoffs/DR-CS-PLATFORM-008/PUSH-FROM-WMG-BACKEND.md` → `apxbwdxszmdffbduhjen`
+
+Never auto `qcefkox…`
+
+---
+
 ## OPS FIX — Omaha contacts + GWKS pickup — 2026-09-25
 
 Users blocked. Bricely missed both (ticket `f206e13f` capture fail; Wichita “I don’t see that feature”).
