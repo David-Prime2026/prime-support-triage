@@ -31,6 +31,8 @@ export type KnownFacts = {
   visual?: boolean;
   stale_or_filter?: boolean;
   complete_report?: boolean;
+  portal_contacts?: boolean;
+  pickup_default?: boolean;
 };
 
 export type DiagState = {
@@ -89,6 +91,26 @@ const VISUAL =
 const STALE_OR_FILTER =
   /\b(load\s*board|loads?|filter|stale|yesterday|old\s+data|not\s+updat|still\s+show|wrong\s+list)\b/i;
 const GREETING_ONLY = /^(hi|hey|hello|yo|sup|good\s+(morning|afternoon|evening)|help|help\s+me)[\s!.]*$/i;
+const PORTAL_CONTACTS =
+  /\b(primary contacts?|portal (access|user|users|login|invite)|full access|partial access|set (an? )?user|invite .{0,40}(portal|user)|multiple (users|employees).{0,40}(login|log in|username))\b/i;
+const PICKUP_DEFAULT =
+  /\b((pickup|pick-up) (location|address|site)|type.{0,24}(address|pickup).{0,24}every|every time.{0,40}(request|load|pickup)|default pickup|shipping hours|it is set and does not work)\b/i;
+
+export function isPortalContactsRequest(text: string): boolean {
+  return PORTAL_CONTACTS.test(text);
+}
+
+export function isPickupDefaultRequest(text: string): boolean {
+  return PICKUP_DEFAULT.test(text);
+}
+
+export function portalContactsAnswer(): string {
+  return "Yes — Portals can do that today. On Seller Accounts add each person as a CRM contact, then Portals → invite them. Full access (accounting, loads, overview) uses role principal. Load request plus load history uses role seller. The invite emails them a link to set their own password — do not send a shared password. Remove someone by taking away that portal invite. Shared inboxes (accounting@, roc@) wait until the customer says who owns them.";
+}
+
+export function pickupDefaultAnswer(): string {
+  return "The CRM default pickup is already saved on the seller. New Portal does not read it yet, so the request form starts blank and they have to type the store address each time. That is a product defect, not a missing save button. Keep entering the usual address on each request for now. I have this with the team to prefill pickup (and shipping hours in notes) from the account default.";
+}
 
 function norm(text: string): string {
   return (text ?? "").replace(/\s+/g, " ").trim();
@@ -152,9 +174,19 @@ export function extractFacts(messages: ChatMessage[], prior: KnownFacts = {}): K
     if (FILTER_CLEARED.test(text)) facts.already_cleared_filters = true;
     if (REFRESHED.test(text)) facts.already_refreshed = true;
     if (RELOGGED.test(text)) facts.already_relogged = true;
-    if (ACCOUNTING.test(text)) facts.accounting = true;
+    if (PORTAL_CONTACTS.test(text)) {
+      facts.portal_contacts = true;
+      facts.how_to = true;
+      facts.surface = facts.surface ?? "portals";
+    }
+    if (PICKUP_DEFAULT.test(text)) {
+      facts.pickup_default = true;
+      facts.how_to = true;
+      facts.surface = facts.surface ?? "seller_portal";
+    }
+    if (ACCOUNTING.test(text) && !facts.portal_contacts) facts.accounting = true;
     if (HOW_TO.test(text)) facts.how_to = true;
-    if (LOGIN.test(text)) facts.login = true;
+    if (LOGIN.test(text) && !facts.portal_contacts) facts.login = true;
     if (VISUAL.test(text)) facts.visual = true;
     if (STALE_OR_FILTER.test(text)) facts.stale_or_filter = true;
     const surface = inferSurface(text);
@@ -230,6 +262,8 @@ function finish(
 }
 
 function howToAnswer(text: string, facts: KnownFacts): string {
+  if (facts.portal_contacts || PORTAL_CONTACTS.test(text)) return portalContactsAnswer();
+  if (facts.pickup_default || PICKUP_DEFAULT.test(text)) return pickupDefaultAnswer();
   const surface = (facts.surface ?? "").toLowerCase().replace(/\s+/g, "_");
   const isLoadBoard = surface === "load_board" || surface === "board" || /load\s*board/.test(text);
   if (isLoadBoard && /export|csv|download/i.test(text)) {
@@ -259,6 +293,14 @@ export function diagnose(input: DiagnoseInput): DiagnoseResult {
       "I’m here — what is getting in your way?",
       "empty_user_turn",
     );
+  }
+
+  if (facts.portal_contacts || PORTAL_CONTACTS.test(latest)) {
+    return finish(state, "answer", portalContactsAnswer(), "portal_contacts_how_to");
+  }
+
+  if (facts.pickup_default || PICKUP_DEFAULT.test(latest)) {
+    return finish(state, "answer", pickupDefaultAnswer(), "pickup_default_defect");
   }
 
   if (facts.accounting) {

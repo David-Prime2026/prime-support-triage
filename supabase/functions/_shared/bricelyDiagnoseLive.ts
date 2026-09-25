@@ -11,6 +11,10 @@
  */
 import {
   diagnose,
+  isPickupDefaultRequest,
+  isPortalContactsRequest,
+  pickupDefaultAnswer,
+  portalContactsAnswer,
   type ChatMessage,
   type DiagState,
   type DiagnoseAction,
@@ -329,7 +333,27 @@ export function diagnoseLiveTurn(input: LiveDiagnoseInput): LiveDiagnoseResult {
     );
   }
 
-  if (ACCOUNTING.test(text)) {
+  if (isPortalContactsRequest(text) || isPortalContactsRequest(notes.join(" "))) {
+    return liveOut(
+      { ...next, phase: "resolved", screen: next.screen ?? "portals" },
+      portalContactsAnswer(),
+      "continue",
+      "answer",
+      "portal_contacts_how_to",
+    );
+  }
+
+  if (isPickupDefaultRequest(text) || isPickupDefaultRequest(notes.join(" "))) {
+    return liveOut(
+      { ...next, phase: "resolved", screen: next.screen ?? "seller_portal" },
+      pickupDefaultAnswer(),
+      "continue",
+      "answer",
+      "pickup_default_defect",
+    );
+  }
+
+  if (ACCOUNTING.test(text) && !isPortalContactsRequest(text)) {
     return liveOut(
       { ...next, phase: "escalate", screen: next.screen ?? "accounting" },
       ACCOUNTING_REPLY,
