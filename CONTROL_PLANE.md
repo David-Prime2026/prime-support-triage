@@ -1,3 +1,17 @@
+## OPS FIX — Omaha contacts + GWKS pickup — 2026-09-25
+
+Users blocked. Bricely missed both (ticket `f206e13f` capture fail; Wichita “I don’t see that feature”).
+
+**Omaha — possible today.** Julie roster on ticket `87b47aae`. Portals `invite-portal-user`: Full = `principal` (Ryan, Dakota, Chris). Partial = `seller` (Julie, Melissa). Remove `mchowdhury@`. Hold accounting@ / roc@. No shared password. Playbook: `handoffs/OMAHA-PORTAL-CONTACTS/README.md`. Needs an operator click on WMG (this VM has no OS session).
+
+**Wichita pickup — defect.** Alisa already set CRM default; New Portal ignores it. Tickets `a282b3e2` / `c283c80a`. Prefill drop-in: `handoffs/FIX-SELLER-DEFAULT-PICKUP/`. Values: 3636 N Oliver Wichita KS · 8AM–2PM.
+
+Bricely now answers both instead of gauntlet / “feature missing.” Proofs T9/T10/L10/L11.
+
+Never `qcefkoxqkfwnlqfmwzmi`.
+
+---
+
 ## HOTFIX — desk Enter / resolve path / post-ticket dialogue — 2026-09-24
 
 Operator: command box Enter only inserted a newline; `@eng` looked like a Cursor session; console did not say how to close tickets; Bricely died after OPEN TICKET.
