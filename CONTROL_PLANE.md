@@ -2,11 +2,11 @@
 
 Card: `handoffs/DR-CS-PLATFORM-008/GO-LIVE-P0.md`
 
-**A.** Deploy `bricely-diagnose` to `apxbwdxszmdffbduhjen` from **this repo** (not nested wmg-backend). Token: paste `SUPABASE_ACCESS_TOKEN=sbp_…` in this chat, or operator `npx supabase login` then deploy. Env-dashboard secrets will not reach this already-running agent.
+**A. DONE.** `bricely-diagnose` deployed to `apxbwdxszmdffbduhjen`. LIVE Skip five-line **PASS** (no which-screen). Proof: `proofs/DR-CS-PLATFORM-008/skip-replay-after-apx-deploy.md`
 
-**B.** Wmsosv2: copy `wCe.remote.ts`; delete `catch { _t = F$ }`. Live today: `qk()?await wCe(…):F$(…)` then `catch{_t=F$}`.
+**B. STILL OPEN.** Wmsosv2: copy `wCe.remote.ts`; delete `catch { _t = F$ }`. Live asset still `index-DLShFkGa.js` with `catch{_t=F$}`. This is the remaining all-users blocker.
 
-Never `qcefkox`. Do not email Skip. Do not all-users until A+B proved.
+Never `qcefkox`. Do not email Skip. Do not all-users until B proved.
 
 ---
 

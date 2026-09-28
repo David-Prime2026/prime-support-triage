@@ -27,7 +27,7 @@ Never `qcefkoxqkfwnlqfmwzmi` schema from this repo. Do not email Skip on pricing
 | Lane County price period + memo/seller search | `3297801d` | **resolved** 2026-09-28 code check — `user-pricing-period`, location-aware seller search |
 | Release numbers follow pricing month | `7b807646` | **resolved** 2026-09-28 — `save-commodity-monthly-pricing` / `memos_applied` |
 | Middle TN / Foundry rows | `af441aa2` | **resolved** 2026-09-28 — ops data, not a Wmsosv2 function |
-| Diagnose 200 + pickup copy v4 | `9f2ca521` (partial) | Function live. Remaining is **embed `F$` catch** |
+| Diagnose 200 + pickup copy v4 + Skip five-line | `9f2ca521` (partial) | **A live.** Remaining is **embed `F$` catch** |
 | Split-load **code** stamps store pickup | `5dc41a1a` (partial) | Function live. Remaining is **one real split proof** |
 
 ---

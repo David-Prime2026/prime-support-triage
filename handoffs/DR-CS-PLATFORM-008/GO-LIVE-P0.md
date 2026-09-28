@@ -1,73 +1,18 @@
 # P0 go-live — one brain before all-users
 
 **Ticket:** `9f2ca521`  
-**Why this blocks:** live Bricely still re-asks “which screen” after escalate, and a diagnose throw still dumps the canned screenshot / specialist loop. Do not push that to all users. Do not email Skip.
+**A DONE 2026-09-28.** `bricely-diagnose` is live on `apxbwdxszmdffbduhjen`. Skip five-line LIVE **PASS** (no which-screen).  
+**B still blocks all-users.** Live widget `index-DLShFkGa.js` still has `catch{_t=F$}`. Wmsosv2 only.
 
-Two ships. Either you run them, or paste a token here so this CS agent can do **A**. **B** is Wmsosv2 only — this VM cannot touch it.
-
-Never deploy to `qcefkoxqkfwnlqfmwzmi`. Nested `wmg-backend/support-triage` is a freeze — do not deploy diagnose from there.
+Never deploy to `qcefkoxqkfwnlqfmwzmi`. Nested `wmg-backend/support-triage` is a freeze.
 
 ---
 
-## A. Diagnose function (apxbwdx) — 2 minutes
+## A. Diagnose function — **DONE**
 
-Live `POST https://apxbwdxszmdffbduhjen.supabase.co/functions/v1/bricely-diagnose` is **200 but old**. This branch already holds: search-fail auto-ticket, hold-escalate (no how-to / which-screen). Need that code on apx.
+Deployed from this CS repo to `apxbwdxszmdffbduhjen` only. Proof: `proofs/DR-CS-PLATFORM-008/skip-replay-after-apx-deploy.md`
 
-### This Cloud Agent window (`/workspace`)
-
-You are already on `cursor/retire-backlog-current-wmg-ac30`. **Do not `cd`.** The Windows `path\to\prime-support-triage` line is not a real path here.
-
-The deploy failed because this VM has no Supabase token. Create one, then in **this** terminal:
-
-```bash
-export SUPABASE_ACCESS_TOKEN='sbp_PASTE_HERE'
-npx supabase functions deploy bricely-diagnose --project-ref apxbwdxszmdffbduhjen --no-verify-jwt
-```
-
-Or paste `SUPABASE_ACCESS_TOKEN=sbp_…` in the chat and this agent runs the deploy.
-
-Token: https://supabase.com/dashboard/account/tokens → Generate new token.
-
-### Prefer: you deploy from a machine already logged into Supabase
-
-Must be **this repo** at `cursor/retire-backlog-current-wmg-ac30` (or `main` after PR #8 merges) — not wmg-backend.
-
-```bat
-cd C:\Users\daves\wherever\prime-support-triage
-git fetch origin
-git checkout cursor/retire-backlog-current-wmg-ac30
-git pull origin cursor/retire-backlog-current-wmg-ac30
-
-npx supabase login
-npx supabase functions deploy bricely-diagnose --project-ref apxbwdxszmdffbduhjen --no-verify-jwt
-```
-
-Dashboard check: https://supabase.com/dashboard/project/apxbwdxszmdffbduhjen/functions  
-Confirm `bricely-diagnose` updated just now.
-
-### Or: this CS agent deploys — need a token **in this chat**
-
-Environment secrets do not reach an already-running agent. Paste once here (not GitHub, not the PR):
-
-1. Open https://supabase.com/dashboard/account/tokens
-2. **Generate new token**. Name: `cs-cloud-diagnose-deploy`. Copy `sbp_…`
-3. Reply in this thread with exactly:
-
-```
-SUPABASE_ACCESS_TOKEN=sbp_…
-```
-
-4. This agent will: `npx supabase functions deploy bricely-diagnose --project-ref apxbwdxszmdffbduhjen --no-verify-jwt` then rerun Skip’s five lines. Then **revoke the token** on the same tokens page.
-
-Do **not** give a token that can also push schema to `qcefkox`. If the account owns both projects, still only ever pass `--project-ref apxbwdxszmdffbduhjen`.
-
-### Prove A (before widget)
-
-```bat
-npm run proof:skip-replay
-```
-
-LIVE section must **PASS** (T2–T5 hold / search-fail ticket, never “which screen”). Widget F$ may still FAIL until B.
+Revoke the scoped token after you are done deploying CS functions: https://supabase.com/dashboard/account/tokens
 
 ---
 
@@ -117,7 +62,7 @@ This CS VM has no Wmsosv2 checkout. Backend/embed lane does B.
 
 | Check | Pass |
 |---|---|
-| `npm run proof:skip-replay` LIVE | PASS |
+| `npm run proof:skip-replay` LIVE | **PASS** (A done) |
 | New WMG asset has no `catch{_t=F$` | gone |
 | Hard-refresh chat: search fail / escalate | ticket, never screenshot / which-screen / specialist wall |
 | Ticket `9f2ca521` | close only after the three above |
