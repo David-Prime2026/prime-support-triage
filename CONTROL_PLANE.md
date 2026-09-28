@@ -1,3 +1,32 @@
+## DR-CS-PLATFORM-015 — support ship rules — 2026-09-28 — **IN FORCE**
+
+You: support lane. Completeness = this repo’s PRs + `main`. Deploy = `apxbwdxszmdffbduhjen`. WMG live = operator `wmg-backend` / `Wmsosv2` main.
+
+Nested `wmg-backend/support-triage` is a **freeze**. Copy path: `cursor/integrate-cs-1-6-ac30` (this branch), then CS `main` after merge. Draft sibling PRs are not a copy path.
+
+Files: `SUPPORT_SHIP_RULES.md` · `.cursor/rules/support-ship-rules.mdc`
+
+Never `qcefkoxqkfwnlqfmwzmi`. Diagnose 200 is not a live widget. Support sends mail; operator does not.
+
+---
+
+## BACKEND REQUESTS + customer drafts — 2026-09-28
+
+PRIME: Jessica mail approved; Alisa mail approved (she can work Bricely over email); split-load is a bug (click vs code spelled out); diagnose expected live.
+
+**Drafts (unsent until PRIME sends):** `proofs/OPS-JESSICA-ALISA-EMAILS/DRAFTS.md`
+
+**Backend channel** (request / audit / fix):
+
+- `handoffs/BACKEND-REQUESTS/SPLIT-LOAD-PICKUP.md` — ticket `5dc41a1a`. Click if that parent pickup is wrong; code if `split-load` copies parent/chain onto children.
+- `handoffs/BACKEND-REQUESTS/BRICELY-FIVE-TURN-EMAIL.md` — diagnose is **200** on `apxbwdxszmdffbduhjen` and the widget calls it; remaining work is stale pickup copy, 5-turn→email, and canned `F$` fallback.
+
+Jessica should not type pickup — the location already has it. Split-load is ops **Split load across buyers**, not her New Portal form.
+
+Never `qcefkoxqkfwnlqfmwzmi`.
+
+---
+
 ## DR-CS-PLATFORM-014 — other lane execute (2026-09-25)
 
 WMG lane only. CS lane already pushed Bricely diagnosis (this branch / PR #4).
@@ -314,6 +343,7 @@ Isolated from WMG OS production (`qcefkoxqkfwnlqfmwzmi`).
 ## Handoffs
 - **A** (quoting): JSON+CSV → `handoffs/`
 - **B** (Cursor): flat-file → `dispatches/outbox/` (WMG_OS_STAGING only)
+- **Backend channel:** request / audit / recommendations → `handoffs/BACKEND-REQUESTS/`
 - **Tier 1 governor:** `scripts/tier1/` · live log `executions/live-log.jsonl` · proofs `proofs/DR-CS-PLATFORM-006/`
 
 ## Gate
