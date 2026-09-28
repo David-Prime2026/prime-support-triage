@@ -1,23 +1,38 @@
-# Bricely drafts — 2026-09-28 (unsent until PRIME commits send)
+# Bricely drafts — 2026-09-28
 
-Gmail drafts on `bricely@prime-timesystems.com`. Do not send from the agent.
+Gmail on `bricely@prime-timesystems.com`. Support sends only when the desk says send.
 
-## 1. Jessica Wallace — pickup should already be filled
+## Send (approved, still a draft)
+
+### Jessica Wallace — pickup should already be filled
 
 - **To:** jwallace@goodwillks.org
 - **CC:** david@prime-timesystems.com, alisa@wilsonmarketing.com
+- **Status:** **DRAFT** — send this one
 - **Draft:** https://mail.google.com/mail/?authuser=bricely@prime-timesystems.com#all?compose=thread-f:1877602344738173346%2Bmsg-a:r-9135417840681201892
 - **Subject:** Your Wichita pickup should already be filled — please check
 
-Jessica should not type the store address. The location already has pickup on file. Mail asks her to hard-refresh, open a new request, and reply whether the box is filled or empty.
+Jessica should not type the store address. Hard-refresh, new request, reply filled vs empty. Signature is on the draft.
 
-## 2. Alisa — split-load example + email channel
+## Already sent — do not resend
+
+### Alisa — split-load example + email channel
 
 - **To:** alisa@wilsonmarketing.com
 - **CC:** david@prime-timesystems.com
-- **Draft:** https://mail.google.com/mail/?authuser=bricely@prime-timesystems.com#all?compose=thread-f:1877602345205603893%2Bmsg-a:r-2739355766015210016
+- **Status:** **SENT** 2026-09-28 18:50Z
+- **Thread:** https://mail.google.com/mail/?authuser=bricely@prime-timesystems.com#all/thread-f:1877602345205603893
 - **Subject:** Split-load pickup — which load is wrong? You can work this with me over email
 
-States she can resolve items with Bricely over email. Asks for seller, release, shown vs should-be pickup. Explains click (one bad parent load) vs code (`split-load` copies parent/chain). Mentions Jessica check separately.
+No reply yet. Ticket `5dc41a1a` stays open until her example (or the next split) is proved.
 
-Unrelated Omaha portal draft from earlier remains unsent and is **not** part of this send.
+## Hold
+
+### Julie Chandler — Omaha portal how-to
+
+- **To:** jchandler@goodwillomaha.org
+- **CC:** alisa@wilsonmarketing.com
+- **Status:** DRAFT — optional. Invites already resolved on `87b47aae`.
+- **Draft:** https://mail.google.com/mail/?authuser=bricely@prime-timesystems.com#all?compose=thread-f:1877598641015218535%2Bmsg-a:r2674068301693946256
+
+Empty 2026-09-15 signature-only draft was deleted.

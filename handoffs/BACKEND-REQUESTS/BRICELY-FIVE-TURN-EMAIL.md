@@ -30,8 +30,8 @@ PRIME expected diagnose live. **Part of that is live. The channel is not finishe
 | Live widget `index-DLShFkGa.js` | Remote `wCe` **does** POST diagnose (URL derived from intake-ticket) |
 | On diagnose throw | **catch uses canned `F$`** (screenshot / clear-filter / specialist wall) |
 | Claude assist | skipped when diagnose URL exists (good) |
-| Diagnose answer for Jessica pickup | **Stale.** Still says New Portal does not read the default and “keep entering the usual address.” Live form **already** prefills via `default_pickup_location` / last pickup (`G$` / `V$` on init and after submit). |
-| 5-turn → email | **Not happening.** Diagnose returns `terminal: "continue"` / `phase: "resolved"` and does not file or mail. Catch-net tickets sit `awaiting_approval` with `process-ticket-ai` 404. |
+| Diagnose answer for Jessica pickup | **Live v4.** Filled-box copy; do not retype. This repo now matches. |
+| 5-turn → email | Function can escalate + ticket/email copy. **Widget canned `F$` catch still live** until embed push. |
 | Jessica / split-load | Never got the email exchange. That is why we are drafting mail by hand today. |
 
 Do **not** spend this request on another “deploy the function” if it is already 200. Spend it on **behavior**.

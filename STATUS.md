@@ -2,7 +2,8 @@
 
 | Area | State | Notes |
 |------|-------|-------|
-| DR-015 | **IN FORCE** | Support ship rules. Copy path = `cursor/integrate-cs-1-6-ac30`. Completeness = this repo + `main`. Deploy = `apxbwdxszmdffbduhjen`. Nested `wmg-backend/support-triage` is a freeze. |
+| DR-015 | **IN FORCE** | Support ship rules. Completeness = this repo + `main`. Deploy = `apxbwdxszmdffbduhjen`. Nested `wmg-backend/support-triage` is a freeze. |
+| Backlog | **DRAINING** | 2026-09-28 retire smoke/duplicates. Remaining WMG: `handoffs/BACKEND-REQUESTS/WMG-CURRENT-STATE.md` |
 | DR-010 | **CLOSED** | Stages 0–7 |
 | DR-011 | **CLOSED** | Prediagnosis + routing + staging JSON |
 | DR-012 | **CLOSED** | Desk discourse · Approve record · Resolve notify |
@@ -22,4 +23,4 @@ Never `db push` / `apply_migration` / `deploy_edge_function` against `qcefkoxqkf
 CS schema stays on the isolated support project. Not applied to WMG OS production.
 
 ## Phase 2 (CS repo — maturation)
-Notes, SLA, COs on this repo after the integrate branch is on `main`.
+Notes, SLA, COs on this repo. Integrate stack is on `main` (PR #7). Remaining live WMG work is `handoffs/BACKEND-REQUESTS/WMG-CURRENT-STATE.md`. `email-intake` is still 404 on apx until deployed with `SUPABASE_ACCESS_TOKEN`.

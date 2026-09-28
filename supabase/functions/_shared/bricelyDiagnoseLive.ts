@@ -345,11 +345,12 @@ export function diagnoseLiveTurn(input: LiveDiagnoseInput): LiveDiagnoseResult {
 
   if (isPickupDefaultRequest(text) || isPickupDefaultRequest(notes.join(" "))) {
     return liveOut(
-      { ...next, phase: "resolved", screen: next.screen ?? "seller_portal" },
-      pickupDefaultAnswer(),
-      "continue",
-      "answer",
-      "pickup_default_defect",
+      { ...next, phase: "escalate", screen: next.screen ?? "request" },
+      `${pickupDefaultAnswer()}\n\nI'm opening a ticket and emailing you this so we fix the right thing. You'll hear back within 24 hours.`,
+      "escalate",
+      "open_ticket",
+      "pickup_default_ticket_email",
+      { cardStatus: "In progress" },
     );
   }
 

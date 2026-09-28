@@ -27,4 +27,4 @@ This is a defect. Not “I don’t see that feature.”
 
 Drop-in: [`seller-portal-prefill.ts`](./seller-portal-prefill.ts).
 
-Staging first. Never `qcefkoxqkfwnlqfmwzmi` schema push. Jessica can keep typing until this is on Vercel.
+**Shipped 2026-09-25** (ticket `a282b3e2` resolved). Live New Portal prefills from `default_pickup_location` / last pickup. Jessica mail asks her to hard-refresh and confirm the box is filled — she should not retype. Never `qcefkoxqkfwnlqfmwzmi` schema push.

@@ -1,3 +1,20 @@
+## BACKLOG RETIRE + WMG current state — 2026-09-28 — **IN FORCE**
+
+PRIME: this lane stays. Work already done is approved. Clean the graveyard; remaining live WMG bugs in **one** packet.
+
+- Ledger: `proofs/OPS-BACKLOG-RETIRE/2026-09-28.md`
+- Close script: `proofs/OPS-BACKLOG-RETIRE/close.py`
+- WMG packet: `handoffs/BACKEND-REQUESTS/WMG-CURRENT-STATE.md`
+- Diagnose pickup copy in this repo now matches live v4 (filled box, do not retype)
+- Embed drop-in no longer throws into canned `F$`
+- Gmail: Jessica still a draft to send; Alisa split-load already SENT; empty Sept 15 draft deleted
+
+Keep open only: `5dc41a1a` (split proof) · `9f2ca521` (embed `F$`) · `3297801d` (Lane County period + search) · `7b807646` (release 09) · `af441aa2` (Foundry delete) · `08a999c0` (change-buyer Edge Function)
+
+Never `qcefkoxqkfwnlqfmwzmi`. Skip is only executor on pricing.
+
+---
+
 ## DR-CS-PLATFORM-015 — support ship rules — 2026-09-28 — **IN FORCE**
 
 You: support lane. Completeness = this repo’s PRs + `main`. Deploy = `apxbwdxszmdffbduhjen`. WMG live = operator `wmg-backend` / `Wmsosv2` main.

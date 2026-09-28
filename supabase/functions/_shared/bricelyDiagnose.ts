@@ -109,7 +109,7 @@ export function portalContactsAnswer(): string {
 }
 
 export function pickupDefaultAnswer(): string {
-  return "The CRM default pickup is already saved on the seller. New Portal does not read it yet, so the request form starts blank and they have to type the store address each time. That is a product defect, not a missing save button. Keep entering the usual address on each request for now. I have this with the team to prefill pickup (and shipping hours in notes) from the account default.";
+  return "Pickup on New Portal should already be filled from the store default (and the last request). Check the pickup box — if it is filled, you do not need to type it again. If it is blank, tell me and I will take it from there. Do not keep retyping the usual address as a workaround.";
 }
 
 function norm(text: string): string {

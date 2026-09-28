@@ -122,7 +122,7 @@ const proofs: Proof[] = [
   },
   {
     id: "T10",
-    title: "Wichita pickup default set but form blank — name the defect",
+    title: "Wichita pickup — filled box, do not retype",
     messages: [
       {
         role: "user",
@@ -130,8 +130,8 @@ const proofs: Proof[] = [
       },
     ],
     expectAction: "answer",
-    require: [/does not read it|starts blank/i],
-    forbid: [/I don't see that/i, /screenshot/i, /billable/i],
+    require: [/already be filled/i, /do not keep retyping|do not need to type/i],
+    forbid: [/keep entering/i, /starts blank/i, /does not read it/i, /I don't see that/i, /screenshot/i, /billable/i],
   },
 ];
 
@@ -275,11 +275,11 @@ const liveProofs: LiveProof[] = [
   },
   {
     id: "L11",
-    title: "Live wCe: pickup typed every request — name the defect",
+    title: "Live wCe: pickup typed every request — filled box, then ticket+email",
     text: "my customer at GW Wichita has to type the pickup address every single time she does a request. it is set and does not work",
-    expectTerminal: "continue",
-    require: [/does not read it|starts blank/i],
-    forbid: [/I don't see that/i, /screenshot/i, /clear any active filters/i],
+    expectTerminal: "escalate",
+    require: [/already be filled/i, /opening a ticket and emailing/i],
+    forbid: [/keep entering/i, /starts blank/i, /I don't see that/i, /screenshot/i, /clear any active filters/i],
   },
 ];
 
