@@ -39,10 +39,7 @@ Never `qcefkoxqkfwnlqfmwzmi` schema from this repo. Do not email Skip on pricing
 
 Live `index-DLShFkGa.js` still contains canned screenshot / clear-filter / “already with our specialist” (`F$`) and `triedSafeStep`. Diagnose is called, but **on throw the catch runs F$**.
 
-**Exact change:**
-1. Copy `handoffs/DR-CS-PLATFORM-008/embed/wCe.remote.ts` (this revision **does not throw** — failed diagnose returns escalate/ticket).
-2. **Delete the `F$` catch** in BricelyChat so a failed fetch cannot revive the old loop.
-3. Keep welcome-name `liveFix` wired (ticket `6ba47962` retired as that embed verb).
+**Exact change:** see `handoffs/DR-CS-PLATFORM-008/GO-LIVE-P0.md`. Copy `wCe.remote.ts`. Delete live `catch{_t=F$}`. Deploy diagnose from this CS repo to `apxbwdx` only.
 
 **Proof:** hard-refresh WMG; a diagnose failure or a real ask does **not** say screenshot / clear filters / specialist wall. Then close `9f2ca521`.
 
