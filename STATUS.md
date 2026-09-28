@@ -3,7 +3,7 @@
 | Area | State | Notes |
 |------|-------|-------|
 | DR-015 | **IN FORCE** | Support ship rules. Completeness = this repo + `main`. Deploy = `apxbwdxszmdffbduhjen`. Nested `wmg-backend/support-triage` is a freeze. |
-| Backlog | **DRAINING** | 2026-09-28 retire smoke/duplicates. Remaining WMG: `handoffs/BACKEND-REQUESTS/WMG-CURRENT-STATE.md` |
+| Backlog | **DRAINED** | 0 awaiting_approval. Code-check closed 329 / 7b80 / af441. Open: `9f2ca521` F$ catch, `08a999c0` reassign-buyer, `5dc41a1a` split proof |
 | DR-010 | **CLOSED** | Stages 0–7 |
 | DR-011 | **CLOSED** | Prediagnosis + routing + staging JSON |
 | DR-012 | **CLOSED** | Desk discourse · Approve record · Resolve notify |

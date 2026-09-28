@@ -1,3 +1,15 @@
+## CODE CHECK — 2026-09-28 evening — **IN FORCE**
+
+Canvas assessment (25 Sep) audited: `proofs/BRICELY-LANE-ASSESSMENT/2026-09-28.md`
+
+Closed on live `index-DLShFkGa.js`: `3297801d` (pricing period + location search) · `7b807646` (release follows pricing month) · `af441aa2` (ops data, not a function).
+
+Still open: `9f2ca521` (widget `F$` catch — P0) · `08a999c0` (`reassign-buyer` unproven) · `5dc41a1a` (split proof). Do not email Skip.
+
+Search-fail auto-ticket + hold-escalate are in this repo (T11/L12/L13). Need apx diagnose deploy.
+
+---
+
 ## BACKLOG RETIRE + WMG current state — 2026-09-28 — **IN FORCE**
 
 PRIME: this lane stays. Work already done is approved. Clean the graveyard; remaining live WMG bugs in **one** packet.
@@ -9,9 +21,9 @@ PRIME: this lane stays. Work already done is approved. Clean the graveyard; rema
 - Embed drop-in no longer throws into canned `F$`
 - Gmail: Jessica still a draft to send; Alisa split-load already SENT; empty Sept 15 draft deleted
 
-Keep open only: `5dc41a1a` (split proof) · `9f2ca521` (embed `F$`) · `3297801d` (Lane County period + search) · `7b807646` (release 09) · `af441aa2` (Foundry delete) · `08a999c0` (change-buyer Edge Function)
+Keep open only: `9f2ca521` (embed `F$` catch) · `08a999c0` (one successful `reassign-buyer`) · `5dc41a1a` (split-load proof)
 
-Never `qcefkoxqkfwnlqfmwzmi`. Skip is only executor on pricing.
+Never `qcefkoxqkfwnlqfmwzmi`. Skip is only executor on pricing. Do not email Skip.
 
 ---
 

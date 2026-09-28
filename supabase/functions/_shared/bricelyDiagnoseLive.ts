@@ -84,6 +84,8 @@ const WELCOME_NAME =
   /\b(change|update|rename|set|customise|customize|prefer|want).{0,50}\b(name|welcome|greeting|title|label|display|intro)\b|\bwelcome\s+[A-Za-z]/i;
 const HOW_TO_EXISTING =
   /\b((reset\s+)?password|log\s*in|sign[\s-]?in|resend(\s+notification)?)\b/i;
+const SEARCH_FAIL =
+  /\b((search|find|look up|pull up).{0,60}(nothing|no results?|empty|can'?t find|cannot find)|no dropdown|there is no dropdown|dropdown after typing)\b/i;
 const PROBLEMISH =
   /\b(broken|not working|wrong|weird|issue|problem|help|stuck|can'?t|doesn'?t work|something'?s off|doesn'?t|wont|won'?t)\b/i;
 const YES =
@@ -330,6 +332,28 @@ export function diagnoseLiveTurn(input: LiveDiagnoseInput): LiveDiagnoseResult {
       "clarify",
       "ticket_followup_accepted",
       { append_to_ticket_id: prior.openTicketId },
+    );
+  }
+
+  if (SEARCH_FAIL.test(text) || SEARCH_FAIL.test(notes.join(" "))) {
+    return liveOut(
+      { ...next, phase: "escalate", screen: next.screen ?? "sales_memos" },
+      "Search failed and that is enough — I am opening a ticket with the seller and the change you already named. You will hear back within 24 hours.",
+      "escalate",
+      "open_ticket",
+      "search_failed_auto_ticket",
+      { cardStatus: "In progress" },
+    );
+  }
+
+  if (prior.phase === "escalate") {
+    return liveOut(
+      { ...next, phase: "escalate" },
+      "I already have this with the team from what you said. I am not walking through a how-to. Add anything new here, or tap New chat for a different issue.",
+      "escalate",
+      "escalate",
+      "hold_escalate_no_reask",
+      { cardStatus: "In progress" },
     );
   }
 

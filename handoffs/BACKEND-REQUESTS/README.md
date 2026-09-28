@@ -4,7 +4,7 @@ DR-015: one WMG packet only. Do not attach six PRs. Do not mix Gmail intake, CO 
 
 | Packet | Surface | Notes |
 |---|---|---|
-| [`WMG-CURRENT-STATE.md`](./WMG-CURRENT-STATE.md) | `qcefkox` / `Wmsosv2` / both | **The WMG packet.** Remaining live bugs after approved work. |
+| [`WMG-CURRENT-STATE.md`](./WMG-CURRENT-STATE.md) | `qcefkox` / `Wmsosv2` / both | Remaining: embed `F$` catch, `reassign-buyer` prove, split-load prove. |
 | [`SPLIT-LOAD-PICKUP.md`](./SPLIT-LOAD-PICKUP.md) | (absorbed) | Click vs code; prove on `5dc41a1a`. See current-state item 2. |
 | [`BRICELY-FIVE-TURN-EMAIL.md`](./BRICELY-FIVE-TURN-EMAIL.md) | CS / apxbwdx + embed | Diagnose is live. Remaining widget `F$` catch is current-state item 1. |
 

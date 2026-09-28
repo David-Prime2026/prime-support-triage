@@ -4,16 +4,17 @@
 
 ```
 Surface: qcefkox | Wmsosv2 | both
-Tickets: 5dc41a1a, 9f2ca521, 3297801d, 7b807646, af441aa2, 08a999c0
-Already live on apxbwdx: diagnose v4 (pickup filled-box + ticket/email copy); intake-ticket v6; process-ticket-ai v1; split_load_and_allocate store-pickup stamp (noted on 5dc41a1a)
-Exact change: six items below. Do not rediscover Omaha invites or Wichita New Portal prefill.
+Tickets: 9f2ca521, 08a999c0, 5dc41a1a
+Already live on apxbwdx: diagnose v4; intake-ticket v6; process-ticket-ai v1
+Closed on 2026-09-28 code check: 3297801d, 7b807646, af441aa2 (see assessment)
+Exact change: three items below. Do not rediscover Omaha, Wichita, Lane County pricing, or Foundry.
 Proof of done: each ticket closed after the proof in that row
-Out of scope: Gmail intake, CO PDFs, desk UI, email-intake deploy, qcefkox schema push from CS
+Out of scope: Gmail intake, CO PDFs, desk UI, email-intake deploy, qcefkox schema push from CS, mailing Skip
 ```
 
 Copy path if you need CS files: `prime-support-triage` `main` (PR #7). Nested `wmg-backend/support-triage` is a freeze.
 
-Never `qcefkoxqkfwnlqfmwzmi` schema from this repo. Skip is only executor on pricing — do not mail Alisa on 3297801d / 7b807646.
+Never `qcefkoxqkfwnlqfmwzmi` schema from this repo. Do not email Skip on pricing.
 
 ---
 
@@ -22,8 +23,11 @@ Never `qcefkoxqkfwnlqfmwzmi` schema from this repo. Skip is only executor on pri
 | Item | Ticket | State |
 |---|---|---|
 | Omaha Portals invites (Julie roster) | `87b47aae` | **resolved** 2026-09-25 |
-| Wichita New Portal pickup prefill | `a282b3e2` | **resolved** 2026-09-25; live `index-DLShFkGa.js` has `default_pickup_location` |
-| Diagnose 200 + pickup copy v4 | `9f2ca521` (partial) | Function live on `apxbwdx`. Remaining is **embed**, not another diagnose deploy |
+| Wichita New Portal pickup prefill | `a282b3e2` | **resolved** 2026-09-25 |
+| Lane County price period + memo/seller search | `3297801d` | **resolved** 2026-09-28 code check — `user-pricing-period`, location-aware seller search |
+| Release numbers follow pricing month | `7b807646` | **resolved** 2026-09-28 — `save-commodity-monthly-pricing` / `memos_applied` |
+| Middle TN / Foundry rows | `af441aa2` | **resolved** 2026-09-28 — ops data, not a Wmsosv2 function |
+| Diagnose 200 + pickup copy v4 | `9f2ca521` (partial) | Function live. Remaining is **embed `F$` catch** |
 | Split-load **code** stamps store pickup | `5dc41a1a` (partial) | Function live. Remaining is **one real split proof** |
 
 ---
@@ -59,66 +63,24 @@ Click first if that parent pickup is simply the wrong store. Do not rewrite the 
 
 ---
 
-## 3. Sales memo search + Lane County price period
-
-**Ticket:** `3297801d` (Skip, owner)  
-**Surface:** Wmsosv2 Sales Memos + `qcefkox` as needed
-
-Skip 2026-09-25 15:36–15:44: change **GW Ind of Lane County** so September price runs through **10/3**. Search for **GW Eugene** finds nothing; there is **no dropdown** after typing a name. Bricely invented Edit/pencil/Price Period steps — ignore that.
-
-**Exact change:**
-1. Memo search must find Lane County / Eugene by alias, not only an exact display name.
-2. Set September price period through 10/3 on that memo (ops click if the control exists; code if search/typeahead is missing).
-
-Do not CC Alisa on pricing mail. Skip is the executor.
-
-**Proof:** Skip can find the memo and the period is through 10/3. Close `3297801d`.
-
----
-
-## 4. Release numbers follow pricing month (09 not 10 through 10/3)
-
-**Ticket:** `7b807646`  
-**Surface:** `qcefkox` / Portals release numbering  
-**Same family as #3.**
-
-Alisa: releases between **8/31/26 and October 3, 2026** should start with account name and **09**, not **10**, through October 3. Pricing month, not calendar month.
-
-**Exact change:** release prefix uses the commodity pricing period, not the calendar month. Through 10/3 stay `…09…`.
-
-**Proof:** one release in that window shows 09. Close `7b807646`.
-
----
-
-## 5. Delete wrong Middle TN / Foundry stores
-
-**Ticket:** `af441aa2` (already `sent_to_engineering`)  
-**Surface:** `qcefkox` seller locations (ops delete; Alisa lacks permission)
-
-Goodwill Industries of Middle Tennessee showing **9 stores including rescue missions like The Foundry**. Must be deleted. Alisa cannot.
-
-**Exact change:** operator deletes the wrong location rows (The Foundry / rescue missions that are not GW stores). Do not wait on Bricely. No shared-password workaround.
-
-**Proof:** location list is only the real GW stores. Close `af441aa2`.
-
----
-
-## 6. Change buyer on a memo → Edge Function error
+## 3. Change buyer on a memo → Edge Function error
 
 **Ticket:** `08a999c0`  
-**Surface:** Wmsosv2 sales memo + the edge function that swaps buyer
+**Surface:** Wmsosv2 `reassign-buyer`
 
-Alisa: buyer did not want the load; changing buyer on the memo returned **“Edge Function..”** error.
+Alisa: buyer did not want the load; changing buyer returned **“Edge Function..”**.
 
-**Exact change:** find that function, fix the failure, prove a buyer swap on a real (or staging) memo.
+**Code check:** UI is complete — search replacement, reason required, invoke `reassign-buyer`, apply new memo, success toast. **Not proven** the function no longer 500s.
 
-**Proof:** change buyer succeeds; close `08a999c0`.
+**Exact change:** one successful replace on a real (or staging) load. If it still errors, that is the remaining function bug.
+
+**Proof:** buyer replaced + new memo; close `08a999c0`.
 
 ---
 
 ## Not in this packet
 
-- `email-intake` 404 on `apxbwdx` — CS deploy (`scripts/deploy-triage-functions.sh`). This VM has no `SUPABASE_ACCESS_TOKEN`.
-- Jessica Gmail draft — approved; David sends from Bricely Gmail.
-- Julie how-to draft — optional; Omaha invites already resolved.
-- Sibling draft PRs #1–#6 — superseded by merged PR #7. Not a copy path.
+- `3297801d` / `7b807646` / `af441aa2` — closed 2026-09-28 code check. Do not rebuild. Do not email Skip.
+- `email-intake` 404 on `apxbwdx` — CS deploy token.
+- Jessica Gmail draft — approved; David sends.
+- Sibling draft PRs #1–#6 — superseded by merged PR #7.

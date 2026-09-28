@@ -133,6 +133,18 @@ const proofs: Proof[] = [
     require: [/already be filled/i, /do not keep retyping|do not need to type/i],
     forbid: [/keep entering/i, /starts blank/i, /does not read it/i, /I don't see that/i, /screenshot/i, /billable/i],
   },
+  {
+    id: "T11",
+    title: "Search failed / no dropdown — auto ticket, do not invent UI",
+    messages: [
+      { role: "user", text: "Change the price period on the sales memo for GW Ind of Lane County" },
+      { role: "bricely", text: "I have what I need to pass this to the specialist team." },
+      { role: "user", text: "Search for GW Eugene returns nothing. There is no dropdown after typing a name." },
+    ],
+    expectAction: "escalate",
+    require: [/ticket/i],
+    forbid: [/dropdown after typing/i, /pencil/i, /which screen/i, /clear (any )?active filters/i, /what.?s going on/i],
+  },
 ];
 
 function actionOk(got: DiagnoseAction, expect: DiagnoseAction | DiagnoseAction[]): boolean {
@@ -280,6 +292,33 @@ const liveProofs: LiveProof[] = [
     expectTerminal: "escalate",
     require: [/already be filled/i, /opening a ticket and emailing/i],
     forbid: [/keep entering/i, /starts blank/i, /I don't see that/i, /screenshot/i, /clear any active filters/i],
+  },
+  {
+    id: "L12",
+    title: "Search failed — ticket, no invented dropdown",
+    text: "Search for GW Eugene returns nothing. There is no dropdown after typing a name.",
+    state: {
+      exchanges: 2,
+      phase: "escalate",
+      introAcked: true,
+      notes: ["Change the price period on the sales memo for GW Ind of Lane County"],
+    },
+    expectTerminal: "escalate",
+    require: [/ticket/i],
+    forbid: [/which screen/i, /pencil/i, /what.?s going on/i, /tell me what you.?re trying to do/i],
+  },
+  {
+    id: "L13",
+    title: "After escalate, do not restart how-to / which screen",
+    text: "How can I pull up the sales memo",
+    state: {
+      exchanges: 1,
+      phase: "escalate",
+      introAcked: true,
+      notes: ["Change the price period on the sales memo for GW Ind of Lane County"],
+    },
+    expectTerminal: "escalate",
+    forbid: [/which screen/i, /tell me what you.?re trying to do/i, /Hi —/i],
   },
 ];
 

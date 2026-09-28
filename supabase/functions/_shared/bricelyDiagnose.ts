@@ -95,6 +95,8 @@ const PORTAL_CONTACTS =
   /\b(primary contacts?|portal (access|user|users|login|invite)|full access|partial access|set (an? )?user|invite .{0,40}(portal|user)|multiple (users|employees).{0,40}(login|log in|username))\b/i;
 const PICKUP_DEFAULT =
   /\b((pickup|pick-up) (location|address|site)|type.{0,24}(address|pickup).{0,24}every|every time.{0,40}(request|load|pickup)|default pickup|shipping hours|it is set and does not work)\b/i;
+const SEARCH_FAIL =
+  /\b((search|find|look up|pull up).{0,60}(nothing|no results?|empty|can'?t find|cannot find)|no dropdown|there is no dropdown|dropdown after typing)\b/i;
 
 export function isPortalContactsRequest(text: string): boolean {
   return PORTAL_CONTACTS.test(text);
@@ -301,6 +303,16 @@ export function diagnose(input: DiagnoseInput): DiagnoseResult {
 
   if (facts.pickup_default || PICKUP_DEFAULT.test(latest)) {
     return finish(state, "answer", pickupDefaultAnswer(), "pickup_default_defect");
+  }
+
+  if (SEARCH_FAIL.test(latest) || messages.some((m) => isUser(m.role) && SEARCH_FAIL.test(m.text))) {
+    return finish(
+      state,
+      "escalate",
+      "Search failed and that is enough — I am opening a ticket with the seller and the change you already named. You will hear back within 24 hours.",
+      "search_failed_auto_ticket",
+      { escalate: true },
+    );
   }
 
   if (facts.accounting) {
