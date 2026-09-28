@@ -55,7 +55,7 @@ Live `index-DLShFkGa.js` still contains canned screenshot / clear-filter / “al
 
 Code path is live: `split_load_and_allocate` stamps store pickup (`seller_account_pickup_locations`, never chain-parent name). Optional per-row `pickup_location`. Prod had 0 existing split children.
 
-**Exact change:** wait for Alisa’s example (seller / release / shown vs should-be) already mailed 2026-09-28 18:50Z. Split that load (or the next real split). Confirm each child memo shows the store pickup.
+**Exact change:** wait for Alisa’s example. First mail SENT 2026-09-28 18:50Z. Follow-up **DRAFT** (unsent) `r722570217650437097`: code is live; we are waiting on seller / release / shown vs should-be, or confirmation the next split already shows the store address. Split that load (or the next real split). Confirm each child memo shows the store pickup.
 
 Click first if that parent pickup is simply the wrong store. Do not rewrite the function unless the proof fails.
 
@@ -70,11 +70,11 @@ Click first if that parent pickup is simply the wrong store. Do not rewrite the 
 
 Alisa: buyer did not want the load; changing buyer returned **“Edge Function..”**.
 
-**Code check:** UI is complete — search replacement, reason required, invoke `reassign-buyer`, apply new memo, success toast. **Not proven** the function no longer 500s.
+**Code check:** UI is complete — search replacement, reason required, invoke `reassign-buyer`, apply new memo, success toast. Live caller does not use `pu()`, so a non-2xx becomes **“Edge Function..”**.
 
-**Exact change:** one successful replace on a real (or staging) load. If it still errors, that is the remaining function bug.
+**Exact change:** copy `handoffs/BACKEND-REQUESTS/reassign-buyer/` onto wmg-backend `supabase/functions/reassign-buyer`, deploy on the same project as `allocate-load` / `deallocate-buyer` (not apx, never CS→qcefkox). Then one successful replace on a real (or staging) load.
 
-**Proof:** buyer replaced + new memo; close `08a999c0`.
+**Proof:** toast is `Buyer replaced — new memo …` or a **specific** `{ error }` (not “Edge Function”). Then close `08a999c0`.
 
 ---
 

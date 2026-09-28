@@ -4,15 +4,16 @@ Gmail on `bricely@prime-timesystems.com`. Support sends only when the desk says 
 
 ## Send (approved, still a draft)
 
-### Jessica Wallace — pickup should already be filled
+### Alisa — waiting on one split-load example
 
-- **To:** jwallace@goodwillks.org
-- **CC:** david@prime-timesystems.com, alisa@wilsonmarketing.com
+- **To:** alisa@wilsonmarketing.com
+- **CC:** david@prime-timesystems.com
 - **Status:** **DRAFT** — send this one
-- **Draft:** https://mail.google.com/mail/?authuser=bricely@prime-timesystems.com#all?compose=thread-f:1877602344738173346%2Bmsg-a:r-9135417840681201892
-- **Subject:** Your Wichita pickup should already be filled — please check
+- **Draft:** https://mail.google.com/mail/?authuser=bricely@prime-timesystems.com#all?compose=thread-f:1877602345205603893%2Bmsg-a:r722570217650437097
+- **Subject:** Re: Split-load pickup — which load is wrong? You can work this with me over email
+- **id:** `r722570217650437097` · reply to SENT `1a0e95aeb35419e2`
 
-Jessica should not type the store address. Hard-refresh, new request, reply filled vs empty. Signature is on the draft.
+Code that stamps store pickup on child loads is already live. Waiting on one real example (seller/location, release/load, pickup shown vs should-be), or confirmation the next split already shows the store address. Ticket `5dc41a1a` stays open until that row.
 
 ## Already sent — do not resend
 
@@ -24,7 +25,15 @@ Jessica should not type the store address. Hard-refresh, new request, reply fill
 - **Thread:** https://mail.google.com/mail/?authuser=bricely@prime-timesystems.com#all/thread-f:1877602345205603893
 - **Subject:** Split-load pickup — which load is wrong? You can work this with me over email
 
-No reply yet. Ticket `5dc41a1a` stays open until her example (or the next split) is proved.
+### Jessica Wallace — pickup should already be filled
+
+- **To:** jwallace@goodwillks.org
+- **CC:** david@prime-timesystems.com, alisa@wilsonmarketing.com
+- **Status:** **SENT** 2026-09-28 20:45Z
+- **Thread:** https://mail.google.com/mail/?authuser=bricely@prime-timesystems.com#all/thread-f:1877602344738173346
+- **Subject:** Your Wichita pickup should already be filled — please check
+
+Hard-refresh, new request, reply filled vs empty.
 
 ## Hold
 
@@ -32,7 +41,6 @@ No reply yet. Ticket `5dc41a1a` stays open until her example (or the next split)
 
 - **To:** jchandler@goodwillomaha.org
 - **CC:** alisa@wilsonmarketing.com
-- **Status:** DRAFT — optional. Invites already resolved on `87b47aae`.
-- **Draft:** https://mail.google.com/mail/?authuser=bricely@prime-timesystems.com#all?compose=thread-f:1877598641015218535%2Bmsg-a:r2674068301693946256
+- **Status:** no longer in Drafts. Invites already resolved on `87b47aae`. Do not recreate unless PRIME asks.
 
 Empty 2026-09-15 signature-only draft was deleted.

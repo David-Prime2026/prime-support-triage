@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "db:reset": "supabase db reset --workdir .",
     "proof:dr-008": "node --experimental-strip-types scripts/bricely-diagnose-proof.ts",
+    "proof:skip-replay": "node --experimental-strip-types scripts/skip-replay.ts",
     "proof:gmail-intake": "node --experimental-strip-types scripts/bricely-gmail-intake-proof.ts"
   },
   "dependencies": {

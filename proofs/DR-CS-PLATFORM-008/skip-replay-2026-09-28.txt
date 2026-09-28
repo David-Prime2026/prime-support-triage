@@ -1,0 +1,41 @@
+(node:10817) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+=== LOCAL (this branch) ===
+T1 escalate escalate default_escalate_no_reask
+   I have what I need to pass this to the specialist team — you will hear back within 24 hours.
+T2 escalate escalate hold_escalate_no_reask
+   I already have this with the team from what you said. I am not walking through a how-to. Add anything new here, or tap New chat for a different issue.
+T3 escalate escalate hold_escalate_no_reask
+   I already have this with the team from what you said. I am not walking through a how-to. Add anything new here, or tap New chat for a different issue.
+T4 escalate open_ticket search_failed_auto_ticket
+   Search failed and that is enough — I am opening a ticket with the seller and the change you already named. You will hear back within 24 hours.
+T5 escalate open_ticket search_failed_auto_ticket
+   Search failed and that is enough — I am opening a ticket with the seller and the change you already named. You will hear back within 24 hours.
+LOCAL (this branch) PASS
+
+=== LIVE apx diagnose ===
+T1 escalate escalate default_escalate_no_reask
+   I have what I need to pass this to the specialist team — you will hear back within 24 hours.
+T2 continue answer how_to_direct_answer
+   I can walk that through with the product as it exists today. Tell me which screen you are on if this is not the one I think you mean — otherwise I will keep going from what you already described. /  / If you'd rather ope
+T3 continue answer how_to_direct_answer
+   I can walk that through with the product as it exists today. Tell me which screen you are on if this is not the one I think you mean — otherwise I will keep going from what you already described. /  / If you'd rather ope
+T4 continue answer how_to_direct_answer
+   I can walk that through with the product as it exists today. Tell me which screen you are on if this is not the one I think you mean — otherwise I will keep going from what you already described. /  / If you'd rather ope
+T5 continue answer how_to_direct_answer
+   I can walk that through with the product as it exists today. Tell me which screen you are on if this is not the one I think you mean — otherwise I will keep going from what you already described. /  / If you'd rather ope
+LIVE apx diagnose FAIL
+  - T2 forbidden /which screen (is this|you are) on/i in: I can walk that through with the product as it exists today. Tell me which screen you are on if this is not the one I think you mean — otherwise I will keep goi
+  - T3 forbidden /which screen (is this|you are) on/i in: I can walk that through with the product as it exists today. Tell me which screen you are on if this is not the one I think you mean — otherwise I will keep goi
+  - T4 forbidden /which screen (is this|you are) on/i in: I can walk that through with the product as it exists today. Tell me which screen you are on if this is not the one I think you mean — otherwise I will keep goi
+  - T5 forbidden /which screen (is this|you are) on/i in: I can walk that through with the product as it exists today. Tell me which screen you are on if this is not the one I think you mean — otherwise I will keep goi
+  - T5 terminal continue (expected escalate after search fail)
+
+=== LIVE widget assets/index-DLShFkGa.js ===
+  bricely-diagnose: true
+  F$ catch: true
+LIVE widget FAIL
+  - F$ catch still in live widget — copy wCe.remote.ts and delete the catch
+
+Live diagnose and/or widget is behind this branch. Deploy bricely-diagnose to apxbwdx; copy wCe.remote; delete F$ catch; then rerun.

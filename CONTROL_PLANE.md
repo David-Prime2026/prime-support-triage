@@ -1,3 +1,16 @@
+## APPROVED 1–4 — 2026-09-28 night — **IN FORCE**
+
+PRIME: 1 approved + replay · 2 ok · 3 fix push · 4 live and awaiting — draft Alisa.
+
+1. **P0 `9f2ca521`.** LOCAL Skip five-line **PASS**. LIVE apx diagnose **FAIL** (T2–T5 which-screen). LIVE widget `index-DLShFkGa.js` still has `catch{_t=F$}`. Playwright: F$ catch still present; live five-line FAIL. This VM cannot deploy (`SUPABASE_ACCESS_TOKEN` unset; no Wmsosv2). Operator: deploy `bricely-diagnose` to `apxbwdx`, copy `wCe.remote.ts`, delete F$ catch, `npm run proof:skip-replay`. Do not email Skip. Ticket stays open.
+2. **OK.** `3297801d` / `7b807646` stay resolved. Skip leftover is product (pricing period + location search).
+3. **`reassign-buyer` fix pushed** as copy path: `handoffs/BACKEND-REQUESTS/reassign-buyer/`. Operator deploys on the WMG functions project (not apx, never qcefkox from this VM). `08a999c0` stays until one success toast (not “Edge Function..”).
+4. **Split-load live and awaiting Alisa’s example.** That is all we can do on `5dc41a1a`. Follow-up **DRAFT** (unsent): `r722570217650437097`. Jessica pickup mail **SENT** 20:45Z.
+
+Proofs: `proofs/DR-CS-PLATFORM-008/skip-replay-2026-09-28.md` · drafts: `proofs/OPS-JESSICA-ALISA-EMAILS/DRAFTS.md`
+
+---
+
 ## CODE CHECK — 2026-09-28 evening — **IN FORCE**
 
 Canvas assessment (25 Sep) audited: `proofs/BRICELY-LANE-ASSESSMENT/2026-09-28.md`
@@ -19,7 +32,7 @@ PRIME: this lane stays. Work already done is approved. Clean the graveyard; rema
 - WMG packet: `handoffs/BACKEND-REQUESTS/WMG-CURRENT-STATE.md`
 - Diagnose pickup copy in this repo now matches live v4 (filled box, do not retype)
 - Embed drop-in no longer throws into canned `F$`
-- Gmail: Jessica still a draft to send; Alisa split-load already SENT; empty Sept 15 draft deleted
+- Gmail: Jessica **SENT** 20:45Z; Alisa first split-load **SENT**; Alisa waiting-on-example **DRAFT** `r722570217650437097`; empty Sept 15 draft deleted
 
 Keep open only: `9f2ca521` (embed `F$` catch) · `08a999c0` (one successful `reassign-buyer`) · `5dc41a1a` (split-load proof)
 
