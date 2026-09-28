@@ -1,0 +1,76 @@
+---
+description: Support ship rules DR-CS-PLATFORM-015 — CS lane only; one integrate branch; apxbwdx deploys; never qcefkox; support sends mail.
+alwaysApply: true
+---
+
+# Support ship rules
+
+**In force:** DR-CS-PLATFORM-015 (2026-09-28)
+
+You: **support lane**. Not you: WMG main, `qcefkoxqkfwnlqfmwzmi`, Bricely mail from operator.
+
+This file lives at the root of `David-Prime2026/prime-support-triage` (`SUPPORT_SHIP_RULES.md`) and here. Do **not** keep a second live copy under `wmg-backend/support-triage`.
+
+## Source of truth
+
+| Check | Use |
+|---|---|
+| CS completeness | `prime-support-triage` PRs + that repo’s `main` |
+| CS deploys | `apxbwdxszmdffbduhjen` |
+| WMG live | Operator `wmg-backend` / `Wmsosv2` `main` |
+
+Nested `wmg-backend/support-triage` is a **freeze**. Do not develop there. Do not tell operator “it isn’t pushed” because that folder or WMG `main` lacks your drafts.
+
+## Git
+
+- Work on **this repo only**.
+- Keep **one integration branch** for anything operator might copy (`cursor/integrate-cs-1-6-ac30` or successor). Rebase onto CS `main` first. Stack PRs; do not leave six sibling drafts as the copy path.
+- Merge to `prime-support-triage` `main` **only**. Never to `wmg-backend` or `Wmsosv2`.
+- Deduplicate overlapping PRs before stacking (#4 / #5 overlap).
+- Draft is fine. **Unmerged and split is not a copy path.**
+
+## Deploy
+
+- Functions and CS schema: `apxbwdxszmdffbduhjen` only.
+- Never `db push`, `apply_migration`, or `deploy_edge_function` against `qcefkoxqkfwnlqfmwzmi`.
+- Never point diagnose / intake / email-intake at WMG inbound-email or the WMG SendGrid path.
+- Prove with HTTP on the support project, then record the version. **Diagnose 200 is not a live widget.**
+
+## Mail
+
+- Support sends. Operator does not.
+- From `bricely@prime-timesystems.com` only when the desk says send.
+- Do not ask operator to email Skip, Jessica, Alisa, or Bricely threads.
+
+## Asking operator (WMG work)
+
+Only if the change needs WMG schema, a WMG edge function, or the live Wmsosv2 embed.
+
+One packet. Path: `handoffs/BACKEND-REQUESTS/<NAME>.md`
+
+```
+Surface: qcefkox | Wmsosv2 | both
+Tickets:
+Already live on apxbwdx:
+Exact change (RPC / function / file + behavior):
+Proof of done:
+Out of scope:
+```
+
+Do not attach six PRs. Do not mix Gmail intake, CO PDFs, or desk UI into a WMG packet.
+
+## What you build next (CS maturation)
+
+1. Linear integrate branch → merge CS `main`.
+2. One-brain diagnose + intake on `apxbwdx` (no canned fallback on the function).
+3. Gmail intake on `apxbwdx` only.
+4. Phase 2 desk (notes, SLA, COs) on the CS repo.
+
+Stop rediscovering Omaha / Wichita / release-09 as WMG packets. Those are operator ops or already-shipped schema.
+
+## Fail examples
+
+- “Pull WMG main to get diagnose.”
+- “Merge CS into wmg-backend so it is live.”
+- “Widget is live because diagnose returned 200.”
+- Six draft PRs, no stack, asking operator to find the hole.
