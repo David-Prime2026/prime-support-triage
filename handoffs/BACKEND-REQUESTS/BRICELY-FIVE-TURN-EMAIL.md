@@ -1,5 +1,7 @@
 # Backend request — Bricely 5-turn then email (still not the live channel)
 
+**Superseded for the all-users blocker.** Execute [`WIDGET-F-CATCH.md`](./WIDGET-F-CATCH.md). Diagnose is already live on apx. Remaining Wmsosv2 work is the `F$` catch.
+
 **Channel:** wmg-backend `support-triage` + WMG embed  
 **Date:** 2026-09-28  
 **Authority:** PRIME — “this is approved and I already expected this to be live”  
