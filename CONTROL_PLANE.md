@@ -1,3 +1,20 @@
+## BACKEND REQUESTS + customer drafts — 2026-09-28
+
+PRIME: Jessica mail approved; Alisa mail approved (she can work Bricely over email); split-load is a bug (click vs code spelled out); diagnose expected live.
+
+**Drafts (unsent until PRIME sends):** `proofs/OPS-JESSICA-ALISA-EMAILS/DRAFTS.md`
+
+**Backend channel** (request / audit / fix):
+
+- `handoffs/BACKEND-REQUESTS/SPLIT-LOAD-PICKUP.md` — ticket `5dc41a1a`. Click if that parent pickup is wrong; code if `split-load` copies parent/chain onto children.
+- `handoffs/BACKEND-REQUESTS/BRICELY-FIVE-TURN-EMAIL.md` — diagnose is **200** on `apxbwdxszmdffbduhjen` and the widget calls it; remaining work is stale pickup copy, 5-turn→email, and canned `F$` fallback.
+
+Jessica should not type pickup — the location already has it. Split-load is ops **Split load across buyers**, not her New Portal form.
+
+Never `qcefkoxqkfwnlqfmwzmi`.
+
+---
+
 ## HOTFIX — desk Enter / resolve path / post-ticket dialogue — 2026-09-24
 
 Operator: command box Enter only inserted a newline; `@eng` looked like a Cursor session; console did not say how to close tickets; Bricely died after OPEN TICKET.
@@ -107,6 +124,7 @@ Isolated from WMG OS production (`qcefkoxqkfwnlqfmwzmi`).
 ## Handoffs
 - **A** (quoting): JSON+CSV → `handoffs/`
 - **B** (Cursor): flat-file → `dispatches/outbox/` (WMG_OS_STAGING only)
+- **Backend channel:** request / audit / recommendations → `handoffs/BACKEND-REQUESTS/`
 - **Tier 1 governor:** `scripts/tier1/` · live log `executions/live-log.jsonl` · proofs `proofs/DR-CS-PLATFORM-006/`
 
 ## Gate
