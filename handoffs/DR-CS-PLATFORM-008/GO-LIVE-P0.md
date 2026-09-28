@@ -13,12 +13,27 @@ Never deploy to `qcefkoxqkfwnlqfmwzmi`. Nested `wmg-backend/support-triage` is a
 
 Live `POST https://apxbwdxszmdffbduhjen.supabase.co/functions/v1/bricely-diagnose` is **200 but old**. This branch already holds: search-fail auto-ticket, hold-escalate (no how-to / which-screen). Need that code on apx.
 
+### This Cloud Agent window (`/workspace`)
+
+You are already on `cursor/retire-backlog-current-wmg-ac30`. **Do not `cd`.** The Windows `path\to\prime-support-triage` line is not a real path here.
+
+The deploy failed because this VM has no Supabase token. Create one, then in **this** terminal:
+
+```bash
+export SUPABASE_ACCESS_TOKEN='sbp_PASTE_HERE'
+npx supabase functions deploy bricely-diagnose --project-ref apxbwdxszmdffbduhjen --no-verify-jwt
+```
+
+Or paste `SUPABASE_ACCESS_TOKEN=sbp_…` in the chat and this agent runs the deploy.
+
+Token: https://supabase.com/dashboard/account/tokens → Generate new token.
+
 ### Prefer: you deploy from a machine already logged into Supabase
 
 Must be **this repo** at `cursor/retire-backlog-current-wmg-ac30` (or `main` after PR #8 merges) — not wmg-backend.
 
 ```bat
-cd path\to\prime-support-triage
+cd C:\Users\daves\wherever\prime-support-triage
 git fetch origin
 git checkout cursor/retire-backlog-current-wmg-ac30
 git pull origin cursor/retire-backlog-current-wmg-ac30
