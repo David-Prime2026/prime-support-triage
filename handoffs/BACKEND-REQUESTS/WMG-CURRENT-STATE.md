@@ -39,7 +39,7 @@ Never `qcefkoxqkfwnlqfmwzmi` schema from this repo. Do not email Skip on pricing
 
 Live `index-DLShFkGa.js` still contains canned screenshot / clear-filter / “already with our specialist” (`F$`) and `triedSafeStep`. Diagnose is called, but **on throw the catch runs F$**.
 
-**Exact change:** see `handoffs/DR-CS-PLATFORM-008/GO-LIVE-P0.md`. Copy `wCe.remote.ts`. Delete live `catch{_t=F$}`. Deploy diagnose from this CS repo to `apxbwdx` only.
+**Exact change:** execute `handoffs/BACKEND-REQUESTS/WIDGET-F-CATCH.md`. Copy `wCe.remote.ts`. Delete live `catch{_t=F$}`. Do not redeploy diagnose (already PASS on apx).
 
 **Proof:** hard-refresh WMG; a diagnose failure or a real ask does **not** say screenshot / clear filters / specialist wall. Then close `9f2ca521`.
 

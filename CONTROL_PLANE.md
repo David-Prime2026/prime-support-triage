@@ -1,3 +1,11 @@
+## BACKEND — widget F$ catch — 2026-09-28 night — **IN FORCE**
+
+PRIME: only Wmsosv2 can ship this. Packet: `handoffs/BACKEND-REQUESTS/WIDGET-F-CATCH.md`
+
+Request / audit / fix for `9f2ca521`. Diagnose A is already live. Do not redeploy apx. Never qcefkox. Do not email Skip.
+
+---
+
 ## P0 GO-LIVE — all-users blocker — 2026-09-28 night — **IN FORCE**
 
 Card: `handoffs/DR-CS-PLATFORM-008/GO-LIVE-P0.md`
