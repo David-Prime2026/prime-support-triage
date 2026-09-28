@@ -1,9 +1,19 @@
 # Backend request — split-load pickup address is wrong
 
-**Channel:** wmg-backend / live WMG  
+**DR-015 WMG packet** (needs WMG edge function and/or operator click)
+
+```
+Surface: qcefkox | Wmsosv2 | both
+Tickets: 5dc41a1a-6810-4f03-a040-2972852345f2
+Already live on apxbwdx: none (split-load is WMG)
+Exact change (RPC / function / file + behavior): split-load children copy location default_pickup_location, not parent/chain address. Click first if that parent pickup is simply wrong.
+Proof of done: one real split; each child memo shows the store pickup; close 5dc41a1a
+Out of scope: Gmail intake, CO PDFs, desk UI, Omaha/Wichita rediscovery, diagnose deploy
+```
+
+**Channel:** operator wmg-backend / Wmsosv2  
 **Date:** 2026-09-28  
 **Authority:** PRIME — treat as a bug, not a change order  
-**Ticket:** `5dc41a1a-6810-4f03-a040-2972852345f2` (Alisa, 2026-09-23, Seller Accounts, still `awaiting_approval`)  
 **Desk handoff:** `9b26ae07-8230-4529-a5d6-9bad830ad872` (pending)  
 **Customer fact still missing:** which load / seller / correct vs shown pickup (Alisa draft asks for one example)
 

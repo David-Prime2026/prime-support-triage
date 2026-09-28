@@ -1,8 +1,8 @@
-# Backend channel (wmg-backend / live WMG)
+## Asking operator (WMG work)
 
-When CS cannot ship (no OS session, no `split-load` / embed deploy from this VM), write **request / audit / recommendations** under `BACKEND-REQUESTS/` and stop. PRIME approves; backend executes. Never `qcefkoxqkfwnlqfmwzmi` schema.
+Only if the change needs WMG schema, a WMG edge function, or the live Wmsosv2 embed.
 
-Current packets: [`BACKEND-REQUESTS/README.md`](./BACKEND-REQUESTS/README.md).
+One packet. Path: `BACKEND-REQUESTS/<NAME>.md` — see [`BACKEND-REQUESTS/README.md`](./BACKEND-REQUESTS/README.md).
 
 # Handoff A — external quoting packages
 
