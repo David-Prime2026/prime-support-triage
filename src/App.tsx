@@ -25,6 +25,7 @@ import {
   sortCsQueue,
   pageContextFromTicket,
   prediagnosisFromTicket,
+  ticketCodeLabel,
 } from "./lib/supabase";
 import {
   buildDispatchPayload,
@@ -384,6 +385,7 @@ export default function App() {
   const [promoteToKb, setPromoteToKb] = useState(false);
   const [filters, setFilters] = useState<FilterChip[]>([]);
   const [queueSort, setQueueSort] = useState<QueueSort>("priority_fifo");
+  const [ticketQuery, setTicketQuery] = useState("");
   const [nowTick, setNowTick] = useState(Date.now());
   const [noteDraft, setNoteDraft] = useState("");
   const [deskRole, setDeskRole] = useState<DeskAuthorRole>("rep");
@@ -555,6 +557,21 @@ export default function App() {
     // Ambiguous nav keeps its lane bias; otherwise apply CS queue sort
     if (nav !== "ambiguous") {
       list = applyQueueSort(list, queueSort);
+    }
+    const q = ticketQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter((t) => {
+        const bug = (t.human_override as { bug_id?: string } | null)?.bug_id || "";
+        return (
+          (t.ticket_number || t.ticket_code || "").toLowerCase().includes(q) ||
+          t.id.toLowerCase().includes(q) ||
+          bug.toLowerCase().includes(q) ||
+          (t.requester_email || "").toLowerCase().includes(q) ||
+          (t.requester_name || "").toLowerCase().includes(q) ||
+          (t.ai_summary || "").toLowerCase().includes(q) ||
+          (t.raw_message || "").toLowerCase().includes(q)
+        );
+      });
     }
     return list;
   }, [ticketsWithCaseLog, nav, filters, me, nowTick, queueSort]);
@@ -1665,6 +1682,16 @@ export default function App() {
         {showTicketList && (
           <div className="px-4 pt-3 flex flex-wrap items-center gap-2">
             <label className="text-[11px] text-slate-400 flex items-center gap-1.5 mr-2">
+              Find
+              <input
+                value={ticketQuery}
+                onChange={(e) => setTicketQuery(e.target.value)}
+                placeholder="WMG-2026-09-039"
+                className="rounded border bg-slate-900 text-slate-200 text-[11px] px-2 py-1 w-44 font-mono"
+                style={{ borderColor: PRIME.border }}
+              />
+            </label>
+            <label className="text-[11px] text-slate-400 flex items-center gap-1.5 mr-2">
               Queue
               <select
                 value={queueSort}
@@ -1763,6 +1790,14 @@ export default function App() {
                         aria-hidden
                       />
                       <div className="flex items-center gap-1.5 mb-1.5 flex-wrap pl-1">
+                        <span className="text-[11px] font-mono font-semibold text-sky-200">
+                          {ticketCodeLabel(t)}
+                        </span>
+                        {(t.human_override as { bug_id?: string } | null)?.bug_id && (
+                          <span className="text-[11px] font-mono text-slate-400">
+                            {(t.human_override as { bug_id: string }).bug_id}
+                          </span>
+                        )}
                         <span
                           className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${priorityBadge(bricelyPx)}`}
                           title="Bricely suggested type (Px)"
@@ -1882,6 +1917,12 @@ export default function App() {
                             "Ticket detail"}
                         </h2>
                         <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                          <dt style={{ color: PRIME.muted }}>Number</dt>
+                          <dd className="text-slate-100 font-mono">{ticketCodeLabel(selected)}</dd>
+                          <dt style={{ color: PRIME.muted }}>Id</dt>
+                          <dd className="text-slate-400 font-mono truncate" title={selected.id}>
+                            {selected.id}
+                          </dd>
                           <dt style={{ color: PRIME.muted }}>Opened by</dt>
                           <dd className="text-slate-100 truncate">{requesterLabel(selected)}</dd>
                           <dt style={{ color: PRIME.muted }}>Came in from</dt>

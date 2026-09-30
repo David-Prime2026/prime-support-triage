@@ -2,6 +2,7 @@
 
 | Area | State | Notes |
 |------|-------|-------|
+| Desk `ticket_number` | **this merge** | List, Find, and detail show live `ticket_number`. Do not re-apply SQL. |
 | DR-015 | **IN FORCE** | Support ship rules. Completeness = this repo + `main`. Deploy = `apxbwdxszmdffbduhjen`. Nested `wmg-backend/support-triage` is a freeze. |
 | Backlog | **DRAINED** | 0 awaiting_approval. 329 / 7b80 / af441 closed. Open: `9f2ca521` (live F$ + diagnose behind), `08a999c0` (reassign drop-in pushed, unproven live), `5dc41a1a` (code live; Alisa example draft) |
 | DR-010 | **CLOSED** | Stages 0–7 |
@@ -23,4 +24,4 @@ Never `db push` / `apply_migration` / `deploy_edge_function` against `qcefkoxqkf
 CS schema stays on the isolated support project. Not applied to WMG OS production.
 
 ## Phase 2 (CS repo — maturation)
-Notes, SLA, COs on this repo. Integrate stack is on `main` (PR #7). Remaining live WMG work is `handoffs/BACKEND-REQUESTS/WMG-CURRENT-STATE.md`. `email-intake` is still 404 on apx until deployed with `SUPABASE_ACCESS_TOKEN`.
+Notes, SLA, COs on this repo. Integrate stack is on `main` (PR #7). Remaining live WMG work is `handoffs/BACKEND-REQUESTS/WMG-CURRENT-STATE.md`. `email-intake` is **parked** — Bricely owns mail. Do not wait on it. Numbering is live on apx; this VM stays git-only (no token unless later apx-only for other schema).
