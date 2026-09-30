@@ -239,6 +239,11 @@ function stateLabel(t: Ticket): string {
   return t.status.replace(/_/g, " ");
 }
 
+/** First UUID group — the number we already say out loud (a282b3e2). */
+function ticketNo(id: string): string {
+  return (id.split("-")[0] || id).toLowerCase();
+}
+
 /** Visual state for list cards — resolved/closed must not look active. */
 function ticketCardVisual(t: Ticket): {
   bg: string;
@@ -1764,6 +1769,12 @@ export default function App() {
                       />
                       <div className="flex items-center gap-1.5 mb-1.5 flex-wrap pl-1">
                         <span
+                          className="text-[11px] font-mono font-semibold tabular-nums text-slate-200"
+                          title={t.id}
+                        >
+                          {ticketNo(t.id)}
+                        </span>
+                        <span
                           className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${priorityBadge(bricelyPx)}`}
                           title="Bricely suggested type (Px)"
                         >
@@ -1876,12 +1887,19 @@ export default function App() {
                           )}
                         </div>
                         <h2 className="text-lg font-semibold">
+                          <span className="font-mono text-base text-slate-300 mr-2" title={selected.id}>
+                            {ticketNo(selected.id)}
+                          </span>
                           {pred.exactIssue ||
                             selected.ai_summary ||
                             selected.raw_message.slice(0, 120) ||
                             "Ticket detail"}
                         </h2>
                         <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                          <dt style={{ color: PRIME.muted }}>Ticket</dt>
+                          <dd className="text-slate-100 font-mono tabular-nums" title={selected.id}>
+                            {ticketNo(selected.id)}
+                          </dd>
                           <dt style={{ color: PRIME.muted }}>Opened by</dt>
                           <dd className="text-slate-100 truncate">{requesterLabel(selected)}</dd>
                           <dt style={{ color: PRIME.muted }}>Came in from</dt>
