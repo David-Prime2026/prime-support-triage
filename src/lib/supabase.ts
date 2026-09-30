@@ -62,7 +62,21 @@ export type Ticket = {
   created_at: string;
   updated_at: string;
   is_mock?: boolean | null;
+  /** Public number live on apx, e.g. WMG-2026-09-039. UUID remains id. */
+  ticket_number?: string | null;
+  /** Unused on live apx. Desk may fall back if a kernel copy used this name. */
+  ticket_code?: string | null;
+  ticket_seq?: number | null;
 };
+
+/** Desk label. Live column is ticket_number. Never use a UUID prefix. */
+export function ticketCodeLabel(
+  t: { ticket_number?: string | null; ticket_code?: string | null } | null | undefined,
+): string {
+  const code = (t?.ticket_number || t?.ticket_code || "").trim();
+  if (code) return code;
+  return "Unnumbered";
+}
 
 /** Internal Cursor desk messages (ticket_messages.channel = admin). Not customer chat. */
 export type DeskAuthorRole = "rep" | "eng" | "cursor" | "system";
