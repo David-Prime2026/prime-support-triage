@@ -1,10 +1,24 @@
 # Support ship rules
 
-**In force:** DR-CS-PLATFORM-015 (2026-09-28)
+**In force:** DR-CS-PLATFORM-015 (2026-09-28) · CS↔ENG handshake (2026-09-30)
 
 You: **support lane**. Not you: WMG main, `qcefkoxqkfwnlqfmwzmi`, Bricely mail from operator.
 
 This file lives at the root of `David-Prime2026/prime-support-triage` and in `.cursor/rules/`. Do **not** keep a second live copy under `wmg-backend/support-triage`.
+
+---
+
+## CS ↔ ENG handshake
+
+**In force:** 2026-09-30. Housekeeping. PRIME A approved.
+
+CS home is `#wmg-support` (`C0C5SPDQX0R`). Requests stay there.
+
+`#wmg-main` (`C0C5JJKT90B`) is a doorbell only: `wake main | ticket:… | needs ENG`. A doorbell is not approved work. Run the ping only when the line says `execute` and `PRIME A approved`. A `needs ENG` ping waits for PRIME A.
+
+Reply in `#wmg-support`, addressed to Bricely Escobar (`U0C5P2DD0NS`): `wake support | housekeeping | shipped` (or `blocked`). Later execute pings use the same pattern, with the doorbell scope in the middle slot.
+
+No customer PII in either channel. No OS prod from CS (`qcefkoxqkfwnlqfmwzmi`, live Wmsosv2).
 
 ---
 
@@ -83,3 +97,5 @@ Stop rediscovering Omaha / Wichita / release-09 as WMG packets. Those are operat
 - “Merge CS into wmg-backend so it is live.”
 - “Widget is live because diagnose returned 200.”
 - Six draft PRs, no stack, asking operator to find the hole.
+- Treating a `#wmg-main` doorbell (`needs ENG`) as already-approved work.
+- Putting a CS request in `#wmg-main` instead of `#wmg-support`.
