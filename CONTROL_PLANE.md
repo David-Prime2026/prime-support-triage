@@ -1,3 +1,13 @@
+## SLACK — CS lane channel — 2026-09-30 — **WAITING ENG**
+
+Asked WMG ENG in `#wmg-main` to approve a dedicated channel for this support lane. Proposal: use existing empty `#wmg-support`. Do not create another channel until they approve.
+
+Post: https://primeagnets.slack.com/archives/C0C5JJKT90B/p1790789172014699
+
+Never qcefkox. Do not email Skip.
+
+---
+
 ## TICKET NUMBERS — purge mocks · WMG-YYYY-MM-nnn — 2026-09-30 — **IN FORCE**
 
 PRIME: number **real** tickets only. Purge `is_mock`. Format **`WMG-2026-09-022`** (client + year + month + monthly seq). UUID stays PK.
