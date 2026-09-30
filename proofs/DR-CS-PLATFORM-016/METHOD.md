@@ -44,7 +44,7 @@ You: **support lane**. Completeness = this repo’s PRs + `main`. Deploy = `apxb
 
 Support sends mail from `bricely@prime-timesystems.com` only when the desk says send. Operator does not email Skip / Jessica / Alisa / Bricely threads. Do not auto-send backend packets. One WMG packet format in `handoffs/BACKEND-REQUESTS/`. Diagnose 200 is not a live widget. Never `db push` / `deploy_edge_function` against `qcefkoxqkfwnlqfmwzmi`.
 
-Stay on the named ticket. Catch-net appends; it does not stand a duplicate (`2e93c665` was the fail). Ticket numbers are a later lift — do not badge UUID prefixes.
+Stay on the named ticket. Catch-net appends; it does not stand a duplicate (`2e93c665` was the fail). `ticket_number` is live on apx — show it on the desk; do not re-apply; do not badge UUID prefixes. This VM is git-only (no token unless later apx-only for other schema). Do not wait on `email-intake`.
 
 ---
 
@@ -80,7 +80,7 @@ Grok does not Approve or Resolve unless PRIME says. Hard-refresh the console if 
 
 REST fallback: `https://apxbwdxszmdffbduhjen.supabase.co/rest/v1/` with `Accept-Profile: support`. Anon key lives with the hosted console / `proofs/OPS-BACKLOG-RETIRE/close.py`. Never qcefkox.
 
-Functions on apx: `intake-ticket`, `bricely-diagnose` (live). `email-intake` **404**. `process-ticket-ai` **500** (model not_found).
+Functions on apx: `intake-ticket`, `bricely-diagnose` (live). `email-intake` **parked** (Bricely owns mail). `process-ticket-ai` **500** (model not_found). `ticket_number` live 50/50 (`WMG-YYYY-MM-NNN`).
 
 ---
 
@@ -88,14 +88,14 @@ Functions on apx: `intake-ticket`, `bricely-diagnose` (live). `email-intake` **4
 
 | Ticket | Do |
 |---|---|
-| `a282b3e2` | **Wait on Jessica.** Prod v7 / `3503e55` shipped. Mailed 12:54Z. Close only when she sees 3636 N Oliver filled |
+| `a282b3e2` / `WMG-2026-09-039` | **resolved** PRIME. Do not reopen |
 | `5dc41a1a` | Split-load proof. Alisa example. Draft `r722570217650437097` unsent |
 | `08a999c0` | One live `reassign-buyer` success toast |
 | `9f2ca521` | Canned widget catch. Later asset dropped `catch{_t=F$`. Reopen only if users hit the loop |
 | `87b47aae` `3297801d` `7b807646` `af441aa2` | Done. Skip leftover is product. **Do not email Skip** |
 | `2e93c665` | Duplicate. Stay on `a282b3e2` |
 
-CS maturation (not WMG packets): email-intake deploy on apx; process-ticket-ai model; Phase 2 desk (notes / SLA / COs); ticket-number lift.
+CS maturation (not WMG packets): desk `ticket_number`; keep SQL in git; tenant-two isolation on current apx (PORT-SHAPE); process-ticket-ai model; Phase 2 desk. Do not wait on email-intake. Do not stand a second Supabase project yet.
 
 Mail: Jessica apology **SENT**. Alisa first split-load **SENT**. Alisa waiting-on-example **DRAFT**. Julie how-to hold (Omaha resolved).
 
@@ -107,7 +107,8 @@ Mail: Jessica apology **SENT**. Alisa first split-load **SENT**. Alisa waiting-o
 - Do not email Skip.
 - Do not mail Jessica again unless she replies empty or PRIME says send.
 - Do not auto-notify backend.
-- Do not invent ticket numbers.
+- Do not invent ticket numbers. Do not re-apply live numbering.
+- Do not drop `SUPABASE_ACCESS_TOKEN` unless apx-only scoped. Never qcefkox token.
 - Customer-facing copy: no SLA / billable / contract words.
 - Unsure → ask PRIME. Do not tunnel.
 

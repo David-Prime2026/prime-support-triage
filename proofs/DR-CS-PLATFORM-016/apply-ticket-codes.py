@@ -1,50 +1,32 @@
 #!/usr/bin/env python3
-"""Apply ticket codes + purge mocks on apxbwdx only.
+"""Refuses to apply. Numbering is already live on apxbwdx.
 
-Requires SUPABASE_ACCESS_TOKEN (personal or scoped). Never qcefkox.
+PRIME 2026-09-30: do not re-apply from this VM. That duplicates work.
+Keep this machine git-only. Do not drop SUPABASE_ACCESS_TOKEN here unless it
+is scoped to apxbwdx only. Never a qcefkox token.
 
-  SUPABASE_ACCESS_TOKEN=sbp_… python3 proofs/DR-CS-PLATFORM-016/apply-ticket-codes.py
+Desk shows ticket_number. SQL stays in prime-support-triage as a kernel copy.
 """
 from __future__ import annotations
 
-import json
-import os
 import sys
-import urllib.error
-import urllib.request
-from pathlib import Path
 
-REF = "apxbwdxszmdffbduhjen"
-FORBIDDEN = "qcefkoxqkfwnlqfmwzmi"
-SQL_PATH = Path(__file__).resolve().parents[2] / "supabase/migrations/20260930155607_ticket_codes_purge_mocks.sql"
+MESSAGE = """refusing: ticket_number is already live on apxbwdx.
+
+Do not re-apply supabase/migrations/20260930155607_ticket_codes_purge_mocks.sql
+from this VM. That duplicates work.
+
+CS job: show ticket_number on the desk; keep the SQL in git.
+Token: git-only unless later apx-only CLI for OTHER schema. Never qcefkox.
+See proofs/DR-CS-PLATFORM-016/TICKET-NUMBERS.md and
+handoffs/DR-CS-PLATFORM-016/PORT-SHAPE.md.
+"""
 
 
-def main() -> None:
-    token = os.environ.get("SUPABASE_ACCESS_TOKEN", "").strip()
-    if not token:
-        raise SystemExit("Set SUPABASE_ACCESS_TOKEN. Never point this at qcefkox.")
-    sql = SQL_PATH.read_text()
-    if FORBIDDEN in sql.lower():
-        raise SystemExit("refusing: SQL mentions forbidden project")
-    url = f"https://api.supabase.com/v1/projects/{REF}/database/query"
-    body = json.dumps({"query": sql}).encode()
-    req = urllib.request.Request(
-        url,
-        data=body,
-        method="POST",
-        headers={
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        },
-    )
-    try:
-        with urllib.request.urlopen(req) as resp:
-            raw = resp.read()
-            print(resp.status, raw[:2000].decode() if raw else "ok")
-    except urllib.error.HTTPError as e:
-        raise SystemExit(f"{e.code} {e.read().decode()}") from e
+def main() -> int:
+    sys.stderr.write(MESSAGE)
+    return 2
 
 
 if __name__ == "__main__":
-    sys.exit(main() or 0)
+    raise SystemExit(main())

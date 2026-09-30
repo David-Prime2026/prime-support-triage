@@ -1,41 +1,45 @@
-# Ticket numbers — purge mocks, number real only
+# Ticket numbers — live on apx (`ticket_number`)
 
-**Authority:** PRIME 2026-09-30 — number real tickets; purge mocks.  
-**Format:** `{client}-{YYYY}-{MM}-{seq}` → **`WMG-2026-09-022`**  
-**Seq:** per client, per UTC month, 3 digits, never reused. UUID stays PK.
+**Authority:** PRIME 2026-09-30 — numbering already on `apxbwdx`. Do **not** re-apply from this VM.  
+**Live column:** `support.support_tickets.ticket_number`  
+**Format:** `{prefix}-{YYYY}-{MM}-{NNN}` → **`WMG-2026-09-039`** (Jessica)  
+**UUID `id` unchanged.**
 
-## Rules
+Paste / token / port shape: [`handoffs/DR-CS-PLATFORM-016/PORT-SHAPE.md`](../../handoffs/DR-CS-PLATFORM-016/PORT-SHAPE.md)
 
-- Number **real** tickets only (`is_mock` is false).
-- **Purge** mock tickets and mock Bricely threads.
-- Prefix from `clients.ticket_prefix` (WMG). Year and month from `created_at` UTC.
-- New real inserts get the next seq in that month via trigger.
-- Do not apply to `qcefkoxqkfwnlqfmwzmi`.
+## Live (do not redo)
 
-## Apply (apx)
+| Fact | Value |
+|---|---|
+| Project | `apxbwdxszmdffbduhjen` only |
+| Rows numbered | 50 / 50 |
+| New inserts | auto-number |
+| Leftover open mocks | closed (not deleted) |
+| Jessica `a282b3e2` | **`WMG-2026-09-039`** resolved |
+| This VM | git-only. No token for this apply |
 
-```bash
-SUPABASE_ACCESS_TOKEN=sbp_… python3 proofs/DR-CS-PLATFORM-016/apply-ticket-codes.py
-```
+CS job: **show `ticket_number` on the desk** and **keep the SQL in this repo**. Re-applying from this VM duplicates work.
 
-Migration: `supabase/migrations/20260930155607_ticket_codes_purge_mocks.sql`
+Earlier CS mapping that named Jessica `WMG-2026-09-022` and planned a mock purge was **wrong**. Live numbered every row, including mocks, and closed leftover open mocks.
 
-After apply, Jessica (`a282b3e2`) is **`WMG-2026-09-022`**. Desk shows the code; Find box searches it.
+## Token
 
-## Expected backfill (30 real, all 2026-09 UTC)
+Keep this support/dev VM git-only. Do **not** drop a `SUPABASE_ACCESS_TOKEN` here unless it is scoped to `apxbwdx` only. Never put a WMG prod (`qcefkox`) token on this machine.
 
-Mocks to delete: **19**. Next October ticket will be `WMG-2026-10-001`.
+If later CLI apply is needed for *other* `apx` schema — an **apx-only** token then. Not before. Never a WMG token.
 
-| Code | UUID | Status |
-|---|---|---|
-| WMG-2026-09-001 | `64d2b883` | resolved |
-| WMG-2026-09-011 | `08a999c0` | sent_to_engineering |
-| WMG-2026-09-014 | `5dc41a1a` | in_progress |
-| WMG-2026-09-022 | `a282b3e2` | in_progress (Jessica / Wichita) |
-| WMG-2026-09-024 | `87b47aae` | resolved (Omaha) |
-| WMG-2026-09-028 | `9f2ca521` | sent_to_engineering |
-| WMG-2026-09-030 | `2e93c665` | resolved (duplicate Jessica catch-net) |
+`proofs/DR-CS-PLATFORM-016/apply-ticket-codes.py` **refuses to run**. Do not point it at apx.
 
-Full 001–030 assigned in created order among `is_mock = false`.
+## Kernel SQL (repo copy only)
 
-Console UI is on this branch; GitHub Pages still needs a rebuild to show numbers on https://david-prime2026.github.io/prime-support-triage/
+`supabase/migrations/20260930155607_ticket_codes_purge_mocks.sql`
+
+That file is the **kernel copy** (`ticket_number`, prefix, insert trigger). Header says **DO NOT RE-APPLY** to apx. Never apply to `qcefkoxqkfwnlqfmwzmi`.
+
+Tenant two needs its own prefix / `system_name`. See PORT-SHAPE. Do not stand a second Supabase project until tenant-two on current `apx` is proven isolated.
+
+## Desk
+
+Console UI on this branch reads `ticket_number` (list, Find, detail). UUID stays the PK and is shown as Id.
+
+GitHub Pages still needs a rebuild to show numbers on https://david-prime2026.github.io/prime-support-triage/

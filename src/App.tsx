@@ -563,7 +563,7 @@ export default function App() {
       list = list.filter((t) => {
         const bug = (t.human_override as { bug_id?: string } | null)?.bug_id || "";
         return (
-          (t.ticket_code || "").toLowerCase().includes(q) ||
+          (t.ticket_number || t.ticket_code || "").toLowerCase().includes(q) ||
           t.id.toLowerCase().includes(q) ||
           bug.toLowerCase().includes(q) ||
           (t.requester_email || "").toLowerCase().includes(q) ||
@@ -1686,7 +1686,7 @@ export default function App() {
               <input
                 value={ticketQuery}
                 onChange={(e) => setTicketQuery(e.target.value)}
-                placeholder="WMG-2026-09-022"
+                placeholder="WMG-2026-09-039"
                 className="rounded border bg-slate-900 text-slate-200 text-[11px] px-2 py-1 w-44 font-mono"
                 style={{ borderColor: PRIME.border }}
               />
@@ -1790,11 +1790,12 @@ export default function App() {
                         aria-hidden
                       />
                       <div className="flex items-center gap-1.5 mb-1.5 flex-wrap pl-1">
-                        {(t.ticket_code ||
-                          (t.human_override as { bug_id?: string } | null)?.bug_id) && (
-                          <span className="text-[11px] font-mono font-semibold text-sky-200">
-                            {t.ticket_code ||
-                              (t.human_override as { bug_id?: string }).bug_id}
+                        <span className="text-[11px] font-mono font-semibold text-sky-200">
+                          {ticketCodeLabel(t)}
+                        </span>
+                        {(t.human_override as { bug_id?: string } | null)?.bug_id && (
+                          <span className="text-[11px] font-mono text-slate-400">
+                            {(t.human_override as { bug_id: string }).bug_id}
                           </span>
                         )}
                         <span
@@ -1919,6 +1920,12 @@ export default function App() {
                             "Ticket detail"}
                         </h2>
                         <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                          <dt style={{ color: PRIME.muted }}>Number</dt>
+                          <dd className="text-slate-100 font-mono">{ticketCodeLabel(selected)}</dd>
+                          <dt style={{ color: PRIME.muted }}>Id</dt>
+                          <dd className="text-slate-400 font-mono truncate" title={selected.id}>
+                            {selected.id}
+                          </dd>
                           <dt style={{ color: PRIME.muted }}>Opened by</dt>
                           <dd className="text-slate-100 truncate">{requesterLabel(selected)}</dd>
                           <dt style={{ color: PRIME.muted }}>Came in from</dt>

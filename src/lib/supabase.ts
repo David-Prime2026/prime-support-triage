@@ -62,14 +62,18 @@ export type Ticket = {
   created_at: string;
   updated_at: string;
   is_mock?: boolean | null;
-  /** Public number, e.g. WMG-2026-09-022. UUID remains id. */
+  /** Public number live on apx, e.g. WMG-2026-09-039. UUID remains id. */
+  ticket_number?: string | null;
+  /** Unused on live apx. Desk may fall back if a kernel copy used this name. */
   ticket_code?: string | null;
   ticket_seq?: number | null;
 };
 
-/** Desk / mail label. Never use a UUID prefix as the ticket number. */
-export function ticketCodeLabel(t: { ticket_code?: string | null } | null | undefined): string {
-  const code = (t?.ticket_code || "").trim();
+/** Desk / mail label. Live column is ticket_number. Never use a UUID prefix. */
+export function ticketCodeLabel(
+  t: { ticket_number?: string | null; ticket_code?: string | null } | null | undefined,
+): string {
+  const code = (t?.ticket_number || t?.ticket_code || "").trim();
   if (code) return code;
   return "Unnumbered";
 }

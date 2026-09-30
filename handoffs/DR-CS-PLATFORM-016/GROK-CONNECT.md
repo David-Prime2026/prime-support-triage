@@ -19,6 +19,8 @@ Full method: [`proofs/DR-CS-PLATFORM-016/METHOD.md`](../../proofs/DR-CS-PLATFORM
 | **Runtime / isolation** | `proofs/DR-CS-PLATFORM-CURRENT-STATE.md` — `apxbwdxszmdffbduhjen` is CS runtime. `qcefkoxqkfwnlqfmwzmi` is WMG OS prod. Never touch qcefkox |
 | **Status board** | `STATUS.md` |
 | **This connect DR** | this file + `proofs/DR-CS-PLATFORM-016/METHOD.md` |
+| **Ticket numbers** | Live `ticket_number` on apx. `proofs/DR-CS-PLATFORM-016/TICKET-NUMBERS.md`. Do not re-apply |
+| **Port shape** | `handoffs/DR-CS-PLATFORM-016/PORT-SHAPE.md` — tenant two on same apx, not a second project |
 
 You are **support lane**. You are not WMG main, not `qcefkox`, not operator Bricely mail.
 
@@ -31,7 +33,7 @@ You are **support lane**. You are not WMG main, not `qcefkox`, not operator Bric
 | `CONTROL_PLANE.md` | Operating memory. Prepend when something is in force. Do not rewrite history below |
 | `SUPPORT_SHIP_RULES.md` | Charter. Do not copy under `wmg-backend/support-triage` |
 | `src/` | Support **desk / console** (Vite). Live: GitHub Pages |
-| `supabase/functions/` | CS edge: `bricely-diagnose`, `intake-ticket`, `email-intake`, `process-ticket-ai`, `bricely-thread` — deploy **apx only** |
+| `supabase/functions/` | CS edge: `bricely-diagnose`, `intake-ticket`, `process-ticket-ai`, `bricely-thread` — deploy **apx only**. `email-intake` parked |
 | `handoffs/BACKEND-REQUESTS/` | WMG packets. Write here. **Do not auto-send to backend** |
 | `handoffs/FIX-SELLER-DEFAULT-PICKUP/` | Wichita pickup = send-from location (ticket `a282b3e2`) |
 | `handoffs/DR-CS-PLATFORM-008/` | Diagnose / widget go-live (`wCe.remote.ts`) |
@@ -53,8 +55,10 @@ Nested `wmg-backend/support-triage` is a **freeze**. Completeness is **this repo
 4. Mail: Support sends from `bricely@prime-timesystems.com` **only when the desk says send**. Do not ask operator to email Skip, Jessica, Alisa, or Bricely threads. Do not email Skip.
 5. Customer language: polite, non-technical. No SLA / billable / contract words.
 6. Log work on the ticket (`ticket_messages` channel=`admin`, `author_role`=`cursor`) and in `CONTROL_PLANE.md`.
-7. Ticket **numbers** are a product lift. Do not add UUID-prefix badges. Tickets are UUIDs (`a282b3e2-…`).
+7. Ticket **numbers** are live on apx as `ticket_number` (`WMG-YYYY-MM-NNN`). Show that column on the desk. UUID stays `id`. Do **not** re-apply SQL from this VM. Do not badge UUID prefixes.
 8. Stack git on this lane. Merge CS `main` only. Never merge into `wmg-backend` / `Wmsosv2`.
+9. This VM is **git-only**. No `SUPABASE_ACCESS_TOKEN` unless later apx-only for *other* schema. Never a `qcefkox` token.
+10. Do **not** wait on `email-intake`. Bricely owns mail. Parked.
 
 **Fail examples:** “pull WMG main to get diagnose.” “merge CS into wmg-backend so it is live.” “widget is live because diagnose returned 200.” Six sibling draft PRs as the copy path. Looking in retired branches for a live customer ticket.
 
@@ -81,7 +85,7 @@ Nested `wmg-backend/support-triage` is a **freeze**. Completeness is **this repo
 
 **Intake:** `https://apxbwdxszmdffbduhjen.supabase.co/functions/v1/intake-ticket`  
 **Diagnose:** `…/functions/v1/bricely-diagnose`  
-**email-intake:** still **404** on apx. Catch-net must **append** the existing ticket, not stand a new one.
+**email-intake:** **parked.** Bricely already owns mail. Do not wait on it. Catch-net must **append** the existing ticket, not stand a new one. Desk shows `ticket_number` (Jessica = `WMG-2026-09-039`).
 
 ---
 
@@ -102,7 +106,7 @@ Do not rediscover Omaha, Lane County pricing, Foundry, or release-09.
 
 Graveyard: `proofs/OPS-BACKLOG-RETIRE/2026-09-28.md`. Smoke / OPEN-TEST / DR proofs are retired.
 
-**CS holes (this repo, not WMG packets):** `email-intake` 404; `process-ticket-ai` 500 (Anthropic model not_found). Ticket numbers: `WMG-YYYY-MM-nnn` — `proofs/DR-CS-PLATFORM-016/TICKET-NUMBERS.md`.
+**CS holes (this repo, not WMG packets):** desk must show live `ticket_number`; `process-ticket-ai` 500 (Anthropic model not_found). `email-intake` parked (Bricely owns mail). Port shape: `handoffs/DR-CS-PLATFORM-016/PORT-SHAPE.md`.
 
 **Mail ledger:** `proofs/OPS-JESSICA-ALISA-EMAILS/DRAFTS.md`
 
@@ -121,8 +125,8 @@ Graveyard: `proofs/OPS-BACKLOG-RETIRE/2026-09-28.md`. Smoke / OPEN-TEST / DR pro
 ## 6. First moves on connect
 
 1. Checkout `cursor/jessica-wichita-empty-ac30`. Pull.
-2. Read `CONTROL_PLANE.md` (top) + this file.
-3. Open the console. Open ticket `a282b3e2`. Read Cursor desk notes.
-4. Do **not** mail Jessica again unless she replies empty, or PRIME says send.
-5. Do **not** close `a282b3e2` until she says the pickup box is filled.
-6. Next live customer wait: Jessica confirm. Next unsent draft: Alisa split-load example (desk must say send).
+2. Read `CONTROL_PLANE.md` (top) + this file + `handoffs/DR-CS-PLATFORM-016/PORT-SHAPE.md`.
+3. Open the console. Tickets show `ticket_number` (Jessica `a282b3e2` = `WMG-2026-09-039`, **resolved**). UUID stays `id`.
+4. Do **not** re-apply numbering SQL. Do **not** put a token on this VM for that apply.
+5. Do **not** mail Jessica again unless she writes, or PRIME says send.
+6. Do **not** wait on `email-intake`. Next unsent draft: Alisa split-load example (desk must say send).

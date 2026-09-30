@@ -1,9 +1,13 @@
--- DR-CS-PLATFORM-016 follow-on — public ticket numbers
+-- KERNEL COPY — already live on apxbwdxszmdffbduhjen (2026-09-30).
+-- DO NOT RE-APPLY to apx. Re-applying from this VM duplicates work.
 -- Isolated support schema ONLY. NEVER apply to qcefkoxqkfwnlqfmwzmi.
 --
--- Format: {client_prefix}-{YYYY}-{MM}-{seq}  e.g. WMG-2026-09-022
--- Seq is per client per UTC month, real tickets only.
--- Purge is_mock tickets. Do not number mocks.
+-- Live column is ticket_number (not ticket_code).
+-- Format: {client_prefix}-{YYYY}-{MM}-{NNN}  e.g. WMG-2026-09-039
+-- Seq is per client per UTC month. UUID id unchanged.
+-- Live: 50/50 rows numbered, new inserts auto-number, leftover open mocks closed.
+-- Tenant two needs its own prefix / system_name. See
+-- handoffs/DR-CS-PLATFORM-016/PORT-SHAPE.md.
 
 ALTER TABLE support.clients
   ADD COLUMN IF NOT EXISTS ticket_prefix text;
@@ -24,14 +28,17 @@ ALTER TABLE support.clients
   ALTER COLUMN ticket_prefix SET NOT NULL;
 
 ALTER TABLE support.support_tickets
-  ADD COLUMN IF NOT EXISTS ticket_code text;
+  ADD COLUMN IF NOT EXISTS ticket_number text;
 
 ALTER TABLE support.support_tickets
   ADD COLUMN IF NOT EXISTS ticket_seq integer;
 
--- Child rows cascade. Threads that pointed at mock tickets get open_ticket_id nulled.
-DELETE FROM support.support_tickets WHERE is_mock IS TRUE;
-DELETE FROM support.bricely_threads WHERE is_mock IS TRUE;
+-- Live apx closed leftover open mocks; it did not delete numbered mock rows.
+UPDATE support.support_tickets
+SET status = 'closed'
+WHERE is_mock IS TRUE
+  AND status IS DISTINCT FROM 'closed'
+  AND status IS DISTINCT FROM 'resolved';
 
 CREATE OR REPLACE FUNCTION support.ticket_period_utc(ts timestamptz)
 RETURNS text
@@ -41,7 +48,7 @@ AS $$
   SELECT to_char(ts AT TIME ZONE 'UTC', 'YYYY-MM');
 $$;
 
-CREATE OR REPLACE FUNCTION support.assign_ticket_code()
+CREATE OR REPLACE FUNCTION support.assign_ticket_number()
 RETURNS trigger
 LANGUAGE plpgsql
 AS $$
@@ -50,9 +57,7 @@ DECLARE
   ym text;
   next_seq int;
 BEGIN
-  IF NEW.is_mock IS TRUE THEN
-    NEW.ticket_code := NULL;
-    NEW.ticket_seq := NULL;
+  IF NEW.ticket_number IS NOT NULL AND btrim(NEW.ticket_number) <> '' THEN
     RETURN NEW;
   END IF;
 
@@ -77,23 +82,23 @@ BEGIN
   INTO next_seq
   FROM support.support_tickets t
   WHERE t.client_id = NEW.client_id
-    AND t.is_mock IS NOT TRUE
     AND support.ticket_period_utc(t.created_at) = ym
     AND t.id IS DISTINCT FROM NEW.id;
 
   NEW.ticket_seq := next_seq;
-  NEW.ticket_code := prefix || '-' || ym || '-' || lpad(next_seq::text, 3, '0');
+  NEW.ticket_number := prefix || '-' || ym || '-' || lpad(next_seq::text, 3, '0');
   RETURN NEW;
 END;
 $$;
 
 DROP TRIGGER IF EXISTS support_tickets_assign_code ON support.support_tickets;
-CREATE TRIGGER support_tickets_assign_code
+DROP TRIGGER IF EXISTS support_tickets_assign_number ON support.support_tickets;
+CREATE TRIGGER support_tickets_assign_number
   BEFORE INSERT ON support.support_tickets
   FOR EACH ROW
-  EXECUTE FUNCTION support.assign_ticket_code();
+  EXECUTE FUNCTION support.assign_ticket_number();
 
--- Backfill remaining real tickets in created order, per client per month.
+-- Backfill already ran on apx (50/50). Kept here as kernel copy only.
 WITH numbered AS (
   SELECT
     t.id,
@@ -105,28 +110,28 @@ WITH numbered AS (
     ) AS seq
   FROM support.support_tickets t
   JOIN support.clients c ON c.id = t.client_id
-  WHERE t.is_mock IS NOT TRUE
+  WHERE t.ticket_number IS NULL OR btrim(t.ticket_number) = ''
 )
 UPDATE support.support_tickets t
 SET
   ticket_seq = n.seq,
-  ticket_code = n.prefix || '-' || n.ym || '-' || lpad(n.seq::text, 3, '0')
+  ticket_number = n.prefix || '-' || n.ym || '-' || lpad(n.seq::text, 3, '0')
 FROM numbered n
 WHERE t.id = n.id;
 
-CREATE UNIQUE INDEX IF NOT EXISTS support_tickets_ticket_code_uidx
-  ON support.support_tickets (ticket_code)
-  WHERE ticket_code IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS support_tickets_ticket_number_uidx
+  ON support.support_tickets (ticket_number)
+  WHERE ticket_number IS NOT NULL;
 
-CREATE INDEX IF NOT EXISTS support_tickets_ticket_code_idx
-  ON support.support_tickets (ticket_code);
+CREATE INDEX IF NOT EXISTS support_tickets_ticket_number_idx
+  ON support.support_tickets (ticket_number);
 
-COMMENT ON COLUMN support.support_tickets.ticket_code IS
-  'Public number: {prefix}-{YYYY}-{MM}-{seq} (real tickets only). UUID remains PK.';
+COMMENT ON COLUMN support.support_tickets.ticket_number IS
+  'Public number: {prefix}-{YYYY}-{MM}-{NNN}. UUID remains PK. Live on apx; do not re-apply.';
 COMMENT ON COLUMN support.clients.ticket_prefix IS
-  'Client code in ticket_code, e.g. WMG.';
+  'Client code in ticket_number, e.g. WMG. Tenant two needs its own prefix.';
 
 GRANT EXECUTE ON FUNCTION support.ticket_period_utc(timestamptz) TO anon, authenticated, service_role;
-GRANT EXECUTE ON FUNCTION support.assign_ticket_code() TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION support.assign_ticket_number() TO anon, authenticated, service_role;
 
 NOTIFY pgrst, 'reload schema';
