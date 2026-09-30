@@ -1,10 +1,12 @@
-## SLACK — CS lane channel — 2026-09-30 — **EXECUTE SENT**
+## SLACK — CS lane channel — 2026-09-30 — **SHIPPED**
 
-CS home: `#wmg-support`. ENG: call `#wmg-main` only.  
-PRIME A approved. Execute doorbell sent to `#wmg-main` (`wake main | housekeeping | execute`). Waiting `wake support | housekeeping | shipped`.
+Main accepted. In force:
 
-- Execute: https://primeagnets.slack.com/archives/C0C5JJKT90B/p1790794253396879  
-- Home log: https://primeagnets.slack.com/archives/C0C5SPDQX0R/p1790794253582089
+1. CS home `#wmg-support`. Requests stay there.
+2. `#wmg-main` doorbell only. `needs ENG` = assess. Execute only `execute` + PRIME A.
+3. Replies land in `#wmg-support`.
+
+Proof: `wake support | housekeeping | shipped` in `#wmg-support`.
 
 Never qcefkox. Do not email Skip.
 
