@@ -91,7 +91,7 @@ Do not rediscover Omaha, Lane County pricing, Foundry, or release-09.
 
 | Ticket | State | What to do |
 |---|---|---|
-| **`a282b3e2`** | **Open until Jessica confirms** | Now **`WMG-2026-09-022`** after number apply. Prod v7 shipped. Mailed 12:54Z. Do not close on ship |
+| **`a282b3e2`** | **resolved** 2026-09-30 PRIME | Wichita pickup. Do not reopen |
 | **`5dc41a1a`** | Open — code live | Split-load store pickup. Waiting Alisa example. Follow-up **DRAFT** `r722570217650437097` — send only if desk says |
 | **`08a999c0`** | Open — unproven live | `reassign-buyer` drop-in in `handoffs/BACKEND-REQUESTS/reassign-buyer/`. Needs one success toast, not “Edge Function..” |
 | **`9f2ca521`** | Open / likely overtaken | Widget canned `F$` catch. Later live asset `index-ByANBu2q.js` had no `catch{_t=F$`. Do not re-litigate unless a user hits canned loop |

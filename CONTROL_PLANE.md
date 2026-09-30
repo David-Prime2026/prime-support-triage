@@ -1,3 +1,21 @@
+## ROLE — CS eng of this project — 2026-09-30 — **IN FORCE**
+
+PRIME: this agent is **dev + support backend** for `prime-support-triage` (this branch / this project). WMG product work is already routed to `#wmg-main`. Do not doorbell main to stay busy.
+
+You build the portable CS kernel here (desk, tickets, diagnose, intake, mail pipe on `apxbwdx`). You do **not** own WMG OS production schema or Wmsosv2 prod deploys. Intent: refine until this lane can port tenant-to-tenant.
+
+Jessica `a282b3e2` **resolved** (PRIME). Next CS build: ticket numbers on the support project.
+
+Never qcefkox.
+
+---
+
+## JESSICA — Wichita pickup — 2026-09-30 — **RESOLVED**
+
+PRIME: case closed. Prod v7 shipped; customer mailed 12:54Z. Desk `a282b3e2` resolved. Do not reopen. Do not ping Jessica unless she writes.
+
+---
+
 ## SLACK — CS lane channel — 2026-09-30 — **SHIPPED**
 
 Main accepted. In force:
@@ -21,7 +39,7 @@ SQL: `supabase/migrations/20260930155607_ticket_codes_purge_mocks.sql`
 Apply apx: `SUPABASE_ACCESS_TOKEN=… python3 proofs/DR-CS-PLATFORM-016/apply-ticket-codes.py`  
 Never qcefkox.
 
-Jessica `a282b3e2` → **WMG-2026-09-022** after apply. Desk Find searches the code. Console Pages needs rebuild.
+Jessica `a282b3e2` **resolved** (PRIME). Numbers still need apx apply + Pages rebuild.
 
 ---
 
