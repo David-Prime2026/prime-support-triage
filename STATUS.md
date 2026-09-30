@@ -2,6 +2,7 @@
 
 | Area | State | Notes |
 |------|-------|-------|
+| DR-016 | **IN FORCE** | Grok connect to `cursor/jessica-wichita-empty-ac30`. `handoffs/DR-CS-PLATFORM-016/GROK-CONNECT.md` |
 | DR-015 | **IN FORCE** | Support ship rules. Completeness = this repo + `main`. Deploy = `apxbwdxszmdffbduhjen`. Nested `wmg-backend/support-triage` is a freeze. |
 | Backlog | **DRAINED** | 0 awaiting_approval. 329 / 7b80 / af441 closed. Open: `9f2ca521` (live F$ + diagnose behind), `08a999c0` (reassign drop-in pushed, unproven live), `5dc41a1a` (code live; Alisa example draft) |
 | DR-010 | **CLOSED** | Stages 0–7 |

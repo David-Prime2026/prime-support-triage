@@ -1,3 +1,17 @@
+## DR-CS-PLATFORM-016 — Grok connect — 2026-09-30 — **IN FORCE**
+
+PRIME: next Grok connects to **this lane**, branch `cursor/jessica-wichita-empty-ac30`. Do not stand a sibling CS lane.
+
+Start here: `handoffs/DR-CS-PLATFORM-016/GROK-CONNECT.md`  
+Method: `proofs/DR-CS-PLATFORM-016/METHOD.md`  
+Charter: `SUPPORT_SHIP_RULES.md` (DR-015) · `CONTROL_PLANE.md` (this file, top down)
+
+Console: https://david-prime2026.github.io/prime-support-triage/
+
+Never qcefkox. Do not email Skip.
+
+---
+
 ## JESSICA INBOUND — process test — 2026-09-30 — **IN FORCE**
 
 PRIME: inbound Bricely mail tests the channel.
