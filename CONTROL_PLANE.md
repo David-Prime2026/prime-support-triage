@@ -1,8 +1,11 @@
-## SLACK — CS lane channel — 2026-09-30 — **WAITING ENG**
+## SLACK — CS lane channel — 2026-09-30 — **WAITING ENG / PRIME**
 
-Asked WMG ENG in `#wmg-main` to approve a dedicated channel for this support lane. Proposal: use existing empty `#wmg-support`. Do not create another channel until they approve.
+CS home: `#wmg-support`. Requests stay there.  
+To speak to ENG: call `#wmg-main` (`wake main | ticket:… | needs ENG`) — doorbell only.  
+Asked ENG in `#wmg-main` to **seek PRIME approval** before executing CS asks, and to reply in `#wmg-support`.
 
-Post: https://primeagnets.slack.com/archives/C0C5JJKT90B/p1790789172014699
+- Home: https://primeagnets.slack.com/archives/C0C5SPDQX0R/p1790792923131689  
+- Doorbell: https://primeagnets.slack.com/archives/C0C5JJKT90B/p1790792923283239
 
 Never qcefkox. Do not email Skip.
 
