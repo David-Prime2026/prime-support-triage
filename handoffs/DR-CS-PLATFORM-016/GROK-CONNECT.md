@@ -91,7 +91,7 @@ Do not rediscover Omaha, Lane County pricing, Foundry, or release-09.
 
 | Ticket | State | What to do |
 |---|---|---|
-| **`a282b3e2`** | **Open until Jessica confirms** | Wichita pickup. Context wipe fixed prod **v7** / git `3503e55`. Mailed 2026-09-30 12:54Z. Wait for her hard-refresh. Do not close on ship. Do not stand a new ticket |
+| **`a282b3e2`** | **Open until Jessica confirms** | Now **`WMG-2026-09-022`** after number apply. Prod v7 shipped. Mailed 12:54Z. Do not close on ship |
 | **`5dc41a1a`** | Open — code live | Split-load store pickup. Waiting Alisa example. Follow-up **DRAFT** `r722570217650437097` — send only if desk says |
 | **`08a999c0`** | Open — unproven live | `reassign-buyer` drop-in in `handoffs/BACKEND-REQUESTS/reassign-buyer/`. Needs one success toast, not “Edge Function..” |
 | **`9f2ca521`** | Open / likely overtaken | Widget canned `F$` catch. Later live asset `index-ByANBu2q.js` had no `catch{_t=F$`. Do not re-litigate unless a user hits canned loop |
@@ -102,7 +102,7 @@ Do not rediscover Omaha, Lane County pricing, Foundry, or release-09.
 
 Graveyard: `proofs/OPS-BACKLOG-RETIRE/2026-09-28.md`. Smoke / OPEN-TEST / DR proofs are retired.
 
-**CS holes (this repo, not WMG packets):** `email-intake` 404; `process-ticket-ai` 500 (Anthropic model not_found). Ticket numbering lift — later, not a badge.
+**CS holes (this repo, not WMG packets):** `email-intake` 404; `process-ticket-ai` 500 (Anthropic model not_found). Ticket numbers: `WMG-YYYY-MM-nnn` — `proofs/DR-CS-PLATFORM-016/TICKET-NUMBERS.md`.
 
 **Mail ledger:** `proofs/OPS-JESSICA-ALISA-EMAILS/DRAFTS.md`
 

@@ -1,3 +1,16 @@
+## TICKET NUMBERS — purge mocks · WMG-YYYY-MM-nnn — 2026-09-30 — **IN FORCE**
+
+PRIME: number **real** tickets only. Purge `is_mock`. Format **`WMG-2026-09-022`** (client + year + month + monthly seq). UUID stays PK.
+
+Ledger: `proofs/DR-CS-PLATFORM-016/TICKET-NUMBERS.md`  
+SQL: `supabase/migrations/20260930155607_ticket_codes_purge_mocks.sql`  
+Apply apx: `SUPABASE_ACCESS_TOKEN=… python3 proofs/DR-CS-PLATFORM-016/apply-ticket-codes.py`  
+Never qcefkox.
+
+Jessica `a282b3e2` → **WMG-2026-09-022** after apply. Desk Find searches the code. Console Pages needs rebuild.
+
+---
+
 ## DR-CS-PLATFORM-016 — Grok connect — 2026-09-30 — **IN FORCE**
 
 PRIME: next Grok connects to **this lane**, branch `cursor/jessica-wichita-empty-ac30`. Do not stand a sibling CS lane.

@@ -25,6 +25,7 @@ import {
   sortCsQueue,
   pageContextFromTicket,
   prediagnosisFromTicket,
+  ticketCodeLabel,
 } from "./lib/supabase";
 import {
   buildDispatchPayload,
@@ -384,6 +385,7 @@ export default function App() {
   const [promoteToKb, setPromoteToKb] = useState(false);
   const [filters, setFilters] = useState<FilterChip[]>([]);
   const [queueSort, setQueueSort] = useState<QueueSort>("priority_fifo");
+  const [ticketQuery, setTicketQuery] = useState("");
   const [nowTick, setNowTick] = useState(Date.now());
   const [noteDraft, setNoteDraft] = useState("");
   const [deskRole, setDeskRole] = useState<DeskAuthorRole>("rep");
@@ -419,7 +421,7 @@ export default function App() {
     setError(null);
     const [{ data, error: qErr }, { data: cos, error: coErr }, { data: box, error: boxErr }] =
       await Promise.all([
-        supabase.from("support_tickets").select("*").order("created_at", { ascending: false }).limit(300),
+        supabase.from("support_tickets").select("*").eq("is_mock", false).order("created_at", { ascending: false }).limit(300),
         supabase.from("change_order_drafts").select("*").order("created_at", { ascending: false }).limit(100),
         supabase
           .from("cursor_staging_outbox")
@@ -556,8 +558,23 @@ export default function App() {
     if (nav !== "ambiguous") {
       list = applyQueueSort(list, queueSort);
     }
+    const q = ticketQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter((t) => {
+        const bug = (t.human_override as { bug_id?: string } | null)?.bug_id || "";
+        return (
+          (t.ticket_code || "").toLowerCase().includes(q) ||
+          t.id.toLowerCase().includes(q) ||
+          bug.toLowerCase().includes(q) ||
+          (t.requester_email || "").toLowerCase().includes(q) ||
+          (t.requester_name || "").toLowerCase().includes(q) ||
+          (t.ai_summary || "").toLowerCase().includes(q) ||
+          (t.raw_message || "").toLowerCase().includes(q)
+        );
+      });
+    }
     return list;
-  }, [ticketsWithCaseLog, nav, filters, me, nowTick, queueSort]);
+  }, [ticketsWithCaseLog, nav, filters, me, nowTick, queueSort, ticketQuery]);
 
   async function invoke(name: string, body: Record<string, unknown>) {
     if (!functionsBase) throw new Error("Missing VITE_SUPABASE_URL");
@@ -1665,6 +1682,16 @@ export default function App() {
         {showTicketList && (
           <div className="px-4 pt-3 flex flex-wrap items-center gap-2">
             <label className="text-[11px] text-slate-400 flex items-center gap-1.5 mr-2">
+              Find
+              <input
+                value={ticketQuery}
+                onChange={(e) => setTicketQuery(e.target.value)}
+                placeholder="WMG-2026-09-022"
+                className="rounded border bg-slate-900 text-slate-200 text-[11px] px-2 py-1 w-44 font-mono"
+                style={{ borderColor: PRIME.border }}
+              />
+            </label>
+            <label className="text-[11px] text-slate-400 flex items-center gap-1.5 mr-2">
               Queue
               <select
                 value={queueSort}
@@ -1763,6 +1790,13 @@ export default function App() {
                         aria-hidden
                       />
                       <div className="flex items-center gap-1.5 mb-1.5 flex-wrap pl-1">
+                        {(t.ticket_code ||
+                          (t.human_override as { bug_id?: string } | null)?.bug_id) && (
+                          <span className="text-[11px] font-mono font-semibold text-sky-200">
+                            {t.ticket_code ||
+                              (t.human_override as { bug_id?: string }).bug_id}
+                          </span>
+                        )}
                         <span
                           className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${priorityBadge(bricelyPx)}`}
                           title="Bricely suggested type (Px)"
@@ -1844,6 +1878,9 @@ export default function App() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="text-sm font-mono font-semibold text-sky-200">
+                            {ticketCodeLabel(selected)}
+                          </span>
                           <span
                             className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${priorityBadge(bricelyPx)}`}
                             title="Bricely suggested type (Px)"

@@ -62,7 +62,17 @@ export type Ticket = {
   created_at: string;
   updated_at: string;
   is_mock?: boolean | null;
+  /** Public number, e.g. WMG-2026-09-022. UUID remains id. */
+  ticket_code?: string | null;
+  ticket_seq?: number | null;
 };
+
+/** Desk / mail label. Never use a UUID prefix as the ticket number. */
+export function ticketCodeLabel(t: { ticket_code?: string | null } | null | undefined): string {
+  const code = (t?.ticket_code || "").trim();
+  if (code) return code;
+  return "Unnumbered";
+}
 
 /** Internal Cursor desk messages (ticket_messages.channel = admin). Not customer chat. */
 export type DeskAuthorRole = "rep" | "eng" | "cursor" | "system";

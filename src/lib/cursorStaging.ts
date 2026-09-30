@@ -42,6 +42,7 @@ export function buildCursorStagingProposal(
     generated_at: new Date().toISOString(),
     approved_by: approvedBy,
     ticket_id: t.id,
+    ticket_code: t.ticket_code ?? null,
     branch: `fix/${shortId}`,
     title: exact.slice(0, 80),
     exact_issue: exact,
