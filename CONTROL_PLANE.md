@@ -1,3 +1,15 @@
+## CS ↔ ENG handshake — 2026-09-30 — **IN FORCE**
+
+Housekeeping. PRIME A approved. Not a product ticket.
+
+CS home is `#wmg-support` (`C0C5SPDQX0R`). Requests stay there. `#wmg-main` (`C0C5JJKT90B`) is a doorbell only (`wake main | ticket:… | needs ENG`). Run only when the line says `execute` and `PRIME A approved`. Reply in `#wmg-support` to Bricely (`U0C5P2DD0NS`): `wake support | housekeeping | shipped` (or `blocked`).
+
+No customer PII. No OS prod from CS.
+
+Files: `SUPPORT_SHIP_RULES.md` · `.cursor/rules/support-ship-rules.mdc`
+
+---
+
 ## DR-CS-PLATFORM-015 — support ship rules — 2026-09-28 — **IN FORCE**
 
 You: support lane. Completeness = this repo’s PRs + `main`. Deploy = `apxbwdxszmdffbduhjen`. WMG live = operator `wmg-backend` / `Wmsosv2` main.
