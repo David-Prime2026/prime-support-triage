@@ -4,17 +4,6 @@ Gmail on `bricely@prime-timesystems.com`. Support sends only when the desk says 
 
 ## Send (approved, still a draft)
 
-### Jessica Wallace — lock: pickup still empty
-
-- **To:** jwallace@goodwillks.org
-- **CC:** david@prime-timesystems.com, alisa@wilsonmarketing.com
-- **Status:** **DRAFT** — send this one (process lock after her 2026-09-30 reply)
-- **Draft:** https://mail.google.com/mail/?authuser=bricely@prime-timesystems.com#all?compose=thread-f:1877602344738173346%2Bmsg-a:r8644542812276871804
-- **id:** `r8644542812276871804` · reply to `1a0f2274adb8f67d`
-- **Ticket:** `a282b3e2` (reopened). Duplicate `2e93c665` closed.
-
-She confirmed the box is still empty. We are fixing the store default fill. Do not ask her to type it as the fix.
-
 ### Alisa — waiting on one split-load example
 
 - **To:** alisa@wilsonmarketing.com
@@ -27,6 +16,17 @@ She confirmed the box is still empty. We are fixing the store default fill. Do n
 Code that stamps store pickup on child loads is already live. Waiting on one real example (seller/location, release/load, pickup shown vs should-be), or confirmation the next split already shows the store address. Ticket `5dc41a1a` stays open until that row.
 
 ## Already sent — do not resend
+
+### Jessica Wallace — apology + pickup should now fill
+
+- **To:** jwallace@goodwillks.org
+- **CC:** david@prime-timesystems.com, alisa@wilsonmarketing.com
+- **Status:** **SENT** 2026-09-30 12:54Z
+- **Thread:** https://mail.google.com/mail/?authuser=bricely@prime-timesystems.com#all/thread-f:1877602344738173346|msg-f:1877761452574688201
+- **id:** `1a0f2617a1a2c3c9` · reply to `1a0f2274adb8f67d`
+- **Ticket:** `a282b3e2` stays open until she sees pickup filled.
+
+Apology: we had fixed a different issue and asked her to check too soon. Thanked her for “still empty.” Her Wichita pickup should now fill after a hard refresh (Ctrl+F5 / Cmd+Shift+R, or close the tab and reopen). Stale lock draft `r8644542812276871804` deleted.
 
 ### Alisa — split-load example + email channel
 

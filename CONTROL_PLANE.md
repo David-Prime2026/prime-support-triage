@@ -3,15 +3,13 @@
 PRIME: inbound Bricely mail tests the channel.
 
 Ledger: `proofs/OPS-JESSICA-EMPTY/2026-09-30.md`  
-Ticket: `a282b3e2` (reopened). Duplicate catch-net `2e93c665` closed.  
-Draft (unsent): Gmail `r8644542812276871804`  
-Correct drop-in: `handoffs/FIX-SELLER-DEFAULT-PICKUP/`
+Ticket: `a282b3e2` **open until Jessica sees pickup filled.** Duplicate `2e93c665` closed.
 
-**Continued error (logged on `a282b3e2`).** She is sending **from** Wichita. Pickup **is** that store (`3636 N Oliver`). We treated this as save a CRM default / last-typed field (`V$` = `default_pickup_location || last_pickup_location`), closed the ticket on that ship, then after “still empty” diagnosed “portal context blank.” Wrong request. Wrong second diagnosis.
+**Shipped (operator):** Wmsosv2 form helper was already on `main`. Hole was context wiping pickup blank. Fixed on `get-seller-portal-context` prod **v7** and git `main` `3503e55` (`fix/jessica-wichita-send-from-pickup`).
 
-Correct: seller New Portal pickup = send-from location address (same source as `list_seller_pickup_locations.location_text` for her bound store). One location → that address. Change location → pickup follows. After submit, reset from that location — not `""`.
+**Customer mail SENT** 2026-09-30 12:54Z from Bricely: apology + thank you for catching the other issue + her pickup should now fill + how to hard-refresh. To Jessica. CC David + Alisa. Thread `1a0e9562738f31a2` msg `1a0f2617a1a2c3c9`. Stale lock draft deleted.
 
-email-intake still 404. Catch-net must append `a282b3e2`, not stand a new ticket. Do not mail Jessica until the desk says send. Do not auto-send backend.
+Hard-refresh and open New Portal as Jessica. Pickup should already be filled. Do not close `a282b3e2` until she confirms.
 
 Never qcefkox. Do not email Skip.
 
