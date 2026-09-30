@@ -23,7 +23,7 @@ Never `qcefkoxqkfwnlqfmwzmi` schema from this repo. Do not email Skip on pricing
 | Item | Ticket | State |
 |---|---|---|
 | Omaha Portals invites (Julie roster) | `87b47aae` | **resolved** 2026-09-25 |
-| Wichita New Portal pickup prefill | `a282b3e2` | **Reopened 2026-09-30.** JS `V$` shipped; Jessica still empty. |
+| Wichita New Portal pickup | `a282b3e2` | **Reopened.** `V$` CRM default was the wrong fix. Pickup = send-from location. See `FIX-SELLER-DEFAULT-PICKUP/`. |
 | Lane County price period + memo/seller search | `3297801d` | **resolved** 2026-09-28 code check — `user-pricing-period`, location-aware seller search |
 | Release numbers follow pricing month | `7b807646` | **resolved** 2026-09-28 — `save-commodity-monthly-pricing` / `memos_applied` |
 | Middle TN / Foundry rows | `af441aa2` | **resolved** 2026-09-28 — ops data, not a Wmsosv2 function |

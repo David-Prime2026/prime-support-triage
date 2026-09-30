@@ -3,13 +3,17 @@
 PRIME: inbound Bricely mail tests the channel.
 
 Ledger: `proofs/OPS-JESSICA-EMPTY/2026-09-30.md`  
-Backend: `handoffs/BACKEND-REQUESTS/JESSICA-PICKUP-STILL-EMPTY.md`  
 Ticket: `a282b3e2` (reopened). Duplicate catch-net `2e93c665` closed.  
-Draft (unsent): Gmail `r8644542812276871804`
+Draft (unsent): Gmail `r8644542812276871804`  
+Correct drop-in: `handoffs/FIX-SELLER-DEFAULT-PICKUP/`
 
-email-intake still 404. Catch-net filed the ticket. Live diagnose still clear-filters her wording until this branch’s `bricely-diagnose` is redeployed. Live widget `index-ByANBu2q.js` has no `catch{_t=F$`; `V$` prefill is live; her box is still empty → portal context blank.
+**Continued error (logged on `a282b3e2`).** She is sending **from** Wichita. Pickup **is** that store (`3636 N Oliver`). We treated this as save a CRM default / last-typed field (`V$` = `default_pickup_location || last_pickup_location`), closed the ticket on that ship, then after “still empty” diagnosed “portal context blank.” Wrong request. Wrong second diagnosis.
 
-Never qcefkox. Do not email Skip. Support sends only when the desk says send.
+Correct: seller New Portal pickup = send-from location address (same source as `list_seller_pickup_locations.location_text` for her bound store). One location → that address. Change location → pickup follows. After submit, reset from that location — not `""`.
+
+email-intake still 404. Catch-net must append `a282b3e2`, not stand a new ticket. Do not mail Jessica until the desk says send. Do not auto-send backend.
+
+Never qcefkox. Do not email Skip.
 
 ---
 
@@ -124,7 +128,7 @@ Users blocked. Bricely missed both (ticket `f206e13f` capture fail; Wichita “I
 
 **Omaha — possible today.** Julie roster on ticket `87b47aae`. Portals `invite-portal-user`: Full = `principal` (Ryan, Dakota, Chris). Partial = `seller` (Julie, Melissa). Remove `mchowdhury@`. Hold accounting@ / roc@. No shared password. Playbook: `handoffs/OMAHA-PORTAL-CONTACTS/README.md`. Operator WMG click — not a CS-repo deploy.
 
-**Wichita pickup — defect.** Alisa already set CRM default; New Portal ignores it. Tickets `a282b3e2` / `c283c80a`. Prefill drop-in: `handoffs/FIX-SELLER-DEFAULT-PICKUP/`. Values: 3636 N Oliver Wichita KS · 8AM–2PM.
+**Wichita pickup — defect.** Pickup is the location she is sending from, not a CRM default. Ticket `a282b3e2`. Drop-in: `handoffs/FIX-SELLER-DEFAULT-PICKUP/`. Wichita send-from: 3636 N Oliver Wichita KS.
 
 Bricely now answers both instead of gauntlet / “feature missing.” Proofs T9/T10/L10/L11.
 

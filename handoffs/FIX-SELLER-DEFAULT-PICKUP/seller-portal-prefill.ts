@@ -1,71 +1,65 @@
 /**
- * Drop-in for WMG seller New Portal (live form GCe).
- * Copy the two helpers into get-seller-portal-context + the load-request form.
- * Do not deploy this file to qcefkox. Staging / Vercel embed only.
+ * Seller New Portal pickup = the location she is sending from.
+ * Ticket a282b3e2. Do not deploy this file to qcefkox.
+ *
+ * Wrong fix (2026-09-25): copy default_pickup_location / last_pickup_location
+ * into the box. Jessica is not asking to save a typed default. She is sending
+ * from Wichita. Pickup is that store.
  */
 
 export type SellerPortalContext = {
   seller_account_id?: string;
-  last_commodity?: string;
+  /** Location she is sending from (bound store / selected send-from). */
+  send_from_location_id?: string | null;
+  send_from_address?: string | null;
+  send_from_name?: string | null;
+  last_commodity?: string | null;
   confirmation_email_events?: {
     buyer_assigned?: boolean;
     pickup?: boolean;
     delivered?: boolean;
   };
-  default_pickup_location?: string | null;
-  last_pickup_location?: string | null;
-  default_shipping_hours?: string | null;
-  last_notes?: string | null;
 };
 
-export function defaultPickupFromContext(ctx?: SellerPortalContext | null): string {
-  return (ctx?.default_pickup_location || ctx?.last_pickup_location || "").trim();
+/** Pickup text: address of the location she is sending from. Nothing else. */
+export function pickupFromSendLocation(ctx?: SellerPortalContext | null): string {
+  const address = (ctx?.send_from_address || "").trim();
+  if (address) return address;
+  return (ctx?.send_from_name || "").trim();
 }
 
-export function defaultNotesFromContext(ctx?: SellerPortalContext | null): string {
-  const hours = (ctx?.default_shipping_hours || "").trim();
-  if (hours) {
-    const stamp = /shipping hours/i.test(hours) ? hours : `SHIPPING HOURS ${hours}`;
-    return stamp;
-  }
-  return (ctx?.last_notes || "").trim();
-}
-
-/** Call from get-seller-portal-context after the seller row is loaded. */
-export function attachPickupDefaults(
+/**
+ * get-seller-portal-context: after the seller row loads, attach the location
+ * she is actually sending from (portal bind / her store). Use that location's
+ * address. Same source as list_seller_pickup_locations.location_text for that store.
+ *
+ * Do not use CRM default_pickup_location / last_pickup as the answer.
+ */
+export function attachSendFromLocation(
   context: SellerPortalContext,
-  sellerRow: {
-    default_pickup_location?: string | null;
-    last_pickup_location?: string | null;
-    default_shipping_hours?: string | null;
-    last_notes?: string | null;
-  },
+  location: {
+    id?: string | null;
+    location_text?: string | null;
+    address?: string | null;
+    name?: string | null;
+  } | null,
 ): SellerPortalContext {
+  const text = (location?.location_text || location?.address || location?.name || "").trim();
   return {
     ...context,
-    default_pickup_location: sellerRow.default_pickup_location ?? context.default_pickup_location ?? null,
-    last_pickup_location: sellerRow.last_pickup_location ?? context.last_pickup_location ?? null,
-    default_shipping_hours: sellerRow.default_shipping_hours ?? context.default_shipping_hours ?? null,
-    last_notes: sellerRow.last_notes ?? context.last_notes ?? null,
+    send_from_location_id: location?.id ?? context.send_from_location_id ?? null,
+    send_from_address: text || null,
+    send_from_name: (location?.name || "").trim() || context.send_from_name || null,
   };
 }
 
 /**
- * In the seller form, replace blank useState("") for pickup (U/Z) and notes (B/W):
+ * Seller form: pickup state = pickupFromSendLocation(ctx).
+ * If she changes send-from location, set pickup to that location's address.
+ * After submit, reset pickup from the current send-from location — not "".
  *
- *   const pickup0 = defaultPickupFromContext(ctx)
- *   const notes0 = defaultNotesFromContext(ctx)
- *   const [U, Z] = useState(pickup0)
- *   const [B, W] = useState(notes0)
- *
- * And in Vs() reset after submit, set Z(defaultPickupFromContext(ce)) and
- * W(defaultNotesFromContext(ce)) instead of Z("") / W("").
- *
- * Goodwill KS expected after bake:
- *   pickup = "3636 N Oliver Wichita KS"
- *   notes  = "SHIPPING HOURS 8AM-2PM"
+ * Jessica / Wichita: sending from that store → pickup is 3636 N Oliver Wichita KS.
  */
-export const GWKS_SEED = {
+export const GWKS_WICHITA = {
   pickup: "3636 N Oliver Wichita KS",
-  shipping_hours: "8AM-2PM",
 };
