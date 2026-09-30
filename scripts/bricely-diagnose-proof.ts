@@ -134,6 +134,34 @@ const proofs: Proof[] = [
     forbid: [/keep entering/i, /starts blank/i, /does not read it/i, /I don't see that/i, /screenshot/i, /billable/i],
   },
   {
+    id: "T12",
+    title: "Send a load — pickup should fill; do not steal into clear-filters",
+    messages: [
+      {
+        role: "user",
+        text: "When you send a load from Wichita the pickup should already be filled. Jessica has to type 3636 N Oliver every time.",
+      },
+    ],
+    expectAction: "answer",
+    require: [/already be filled/i],
+    forbid: [/clear (any )?active filters/i, /which screen/i, /screenshot/i],
+  },
+  {
+    id: "T13",
+    title: "Jessica confirmed pickup still empty — ticket, no filters",
+    messages: [
+      {
+        role: "user",
+        text: "Jessica has to type the pickup address every time she requests a load. It is set and does not work.",
+      },
+      { role: "bricely", text: "Check the pickup box — if it is filled you do not need to type it again." },
+      { role: "user", text: "It is still empty" },
+    ],
+    expectAction: "escalate",
+    require: [/still empty/i, /24 hours/i],
+    forbid: [/clear (any )?active filters/i, /which screen/i, /screenshot/i],
+  },
+  {
     id: "T11",
     title: "Search failed / no dropdown — auto ticket, do not invent UI",
     messages: [
@@ -292,6 +320,28 @@ const liveProofs: LiveProof[] = [
     expectTerminal: "escalate",
     require: [/already be filled/i, /opening a ticket and emailing/i],
     forbid: [/keep entering/i, /starts blank/i, /I don't see that/i, /screenshot/i, /clear any active filters/i],
+  },
+  {
+    id: "L14",
+    title: "Send a load / Wichita pickup fill — ticket, not clear-filters",
+    text: "When you send a load from Wichita the pickup should already be filled. Jessica has to type 3636 N Oliver every time.",
+    expectTerminal: "escalate",
+    require: [/already be filled|opening a ticket/i],
+    forbid: [/clear any active filters/i, /which screen/i, /screenshot/i],
+  },
+  {
+    id: "L15",
+    title: "Jessica: it is still empty — confirmed, ticket",
+    text: "It is still empty",
+    state: {
+      exchanges: 1,
+      phase: "assess",
+      introAcked: true,
+      notes: ["Your Wichita pickup should already be filled — please check"],
+    },
+    expectTerminal: "escalate",
+    require: [/still empty/i],
+    forbid: [/clear any active filters/i, /which screen/i, /screenshot/i],
   },
   {
     id: "L12",

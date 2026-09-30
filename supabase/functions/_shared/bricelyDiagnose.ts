@@ -89,12 +89,13 @@ const LOGIN =
 const VISUAL =
   /\b(missing|blank|overlap|layout|button|icon|css|display|doesn'?t\s+show|not\s+showing|cut\s+off|garbled)\b/i;
 const STALE_OR_FILTER =
-  /\b(load\s*board|loads?|filter|stale|yesterday|old\s+data|not\s+updat|still\s+show|wrong\s+list)\b/i;
+  /\b(load\s*board|filter|stale|yesterday|old\s+data|not\s+updat|still\s+show|wrong\s+list)\b/i;
 const GREETING_ONLY = /^(hi|hey|hello|yo|sup|good\s+(morning|afternoon|evening)|help|help\s+me)[\s!.]*$/i;
 const PORTAL_CONTACTS =
   /\b(primary contacts?|portal (access|user|users|login|invite)|full access|partial access|set (an? )?user|invite .{0,40}(portal|user)|multiple (users|employees).{0,40}(login|log in|username))\b/i;
 const PICKUP_DEFAULT =
-  /\b((pickup|pick-up) (location|address|site)|type.{0,24}(address|pickup).{0,24}every|every time.{0,40}(request|load|pickup)|default pickup|shipping hours|it is set and does not work)\b/i;
+  /\b((pickup|pick-up)(\s+box)?(\s+(location|address|site|field))|(pickup|pick-up).{0,40}(empty|blank|filled|fill)|type.{0,40}every(\s+single)?\s+time|every time.{0,40}(request|load|pickup)|default pickup|shipping hours|it is set and does not work|3636\s+n\s+oliv|(box|field).{0,24}(empty|blank))\b/i;
+const PICKUP_STILL_EMPTY = /\b(it is still empty|still empty|still blank|box is empty)\b/i;
 const SEARCH_FAIL =
   /\b((search|find|look up|pull up).{0,60}(nothing|no results?|empty|can'?t find|cannot find)|no dropdown|there is no dropdown|dropdown after typing)\b/i;
 
@@ -104,6 +105,10 @@ export function isPortalContactsRequest(text: string): boolean {
 
 export function isPickupDefaultRequest(text: string): boolean {
   return PICKUP_DEFAULT.test(text);
+}
+
+export function isPickupStillEmpty(text: string): boolean {
+  return PICKUP_STILL_EMPTY.test(text);
 }
 
 export function portalContactsAnswer(): string {
@@ -301,7 +306,16 @@ export function diagnose(input: DiagnoseInput): DiagnoseResult {
     return finish(state, "answer", portalContactsAnswer(), "portal_contacts_how_to");
   }
 
-  if (facts.pickup_default || PICKUP_DEFAULT.test(latest)) {
+  if (facts.pickup_default || PICKUP_DEFAULT.test(latest) || (PICKUP_STILL_EMPTY.test(latest) && facts.pickup_default)) {
+    if (PICKUP_STILL_EMPTY.test(latest) || /\b(empty|blank|not fill)/i.test(latest)) {
+      return finish(
+        state,
+        "escalate",
+        "The pickup box is still empty. We have this with the team — you should not have to type the store address. You will hear back within 24 hours.",
+        "pickup_empty_confirmed",
+        { escalate: true },
+      );
+    }
     return finish(state, "answer", pickupDefaultAnswer(), "pickup_default_defect");
   }
 

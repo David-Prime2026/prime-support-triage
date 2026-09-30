@@ -23,11 +23,12 @@ Never `qcefkoxqkfwnlqfmwzmi` schema from this repo. Do not email Skip on pricing
 | Item | Ticket | State |
 |---|---|---|
 | Omaha Portals invites (Julie roster) | `87b47aae` | **resolved** 2026-09-25 |
-| Wichita New Portal pickup prefill | `a282b3e2` | **resolved** 2026-09-25 |
+| Wichita New Portal pickup prefill JS | `a282b3e2` | JS shipped 2026-09-25. **Customer still empty 9/30 → `2e93c665`** |
 | Lane County price period + memo/seller search | `3297801d` | **resolved** 2026-09-28 code check — `user-pricing-period`, location-aware seller search |
 | Release numbers follow pricing month | `7b807646` | **resolved** 2026-09-28 — `save-commodity-monthly-pricing` / `memos_applied` |
 | Middle TN / Foundry rows | `af441aa2` | **resolved** 2026-09-28 — ops data, not a Wmsosv2 function |
-| Diagnose 200 + pickup copy v4 + Skip five-line | `9f2ca521` (partial) | **A live.** Remaining is **embed `F$` catch** |
+| Diagnose 200 + pickup copy v4 + Skip five-line | `9f2ca521` (partial) | **A live.** Widget `catch{_t=F$` gone on `index-ByANBu2q.js`. |
+| Wichita pickup still empty (Jessica 9/30) | `2e93c665` | **Open.** `V$` live; portal context blank. See `JESSICA-PICKUP-STILL-EMPTY.md` |
 | Split-load **code** stamps store pickup | `5dc41a1a` (partial) | Function live. Remaining is **one real split proof** |
 
 ---

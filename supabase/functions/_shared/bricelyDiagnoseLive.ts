@@ -12,6 +12,7 @@
 import {
   diagnose,
   isPickupDefaultRequest,
+  isPickupStillEmpty,
   isPortalContactsRequest,
   pickupDefaultAnswer,
   portalContactsAnswer,
@@ -367,7 +368,21 @@ export function diagnoseLiveTurn(input: LiveDiagnoseInput): LiveDiagnoseResult {
     );
   }
 
-  if (isPickupDefaultRequest(text) || isPickupDefaultRequest(notes.join(" "))) {
+  const pickupContext =
+    isPickupDefaultRequest(text) ||
+    isPickupDefaultRequest(notes.join(" ")) ||
+    (isPickupStillEmpty(text) && isPickupDefaultRequest(notes.join(" ")));
+  if (pickupContext) {
+    if (isPickupStillEmpty(text) || /\b(empty|blank|not fill)/i.test(text)) {
+      return liveOut(
+        { ...next, phase: "escalate", screen: next.screen ?? "request" },
+        "The pickup box is still empty. We have this with the team — you should not have to type the store address. You will hear back within 24 hours.",
+        "escalate",
+        "open_ticket",
+        "pickup_empty_confirmed",
+        { cardStatus: "In progress" },
+      );
+    }
     return liveOut(
       { ...next, phase: "escalate", screen: next.screen ?? "request" },
       `${pickupDefaultAnswer()}\n\nI'm opening a ticket and emailing you this so we fix the right thing. You'll hear back within 24 hours.`,
