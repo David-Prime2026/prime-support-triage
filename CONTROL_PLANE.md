@@ -4,7 +4,7 @@ PRIME: inbound Bricely mail tests the channel.
 
 Ledger: `proofs/OPS-JESSICA-EMPTY/2026-09-30.md`  
 Backend: `handoffs/BACKEND-REQUESTS/JESSICA-PICKUP-STILL-EMPTY.md`  
-Ticket: `2e93c665` (do not treat `a282b3e2` as done)  
+Ticket: `a282b3e2` (reopened). Duplicate catch-net `2e93c665` closed.  
 Draft (unsent): Gmail `r8644542812276871804`
 
 email-intake still 404. Catch-net filed the ticket. Live diagnose still clear-filters her wording until this branch’s `bricely-diagnose` is redeployed. Live widget `index-ByANBu2q.js` has no `catch{_t=F$`; `V$` prefill is live; her box is still empty → portal context blank.

@@ -11,7 +11,7 @@ Gmail on `bricely@prime-timesystems.com`. Support sends only when the desk says 
 - **Status:** **DRAFT** — send this one (process lock after her 2026-09-30 reply)
 - **Draft:** https://mail.google.com/mail/?authuser=bricely@prime-timesystems.com#all?compose=thread-f:1877602344738173346%2Bmsg-a:r8644542812276871804
 - **id:** `r8644542812276871804` · reply to `1a0f2274adb8f67d`
-- **Ticket:** `2e93c665`
+- **Ticket:** `a282b3e2` (reopened). Duplicate `2e93c665` closed.
 
 She confirmed the box is still empty. We are fixing the store default fill. Do not ask her to type it as the fix.
 

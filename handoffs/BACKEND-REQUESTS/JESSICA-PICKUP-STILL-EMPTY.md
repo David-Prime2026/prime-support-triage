@@ -2,10 +2,10 @@
 
 ```
 Surface: Wmsosv2 seller New Portal + get-seller-portal-context (not CS diagnose)
-Ticket: 2e93c665 (customer-confirmed 2026-09-30). a282b3e2 was closed on JS prefill — do not treat as done.
+Ticket: a282b3e2 (reopened 2026-09-30). Duplicate catch-net 2e93c665 closed.
 Already live: V$() writes default_pickup_location || last_pickup_location into the pickup box (index-ByANBu2q.js). catch{_t=F$} gone.
 Exact change: Jessica Wallace / Goodwill KS Wichita (3636 N Oliver) must boot New Portal with that pickup filled. If context is blank, stamp CRM default onto portal context for her location.
-Proof of done: Jessica (or a Wichita seller login) opens a new request after hard-refresh and the pickup box is filled. Then close 2e93c665.
+Proof of done: Jessica (or a Wichita seller login) opens a new request after hard-refresh and the pickup box is filled. Then close `a282b3e2`.
 Out of scope: Omaha, Lane County pricing, Foundry, Gmail intake, mailing Skip, qcefkox schema from CS, re-litigating V$ (it is live)
 ```
 

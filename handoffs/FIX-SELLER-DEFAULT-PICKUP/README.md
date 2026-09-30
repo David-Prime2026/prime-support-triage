@@ -6,7 +6,7 @@ Alisa already set the CRM default. Jessica still types `3636 N Oliver Wichita KS
 |---|---|
 | Seller | Goodwill KS · Jessica Wallace `<jwallace@goodwillks.org>` |
 | Proof load | REL-WICH09-05MR0924266 · 3636 N OLIVE · 2026-09-23 seller portal |
-| Tickets | `a282b3e2` (Alisa: “it is set and does not work”) · execute note `c283c80a` |
+| Ticket | `a282b3e2` (Alisa: “it is set and does not work”). Reopened 2026-09-30 after Jessica confirmed still empty. |
 | Values | Pickup `3636 N Oliver Wichita KS` · hours `8AM-2PM` |
 
 ## Root cause (live `index-Bo-k3d31.js`)
@@ -27,4 +27,4 @@ This is a defect. Not “I don’t see that feature.”
 
 Drop-in: [`seller-portal-prefill.ts`](./seller-portal-prefill.ts).
 
-**Shipped 2026-09-25** (ticket `a282b3e2` resolved). Live New Portal prefills from `default_pickup_location` / last pickup. Jessica mail asks her to hard-refresh and confirm the box is filled — she should not retype. Never `qcefkoxqkfwnlqfmwzmi` schema push.
+**Shipped JS 2026-09-25** (`V$` prefill). **Not customer-done.** Jessica 2026-09-30: box still empty. Ticket `a282b3e2` reopened. Never `qcefkoxqkfwnlqfmwzmi` schema push.
