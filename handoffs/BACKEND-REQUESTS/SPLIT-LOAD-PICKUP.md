@@ -62,7 +62,7 @@ No schema push to `qcefkoxqkfwnlqfmwzmi`. Function + prove on one real split.
 
 | Fact | Evidence |
 |---|---|
-| Ticket opened, never worked | `5dc41a1a` status `awaiting_approval`, `resolution_notes` null, created 2026-09-23 17:58Z |
+| Ticket opened, never worked | `5dc41a1a` was `awaiting_approval` with null notes. **2026-09-28:** code path live (`split_load_and_allocate` stamps store pickup). Still open until one real split is proved. |
 | Capture is one sentence | “Send ticket to support to change pickup addrses for split loads it is wrong” |
 | Screen | Seller Accounts |
 | Live product | Button **Split load across multiple buyers**; success copy “Split into N loads — review and send each sales memo.” |

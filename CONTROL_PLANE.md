@@ -1,3 +1,65 @@
+## BACKEND — widget F$ catch — 2026-09-28 night — **IN FORCE**
+
+PRIME: only Wmsosv2 can ship this. Packet: `handoffs/BACKEND-REQUESTS/WIDGET-F-CATCH.md`
+
+Request / audit / fix for `9f2ca521`. Diagnose A is already live. Do not redeploy apx. Never qcefkox. Do not email Skip.
+
+---
+
+## P0 GO-LIVE — all-users blocker — 2026-09-28 night — **IN FORCE**
+
+Card: `handoffs/DR-CS-PLATFORM-008/GO-LIVE-P0.md`
+
+**A. DONE.** `bricely-diagnose` deployed to `apxbwdxszmdffbduhjen`. LIVE Skip five-line **PASS** (no which-screen). Proof: `proofs/DR-CS-PLATFORM-008/skip-replay-after-apx-deploy.md`
+
+**B. STILL OPEN.** Wmsosv2: copy `wCe.remote.ts`; delete `catch { _t = F$ }`. Live asset still `index-DLShFkGa.js` with `catch{_t=F$}`. This is the remaining all-users blocker.
+
+Never `qcefkox`. Do not email Skip. Do not all-users until B proved.
+
+---
+
+## APPROVED 1–4 — 2026-09-28 night — **IN FORCE**
+
+PRIME: 1 approved + replay · 2 ok · 3 fix push · 4 live and awaiting — draft Alisa.
+
+1. **P0 `9f2ca521`.** LOCAL Skip five-line **PASS**. LIVE apx diagnose **FAIL** (T2–T5 which-screen). LIVE widget `index-DLShFkGa.js` still has `catch{_t=F$}`. Playwright: F$ catch still present; live five-line FAIL. This VM cannot deploy (`SUPABASE_ACCESS_TOKEN` unset; no Wmsosv2). Operator: deploy `bricely-diagnose` to `apxbwdx`, copy `wCe.remote.ts`, delete F$ catch, `npm run proof:skip-replay`. Do not email Skip. Ticket stays open.
+2. **OK.** `3297801d` / `7b807646` stay resolved. Skip leftover is product (pricing period + location search).
+3. **`reassign-buyer` fix pushed** as copy path: `handoffs/BACKEND-REQUESTS/reassign-buyer/`. Operator deploys on the WMG functions project (not apx, never qcefkox from this VM). `08a999c0` stays until one success toast (not “Edge Function..”).
+4. **Split-load live and awaiting Alisa’s example.** That is all we can do on `5dc41a1a`. Follow-up **DRAFT** (unsent): `r722570217650437097`. Jessica pickup mail **SENT** 20:45Z.
+
+Proofs: `proofs/DR-CS-PLATFORM-008/skip-replay-2026-09-28.md` · drafts: `proofs/OPS-JESSICA-ALISA-EMAILS/DRAFTS.md`
+
+---
+
+## CODE CHECK — 2026-09-28 evening — **IN FORCE**
+
+Canvas assessment (25 Sep) audited: `proofs/BRICELY-LANE-ASSESSMENT/2026-09-28.md`
+
+Closed on live `index-DLShFkGa.js`: `3297801d` (pricing period + location search) · `7b807646` (release follows pricing month) · `af441aa2` (ops data, not a function).
+
+Still open: `9f2ca521` (widget `F$` catch — P0) · `08a999c0` (`reassign-buyer` unproven) · `5dc41a1a` (split proof). Do not email Skip.
+
+Search-fail auto-ticket + hold-escalate are in this repo (T11/L12/L13). Need apx diagnose deploy.
+
+---
+
+## BACKLOG RETIRE + WMG current state — 2026-09-28 — **IN FORCE**
+
+PRIME: this lane stays. Work already done is approved. Clean the graveyard; remaining live WMG bugs in **one** packet.
+
+- Ledger: `proofs/OPS-BACKLOG-RETIRE/2026-09-28.md`
+- Close script: `proofs/OPS-BACKLOG-RETIRE/close.py`
+- WMG packet: `handoffs/BACKEND-REQUESTS/WMG-CURRENT-STATE.md`
+- Diagnose pickup copy in this repo now matches live v4 (filled box, do not retype)
+- Embed drop-in no longer throws into canned `F$`
+- Gmail: Jessica **SENT** 20:45Z; Alisa first split-load **SENT**; Alisa waiting-on-example **DRAFT** `r722570217650437097`; empty Sept 15 draft deleted
+
+Keep open only: `9f2ca521` (embed `F$` catch) · `08a999c0` (one successful `reassign-buyer`) · `5dc41a1a` (split-load proof)
+
+Never `qcefkoxqkfwnlqfmwzmi`. Skip is only executor on pricing. Do not email Skip.
+
+---
+
 ## DR-CS-PLATFORM-015 — support ship rules — 2026-09-28 — **IN FORCE**
 
 You: support lane. Completeness = this repo’s PRs + `main`. Deploy = `apxbwdxszmdffbduhjen`. WMG live = operator `wmg-backend` / `Wmsosv2` main.

@@ -122,7 +122,7 @@ const proofs: Proof[] = [
   },
   {
     id: "T10",
-    title: "Wichita pickup default set but form blank — name the defect",
+    title: "Wichita pickup — filled box, do not retype",
     messages: [
       {
         role: "user",
@@ -130,8 +130,20 @@ const proofs: Proof[] = [
       },
     ],
     expectAction: "answer",
-    require: [/does not read it|starts blank/i],
-    forbid: [/I don't see that/i, /screenshot/i, /billable/i],
+    require: [/already be filled/i, /do not keep retyping|do not need to type/i],
+    forbid: [/keep entering/i, /starts blank/i, /does not read it/i, /I don't see that/i, /screenshot/i, /billable/i],
+  },
+  {
+    id: "T11",
+    title: "Search failed / no dropdown — auto ticket, do not invent UI",
+    messages: [
+      { role: "user", text: "Change the price period on the sales memo for GW Ind of Lane County" },
+      { role: "bricely", text: "I have what I need to pass this to the specialist team." },
+      { role: "user", text: "Search for GW Eugene returns nothing. There is no dropdown after typing a name." },
+    ],
+    expectAction: "escalate",
+    require: [/ticket/i],
+    forbid: [/dropdown after typing/i, /pencil/i, /which screen/i, /clear (any )?active filters/i, /what.?s going on/i],
   },
 ];
 
@@ -275,11 +287,38 @@ const liveProofs: LiveProof[] = [
   },
   {
     id: "L11",
-    title: "Live wCe: pickup typed every request — name the defect",
+    title: "Live wCe: pickup typed every request — filled box, then ticket+email",
     text: "my customer at GW Wichita has to type the pickup address every single time she does a request. it is set and does not work",
-    expectTerminal: "continue",
-    require: [/does not read it|starts blank/i],
-    forbid: [/I don't see that/i, /screenshot/i, /clear any active filters/i],
+    expectTerminal: "escalate",
+    require: [/already be filled/i, /opening a ticket and emailing/i],
+    forbid: [/keep entering/i, /starts blank/i, /I don't see that/i, /screenshot/i, /clear any active filters/i],
+  },
+  {
+    id: "L12",
+    title: "Search failed — ticket, no invented dropdown",
+    text: "Search for GW Eugene returns nothing. There is no dropdown after typing a name.",
+    state: {
+      exchanges: 2,
+      phase: "escalate",
+      introAcked: true,
+      notes: ["Change the price period on the sales memo for GW Ind of Lane County"],
+    },
+    expectTerminal: "escalate",
+    require: [/ticket/i],
+    forbid: [/which screen/i, /pencil/i, /what.?s going on/i, /tell me what you.?re trying to do/i],
+  },
+  {
+    id: "L13",
+    title: "After escalate, do not restart how-to / which screen",
+    text: "How can I pull up the sales memo",
+    state: {
+      exchanges: 1,
+      phase: "escalate",
+      introAcked: true,
+      notes: ["Change the price period on the sales memo for GW Ind of Lane County"],
+    },
+    expectTerminal: "escalate",
+    forbid: [/which screen/i, /tell me what you.?re trying to do/i, /Hi —/i],
   },
 ];
 

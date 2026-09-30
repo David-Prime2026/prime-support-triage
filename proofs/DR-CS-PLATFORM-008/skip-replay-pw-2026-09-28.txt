@@ -1,0 +1,10 @@
+Playwright Skip replay — 2026-09-28 night
+
+  1 passed  live bundle still has F$ catch until Wmsosv2 copies wCe.remote
+  1 failed  Skip five lines on live diagnose — last turn escalates, no invented UI
+            live reply still “Tell me which screen you are on…”
+
+Deploy bricely-diagnose to apxbwdx, then rerun:
+
+  npm install --no-save @playwright/test
+  npx playwright test proofs/DR-CS-PLATFORM-008/skip-replay.pw.ts --config=proofs/DR-CS-PLATFORM-008/playwright.config.ts
