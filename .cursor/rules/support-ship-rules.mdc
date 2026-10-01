@@ -36,8 +36,9 @@ Nested `wmg-backend/support-triage` is a **freeze**. Do not develop there. Do no
 - Never point diagnose / intake / email-intake at WMG inbound-email or the WMG SendGrid path.
 - Prove with HTTP on the support project, then record the version. **Diagnose 200 is not a live widget.**
 - **Token:** keep this VM git-only. Do **not** drop `SUPABASE_ACCESS_TOKEN` unless it is scoped to `apxbwdx` only. Never a WMG prod (`qcefkox`) token on this machine. Later CLI apply for *other* apx schema may use an apx-only token. Not before.
-- **Numbering:** `ticket_number` is already live on apx (`WMG-YYYY-MM-NNN`). Show it on the desk. Keep the SQL in this repo. **Do not re-apply** — that duplicates work.
-- **Mail pipe:** do **not** wait on `email-intake`. Bricely already owns mail. Parked.
+- **Numbering:** `ticket_number` is already live on apx (`WMG-YYYY-MM-NNN`). Desk UI is on CS `main` (PR #11). **Do not re-apply** SQL.
+- **Console host:** GitHub Pages does **not** rebuild from `main`. Hosted source is the `gh-pages` branch. Rebuild + push `gh-pages` (apx `VITE_SUPABASE_*` only) when the live console must pick up desk changes. Last Pages push before 2026-10-01 was 21 Sep.
+- **Mail pipe:** do **not** wait on `email-intake`. Bricely already owns mail. Parked. Alisa split-load draft stays unsent until PRIME says send.
 
 ## Mail
 
@@ -64,7 +65,7 @@ Do not attach six PRs. Do not mix Gmail intake, CO PDFs, or desk UI into a WMG p
 
 ## What you build next (CS maturation)
 
-1. Desk shows live `ticket_number`. SQL stays in git. Do not re-apply numbering.
+1. Rebuild `gh-pages` when the hosted desk must match `main`. Desk `ticket_number` is already on `main` (#11). Do not re-apply numbering.
 2. One-brain diagnose + intake on `apxbwdx` (no canned fallback on the function).
 3. Tenant-two isolation on **current apx** (contracts, intake bind, allowlist, embed env, RLS, HITL scope, own prefix). A second `clients` row is not enough. Do not stand a second Supabase project until that is proven. See `handoffs/DR-CS-PLATFORM-016/PORT-SHAPE.md`.
 4. Phase 2 desk (notes, SLA, COs) on the CS repo.
@@ -83,3 +84,5 @@ Stop rediscovering Omaha / Wichita / release-09 as WMG packets. Those are operat
 - Drop a `qcefkox` token (or any unscoped token) on this machine.
 - Wait on `email-intake`. Bricely owns mail. Parked.
 - Stand a second Supabase project before tenant-two is isolated on current `apx`.
+- Ask to merge #8 / #9. `main` already has the stack. Desk UI is #11. Leave drafts #1–#6, #10 alone.
+- Treat a `main` merge as a live console update. Hosted source is `gh-pages`.

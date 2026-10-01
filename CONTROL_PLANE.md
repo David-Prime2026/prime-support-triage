@@ -1,3 +1,23 @@
+## CS MAIN + PAGES — stack is on main · hosted source is `gh-pages` — 2026-10-01 — **IN FORCE**
+
+PRIME paste (as-is):
+
+CS `main` already has the stack. Nothing else to merge from here.
+
+[#8](https://github.com/David-Prime2026/prime-support-triage/pull/8) merged. [#9](https://github.com/David-Prime2026/prime-support-triage/pull/9) closed when that base branch was deleted, so the desk UI went up as [#11](https://github.com/David-Prime2026/prime-support-triage/pull/11) (`4099360` on `main`). List / Find / detail read `ticket_number`. No token. No SQL re-apply. No mail.
+
+GitHub Pages does **not** rebuild from `main`. Hosted source is the `gh-pages` branch; last Pages build was 21 Sep. Until CS rebuilds and pushes `gh-pages`, the live console can still look unnumbered even though apx already has `WMG-2026-09-039`.
+
+Alisa’s split-load draft stays unsent until you say send. Remaining CS drafts (#1–#6, #10) were left alone.
+
+Do not merge leftover drafts. Do not ask to merge #8 / #9. Do not put a token on this VM. Do not re-apply SQL. Do not send mail.
+
+Ledger: `proofs/DR-CS-PLATFORM-016/GH-PAGES.md`
+
+**Pages rebuilt 2026-10-01** by this lane: `gh-pages` `332950f` from `main` `4099360`. Live asset `index-Dsjhl9ii.js` (was `index-Cvdzr8Q4.js`, 21 Sep). apx only. GitHub Pages build `built` 02:31:55Z. Hard-refresh the console if the HTML is still cached (~10 min).
+
+---
+
 ## BACKEND — widget F$ catch — 2026-09-28 night — **IN FORCE**
 
 PRIME: only Wmsosv2 can ship this. Packet: `handoffs/BACKEND-REQUESTS/WIDGET-F-CATCH.md`
