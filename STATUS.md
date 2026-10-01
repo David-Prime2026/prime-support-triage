@@ -2,7 +2,7 @@
 
 | Area | State | Notes |
 |------|-------|-------|
-| Desk `ticket_number` | **this merge** | List, Find, and detail show live `ticket_number`. Do not re-apply SQL. |
+| Desk `ticket_number` | **on `main`** | PR #11 / `4099360`. List, Find, detail read `ticket_number`. Do not re-apply SQL. Hosted UI is `gh-pages` (21 Sep) until CS rebuilds it. |
 | DR-015 | **IN FORCE** | Support ship rules. Completeness = this repo + `main`. Deploy = `apxbwdxszmdffbduhjen`. Nested `wmg-backend/support-triage` is a freeze. |
 | Backlog | **DRAINED** | 0 awaiting_approval. 329 / 7b80 / af441 closed. Open: `9f2ca521` (live F$ + diagnose behind), `08a999c0` (reassign drop-in pushed, unproven live), `5dc41a1a` (code live; Alisa example draft) |
 | DR-010 | **CLOSED** | Stages 0–7 |
@@ -13,7 +13,7 @@
 | Bricely Gmail | **Designated intake in this repo** | `bricely@prime-timesystems.com` → `apxbwdx` only. Never WMG inbound-email / SendGrid. Support sends; operator does not. |
 | Bricely | **LIVE on support project** | Diagnose + intake on `apxbwdxszmdffbduhjen`. Widget wiring is operator Wmsosv2. |
 | Knowledge Base | **HITL seed** | Promote on Resolve → `knowledge_base_refs`; search/SOP UI deferred |
-| Console | **LIVE** | Desk + Cursor outbox module |
+| Console | **LIVE on apx · Pages stale** | Data/API on apx. Hosted UI is `gh-pages` (21 Sep) until CS rebuilds it. Source desk is `main` #11. |
 | HITL | **Assess + Approve** | Approver session gated |
 | Full auto-dispatch / qcefkox | **HELD** | Never autonomous |
 
@@ -24,4 +24,4 @@ Never `db push` / `apply_migration` / `deploy_edge_function` against `qcefkoxqkf
 CS schema stays on the isolated support project. Not applied to WMG OS production.
 
 ## Phase 2 (CS repo — maturation)
-Notes, SLA, COs on this repo. Integrate stack is on `main` (PR #7). Remaining live WMG work is `handoffs/BACKEND-REQUESTS/WMG-CURRENT-STATE.md`. `email-intake` is **parked** — Bricely owns mail. Do not wait on it. Numbering is live on apx; this VM stays git-only (no token unless later apx-only for other schema).
+Notes, SLA, COs on this repo. CS `main` already has the stack (#8, desk #11). Nothing else to merge from the jessica / #9 lane. Drafts #1–#6, #10 left alone. Remaining live WMG work is `handoffs/BACKEND-REQUESTS/WMG-CURRENT-STATE.md`. `email-intake` is **parked** — Bricely owns mail. Alisa split-load draft unsent until PRIME says send. This VM stays git-only.
