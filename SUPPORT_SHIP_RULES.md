@@ -36,8 +36,9 @@ Nested `wmg-backend/support-triage` is a **freeze**. Do not develop there. Do no
 - Never `db push`, `apply_migration`, or `deploy_edge_function` against `qcefkoxqkfwnlqfmwzmi`.
 - Never point diagnose / intake / email-intake at WMG inbound-email or the WMG SendGrid path.
 - Prove with HTTP on the support project, then record the version. **Diagnose 200 is not a live widget.**
-- **Token:** keep this VM git-only. Do **not** drop `SUPABASE_ACCESS_TOKEN` unless it is scoped to `apxbwdx` only. Never a WMG prod (`qcefkox`) token on this machine. Later CLI apply for *other* apx schema may use an apx-only token. Not before.
-- **Numbering:** `ticket_number` is already live on apx (`WMG-YYYY-MM-NNN`). Show it on the desk. Keep the SQL in this repo. **Do not re-apply** — that duplicates work.
+- **Local Support seat** (`C:\Users\daves\prime-support-triage-repo`): you apply SQL and deploy edge functions on `apxbwdx`. Git-only drafts do not land tickets. Chatbot cannot scale until that prove is 200.
+- **Cloud / VM agents:** stay git-only unless an **apx-only** token is in that environment. Never `qcefkox`. Never copy Main’s token here.
+- **Numbering:** `ticket_number` is already live on apx (`WMG-YYYY-MM-NNN`). Show it on the desk. Keep the SQL in this repo. **Do not re-apply numbering** — widget 500 is DEFINER/GRANT + intake, not a second numbering ship.
 - **Mail pipe:** do **not** wait on `email-intake`. Bricely already owns mail. Parked.
 
 ---
@@ -90,5 +91,6 @@ Stop rediscovering Omaha / Wichita / release-09 as WMG packets. Those are operat
 - Six draft PRs, no stack, asking operator to find the hole.
 - Re-apply ticket numbering from this VM. (`ticket_number` is already live.)
 - Drop a `qcefkox` token (or any unscoped token) on this machine.
+- Stay git-only on the **local** Support seat while widget intake is 500.
 - Wait on `email-intake`. Bricely owns mail. Parked.
 - Stand a second Supabase project before tenant-two is isolated on current `apx`.
