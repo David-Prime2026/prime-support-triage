@@ -1,5 +1,11 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { errMessage } from "../_shared/errMessage.ts";
+import {
+  isTerminalTicketStatus,
+  publicTicketPayload,
+  widgetSkipsIntakeSecret,
+} from "../_shared/ticketLock.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -21,21 +27,44 @@ function service() {
   return createClient(url, key, { db: { schema: "support" } });
 }
 
+type TicketRow = {
+  id: string;
+  client_id: string;
+  status: string;
+  ticket_number?: string | null;
+};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
+    let body: Record<string, unknown>;
+    try {
+      body = (await req.json()) as Record<string, unknown>;
+    } catch {
+      return json({ error: "invalid json" }, 400);
+    }
+
+    const clientId = String(body.client_id ?? req.headers.get("x-client-id") ?? "").trim();
+    const rawMessage = String(body.message ?? body.raw_message ?? "").trim();
+    const source = String(body.source_channel ?? "widget").trim() || "widget";
+    const followupId = body.followup_ticket_id ? String(body.followup_ticket_id).trim() : "";
+
     const secret = Deno.env.get("INTAKE_HMAC_SECRET");
-    if (secret) {
+    if (secret && !widgetSkipsIntakeSecret(source)) {
       const provided = req.headers.get("x-intake-secret") ?? "";
       if (provided !== secret) return json({ error: "Unauthorized intake" }, 401);
     }
 
-    const body = await req.json();
-    const clientId = String(body.client_id ?? req.headers.get("x-client-id") ?? "").trim();
-    const rawMessage = String(body.message ?? body.raw_message ?? "").trim();
-    const source = String(body.source_channel ?? "widget").trim();
+    if (followupId && !rawMessage) {
+      return json({
+        ok: true,
+        ignored: true,
+        ticket: { id: followupId, ticket_number: null, status: null },
+      });
+    }
+
     if (!clientId || !rawMessage) {
       return json({ error: "client_id and message are required" }, 400);
     }
@@ -54,29 +83,40 @@ Deno.serve(async (req) => {
       return json({ error: "Unknown or inactive client" }, 404);
     }
 
-    const followupId = body.followup_ticket_id ? String(body.followup_ticket_id).trim() : "";
     if (followupId) {
       const { data: existing, error: exErr } = await sb
         .from("support_tickets")
-        .select("id, client_id, status")
+        .select("id, client_id, status, ticket_number")
         .eq("id", followupId)
         .maybeSingle();
       if (exErr) throw exErr;
       if (!existing) return json({ error: "ticket not found" }, 404);
-      await sb.from("ticket_messages").insert({
-        ticket_id: followupId,
-        client_id: existing.client_id,
-        author_role: "customer",
-        channel: source === "email" ? "email" : "widget",
-        body: rawMessage,
-      });
-      await sb.rpc("log_ticket_event", {
-        p_ticket_id: followupId,
-        p_event_type: "customer_followup",
-        p_actor: "system",
-        p_payload: { source_channel: source },
-      });
-      return json({ ok: true, followup: true, ticket_id: followupId, status: existing.status });
+
+      if (!isTerminalTicketStatus(existing.status)) {
+        await sb.from("ticket_messages").insert({
+          ticket_id: followupId,
+          client_id: existing.client_id,
+          author_role: "customer",
+          channel: source === "email" ? "email" : "widget",
+          body: rawMessage,
+        });
+        await sb.rpc("log_ticket_event", {
+          p_ticket_id: followupId,
+          p_event_type: "customer_followup",
+          p_actor: "system",
+          p_payload: { source_channel: source },
+        });
+        return json({
+          ok: true,
+          followup: true,
+          ticket: publicTicketPayload(existing as TicketRow),
+          ticket_id: followupId,
+          status: existing.status,
+        });
+      }
+
+      await sb.rpc("clear_locks_for_ticket", { p_ticket_id: followupId });
+      // Fall through and create a new ticket (77fbac1d A2).
     }
 
     const diagnosis = body.diagnosis ? String(body.diagnosis).trim() : null;
@@ -188,7 +228,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    for (const att of attachmentPayload) {
+    for (const att of attachmentPayload as Array<Record<string, unknown>>) {
       const fileName = String(att?.name ?? att?.file_name ?? "attachment");
       const kindRaw = String(att?.kind ?? att?.file_type ?? "other");
       const fileType = ["image", "pdf", "other"].includes(kindRaw) ? kindRaw : "other";
@@ -214,7 +254,6 @@ Deno.serve(async (req) => {
         page_context: pageContext,
       },
     });
-    // Fire-and-forget AI pipeline
     const base = Deno.env.get("SUPABASE_URL")!;
     const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     fetch(`${base}/functions/v1/process-ticket-ai`, {
@@ -227,9 +266,14 @@ Deno.serve(async (req) => {
       body: JSON.stringify({ ticket_id: ticket.id }),
     }).catch((err) => console.warn("[intake-ticket] process-ticket-ai invoke failed", err));
 
-    return json({ ok: true, ticket });
+    return json({
+      ok: true,
+      ticket: {
+        ...ticket,
+        ...publicTicketPayload(ticket as TicketRow),
+      },
+    });
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return json({ error: message }, 500);
+    return json({ error: errMessage(err) }, 500);
   }
 });

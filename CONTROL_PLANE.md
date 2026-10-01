@@ -1,3 +1,17 @@
+## DR-CS-WIDGET-016 — widget intake 500 + lock — 2026-10-01 — **IN FORCE**
+
+PRIME: Support ships A1+A2 on `apxbwdx` / this repo. Main ships embed-only on Wmsosv2. Do not merge into `wmg-backend`. Never `qcefkox`.
+
+Live widget can diagnose and escalate; create POST is **500** (`{"error":"[object Object]"}`). Operators see LOCAL-TMP. Hypothesis: `allocate_ticket_number` invoker cannot INSERT `ticket_number_seq` when widget leaves `ticket_number` null.
+
+Tickets: `77fbac1d` (`WMG-2026-10-004`) + today’s intake fail.  
+Record: `docs/DR-CS-WIDGET-016.md`  
+SQL (not numbering backfill): `supabase/migrations/20261001185400_widget_intake_number_and_lock.sql`
+
+HMAC stays off the browser widget. Inform `#wmg-support` only after a widget POST 200 + ticket id.
+
+---
+
 ## BACKEND — widget F$ catch — 2026-09-28 night — **IN FORCE**
 
 PRIME: only Wmsosv2 can ship this. Packet: `handoffs/BACKEND-REQUESTS/WIDGET-F-CATCH.md`

@@ -1,5 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { errMessage } from "../_shared/errMessage.ts";
+import { isTerminalTicketStatus } from "../_shared/ticketLock.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -25,12 +27,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
 
   try {
-    const secret = Deno.env.get("INTAKE_HMAC_SECRET");
-    if (secret) {
-      const provided = req.headers.get("x-intake-secret") ?? "";
-      if (provided !== secret) return json({ error: "Unauthorized" }, 401);
-    }
-
+    // Browser widget hydrates threads. Do not require x-intake-secret.
     const sb = service();
     const url = new URL(req.url);
 
@@ -49,6 +46,23 @@ Deno.serve(async (req) => {
         .maybeSingle();
       if (error) throw error;
       if (!thread) return json({ thread: null, messages: [] });
+
+      const openId = thread.open_ticket_id as string | null;
+      if (openId) {
+        const { data: locked } = await sb
+          .from("support_tickets")
+          .select("id, status")
+          .eq("id", openId)
+          .maybeSingle();
+        if (!locked || isTerminalTicketStatus(locked.status)) {
+          await sb.rpc("clear_locks_for_ticket", { p_ticket_id: openId });
+          thread.open_ticket_id = null;
+          const ds = thread.diag_state;
+          if (ds && typeof ds === "object") {
+            thread.diag_state = { ...(ds as Record<string, unknown>), openTicketId: null };
+          }
+        }
+      }
 
       const { data: messages, error: mErr } = await sb
         .from("bricely_thread_messages")
@@ -70,7 +84,23 @@ Deno.serve(async (req) => {
     }
 
     const isMock = Boolean(body.is_mock);
-    const diagState = body.diag_state ?? {};
+    const diagStateIn = (body.diag_state ?? {}) as Record<string, unknown>;
+    const lockId =
+      typeof diagStateIn.openTicketId === "string" ? String(diagStateIn.openTicketId).trim() : "";
+    let diagState = diagStateIn;
+    let clearOpen = false;
+    if (lockId) {
+      const { data: locked } = await sb
+        .from("support_tickets")
+        .select("id, status")
+        .eq("id", lockId)
+        .maybeSingle();
+      if (!locked || isTerminalTicketStatus(locked.status)) {
+        await sb.rpc("clear_locks_for_ticket", { p_ticket_id: lockId });
+        diagState = { ...diagStateIn, openTicketId: null };
+        clearOpen = true;
+      }
+    }
     const msgs = Array.isArray(body.messages) ? body.messages : [];
 
     const { data: existing } = await sb
@@ -87,6 +117,7 @@ Deno.serve(async (req) => {
         .from("bricely_threads")
         .update({
           diag_state: diagState,
+          ...(clearOpen ? { open_ticket_id: null } : {}),
           is_mock: isMock,
           requester_name: body.requester_name ?? null,
           requester_email: body.requester_email ?? null,
@@ -136,6 +167,6 @@ Deno.serve(async (req) => {
     // Mirror last user/bricely turns into ticket_messages when an open ticket is linked later via intake
     return json({ ok: true, thread_id: threadId });
   } catch (e) {
-    return json({ error: e instanceof Error ? e.message : String(e) }, 500);
+    return json({ error: errMessage(e) }, 500);
   }
 });
