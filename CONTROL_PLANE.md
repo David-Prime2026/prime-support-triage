@@ -14,6 +14,8 @@ Do not merge leftover drafts. Do not ask to merge #8 / #9. Do not put a token on
 
 Ledger: `proofs/DR-CS-PLATFORM-016/GH-PAGES.md`
 
+**Pages rebuilt 2026-10-01** by this lane: `gh-pages` `332950f` from `main` `4099360`. Live asset `index-Dsjhl9ii.js` (was `index-Cvdzr8Q4.js`, 21 Sep). apx only. GitHub Pages build `built` 02:31:55Z. Hard-refresh the console if the HTML is still cached (~10 min).
+
 ---
 
 ## BACKEND — widget F$ catch — 2026-09-28 night — **IN FORCE**

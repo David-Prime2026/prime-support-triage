@@ -21,7 +21,7 @@
 
 apx already has `ticket_number` (`WMG-2026-09-039` on Jessica).  
 `main` already has the desk UI.  
-The **hosted** console stays on the last `gh-pages` push (**21 Sep 2026**, `f467613`) until CS rebuilds with apx `VITE_SUPABASE_*` and pushes `gh-pages`.
+The hosted console was on **21 Sep 2026** `f467613` until this lane rebuilt it. Now `332950f` (2026-10-01).
 
 Default Vite build URL without `.env.production.local` is retired `rxhiyd`. Build **must** pin:
 
@@ -40,4 +40,16 @@ npm run build
 # copy dist/ onto gh-pages worktree, commit, push origin gh-pages
 ```
 
-Proof after push: live `index.html` asset hash changes from `index-Cvdzr8Q4.js` (21 Sep), and the new JS contains `WMG-2026-09-039` / `ticket_number`. Live JS must contain `apxbwdxszmdffbduhjen` and must not contain `qcefkoxqkfwnlqfmwzmi`.
+## Shipped 2026-10-01
+
+| Check | Result |
+|---|---|
+| `gh-pages` commit | `332950f` — Deploy desk ticket_number from main 4099360 |
+| Pages build | `built` 2026-10-01 02:31:55Z |
+| Live HTML (after cache miss) | `index-Dsjhl9ii.js` + `index-C07LHg-J.css` |
+| Previous | `index-Cvdzr8Q4.js` (21 Sep `f467613`) |
+| Baked URL | `https://apxbwdxszmdffbduhjen.supabase.co` only |
+| Bundle | contains `ticket_number` and `WMG-2026-09-039` |
+| Token / SQL / mail | none |
+
+Hard-refresh https://david-prime2026.github.io/prime-support-triage/ if the old HTML is still cached (`max-age=600`).
