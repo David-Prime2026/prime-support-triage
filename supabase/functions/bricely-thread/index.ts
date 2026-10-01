@@ -25,12 +25,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
 
   try {
-    const secret = Deno.env.get("INTAKE_HMAC_SECRET");
-    if (secret) {
-      const provided = req.headers.get("x-intake-secret") ?? "";
-      if (provided !== secret) return json({ error: "Unauthorized" }, 401);
-    }
-
+    // Browser widget persistence. HMAC stays on server-to-server intake (email/manual).
     const sb = service();
     const url = new URL(req.url);
 
