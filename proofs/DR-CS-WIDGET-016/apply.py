@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 import urllib.error
 import urllib.request
@@ -79,7 +80,31 @@ def main() -> int:
     text = raw.decode(errors="replace")
     print(f"database/query HTTP {status}")
     print(text[:2000])
-    return 0 if status < 300 else 1
+    if status >= 300:
+        return 1
+
+    env = os.environ.copy()
+    env["SUPABASE_ACCESS_TOKEN"] = token
+    for fn in ("intake-ticket", "bricely-diagnose", "bricely-thread"):
+        print(f"deploy {fn} -> {REF}")
+        result = subprocess.run(
+            [
+                "npx",
+                "supabase",
+                "functions",
+                "deploy",
+                fn,
+                "--project-ref",
+                REF,
+                "--no-verify-jwt",
+            ],
+            env=env,
+            check=False,
+        )
+        if result.returncode != 0:
+            print(f"deploy {fn} failed ({result.returncode})")
+            return result.returncode
+    return 0
 
 
 if __name__ == "__main__":
