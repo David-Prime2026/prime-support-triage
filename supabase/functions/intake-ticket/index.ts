@@ -1,5 +1,9 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { isTerminalTicketStatus } from "../_shared/ticketStatus.ts";
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -14,6 +18,18 @@ function json(body: unknown, status = 200) {
   });
 }
 
+function errorMessage(err: unknown): string {
+  if (err instanceof Error && err.message) return err.message;
+  if (err && typeof err === "object" && "message" in err) {
+    const message = (err as { message?: unknown }).message;
+    const code = (err as { code?: unknown }).code;
+    if (typeof message === "string" && message) {
+      return typeof code === "string" && code ? `${message} (${code})` : message;
+    }
+  }
+  return "intake failed";
+}
+
 function service() {
   const url = Deno.env.get("SUPABASE_URL");
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -26,16 +42,22 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
+    const parsed = await req.json().catch(() => null);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return json({ error: "client_id and message are required" }, 400);
+    }
+    const body = parsed as Record<string, unknown>;
+    const clientId = String(body.client_id ?? req.headers.get("x-client-id") ?? "").trim();
+    const rawMessage = String(body.message ?? body.raw_message ?? "").trim();
+    const source = String(body.source_channel ?? "widget").trim();
+
+    // HMAC is server-to-server (email / manual). The browser widget must not send it.
     const secret = Deno.env.get("INTAKE_HMAC_SECRET");
-    if (secret) {
+    if (secret && source !== "widget") {
       const provided = req.headers.get("x-intake-secret") ?? "";
       if (provided !== secret) return json({ error: "Unauthorized intake" }, 401);
     }
 
-    const body = await req.json();
-    const clientId = String(body.client_id ?? req.headers.get("x-client-id") ?? "").trim();
-    const rawMessage = String(body.message ?? body.raw_message ?? "").trim();
-    const source = String(body.source_channel ?? "widget").trim();
     if (!clientId || !rawMessage) {
       return json({ error: "client_id and message are required" }, 400);
     }
@@ -55,7 +77,11 @@ Deno.serve(async (req) => {
     }
 
     const followupId = body.followup_ticket_id ? String(body.followup_ticket_id).trim() : "";
+    let priorTerminalTicketId: string | null = null;
     if (followupId) {
+      if (!UUID_RE.test(followupId)) {
+        return json({ error: "invalid followup_ticket_id" }, 400);
+      }
       const { data: existing, error: exErr } = await sb
         .from("support_tickets")
         .select("id, client_id, status")
@@ -63,20 +89,24 @@ Deno.serve(async (req) => {
         .maybeSingle();
       if (exErr) throw exErr;
       if (!existing) return json({ error: "ticket not found" }, 404);
-      await sb.from("ticket_messages").insert({
-        ticket_id: followupId,
-        client_id: existing.client_id,
-        author_role: "customer",
-        channel: source === "email" ? "email" : "widget",
-        body: rawMessage,
-      });
-      await sb.rpc("log_ticket_event", {
-        p_ticket_id: followupId,
-        p_event_type: "customer_followup",
-        p_actor: "system",
-        p_payload: { source_channel: source },
-      });
-      return json({ ok: true, followup: true, ticket_id: followupId, status: existing.status });
+      if (!isTerminalTicketStatus(existing.status)) {
+        const { error: msgErr } = await sb.from("ticket_messages").insert({
+          ticket_id: followupId,
+          client_id: existing.client_id,
+          author_role: "customer",
+          channel: source === "email" ? "email" : "widget",
+          body: rawMessage,
+        });
+        if (msgErr) throw msgErr;
+        await sb.rpc("log_ticket_event", {
+          p_ticket_id: followupId,
+          p_event_type: "customer_followup",
+          p_actor: "system",
+          p_payload: { source_channel: source },
+        });
+        return json({ ok: true, followup: true, ticket_id: followupId, status: existing.status });
+      }
+      priorTerminalTicketId = followupId;
     }
 
     const diagnosis = body.diagnosis ? String(body.diagnosis).trim() : null;
@@ -212,6 +242,9 @@ Deno.serve(async (req) => {
         has_diagnosis: Boolean(diagnosis),
         attachment_count: attachmentPayload.length,
         page_context: pageContext,
+        ...(priorTerminalTicketId
+          ? { prior_terminal_ticket_id: priorTerminalTicketId }
+          : {}),
       },
     });
     // Fire-and-forget AI pipeline
@@ -229,7 +262,6 @@ Deno.serve(async (req) => {
 
     return json({ ok: true, ticket });
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return json({ error: message }, 500);
+    return json({ error: errorMessage(err) }, 500);
   }
 });

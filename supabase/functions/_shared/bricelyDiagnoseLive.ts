@@ -19,6 +19,7 @@ import {
   type DiagState,
   type DiagnoseAction,
 } from "./bricelyDiagnose.ts";
+import { isTerminalTicketStatus } from "./ticketStatus.ts";
 
 export type LivePhase =
   | "assess"
@@ -491,4 +492,48 @@ export function diagnoseLiveTurn(input: LiveDiagnoseInput): LiveDiagnoseResult {
   return liveOut(next, result.reply, terminal, result.action, result.internal_reason, {
     cardStatus: result.action === "escalate" ? "In progress" : result.action === "resolve" ? "Resolved" : undefined,
   });
+}
+
+/**
+ * What to do when the widget still holds an openTicketId.
+ * `ticketStatus` undefined = lookup failed (leave the lock).
+ * null = no row. Terminal statuses release the lock.
+ * A non-empty follow-up on a terminal ticket creates instead of appending.
+ */
+export function planTerminalOpenTicket(input: {
+  openTicketId: unknown;
+  ticketStatus: string | null | undefined;
+  text: string;
+}): { action: "keep" | "clear" | "create"; openTicketId: string | null } {
+  const id =
+    typeof input.openTicketId === "string" && input.openTicketId.trim()
+      ? input.openTicketId.trim()
+      : null;
+  if (!id) return { action: "keep", openTicketId: null };
+  if (input.ticketStatus === undefined) return { action: "keep", openTicketId: id };
+  const terminal = input.ticketStatus === null || isTerminalTicketStatus(input.ticketStatus);
+  if (!terminal) return { action: "keep", openTicketId: id };
+  const text = input.text.trim();
+  if (input.ticketStatus !== null && text && !NEW_CHAT.test(text)) {
+    return { action: "create", openTicketId: null };
+  }
+  return { action: "clear", openTicketId: null };
+}
+
+/** Escalate a fresh ticket. Embed create path reads this terminal and does not append. */
+export function followupOnTerminalTicket(
+  state: Partial<LiveDiagState> | undefined,
+  _text: string,
+): LiveDiagnoseResult {
+  const next = normalizeLive({ ...(state ?? {}), openTicketId: null });
+  next.openTicketId = null;
+  next.phase = "escalate";
+  return liveOut(
+    next,
+    "That ticket is already closed. I'm opening a new one with what you just sent. You'll hear back within 24 hours.",
+    "escalate",
+    "open_ticket",
+    "terminal_ticket_new",
+    { cardStatus: "In progress" },
+  );
 }

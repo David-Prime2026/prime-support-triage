@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
 import {
   diagnose,
   type ChatMessage,
@@ -6,6 +7,8 @@ import {
 } from "../_shared/bricelyDiagnose.ts";
 import {
   diagnoseLiveTurn,
+  followupOnTerminalTicket,
+  planTerminalOpenTicket,
   type LiveAttachment,
   type LiveDiagState,
 } from "../_shared/bricelyDiagnoseLive.ts";
@@ -27,26 +30,71 @@ function isLivePayload(body: Record<string, unknown>): boolean {
   return typeof body.text === "string" || body.state != null || body.newAttachments != null;
 }
 
+function errorMessage(err: unknown): string {
+  if (err instanceof Error && err.message) return err.message;
+  if (err && typeof err === "object" && "message" in err) {
+    const message = (err as { message?: unknown }).message;
+    if (typeof message === "string" && message) return message;
+  }
+  return "diagnose failed";
+}
+
+async function ticketStatus(ticketId: string): Promise<string | null | undefined> {
+  const url = Deno.env.get("SUPABASE_URL");
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !key) return undefined;
+  const sb = createClient(url, key, { db: { schema: "support" } });
+  const { data, error } = await sb
+    .from("support_tickets")
+    .select("status")
+    .eq("id", ticketId)
+    .maybeSingle();
+  if (error) return undefined;
+  return data?.status ?? null;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
+    const body = (await req.json()) as Record<string, unknown>;
+    const liveWidget = isLivePayload(body) && !Array.isArray(body.messages);
+
+    // HMAC is server-to-server. The browser widget does not send x-intake-secret.
     const secret = Deno.env.get("INTAKE_HMAC_SECRET");
-    if (secret) {
+    if (secret && !liveWidget) {
       const provided = req.headers.get("x-intake-secret") ?? "";
       if (provided !== secret) return json({ error: "Unauthorized" }, 401);
     }
 
-    const body = (await req.json()) as Record<string, unknown>;
-
     // Live WMG widget contract (wCe): { text, state, newAttachments }
-    if (isLivePayload(body) && !Array.isArray(body.messages)) {
+    if (liveWidget) {
+      const text = String(body.text ?? "");
+      const rawState = (body.state ?? body.diag_state ?? {}) as Partial<LiveDiagState>;
+      const openId = typeof rawState.openTicketId === "string" ? rawState.openTicketId.trim() : "";
+      const status = openId ? await ticketStatus(openId) : undefined;
+      const plan = planTerminalOpenTicket({
+        openTicketId: openId || null,
+        ticketStatus: openId ? status : undefined,
+        text,
+      });
+      const state =
+        plan.action === "keep"
+          ? rawState
+          : { ...rawState, openTicketId: null };
+      if (plan.action === "create") {
+        return json({ ok: true, ...followupOnTerminalTicket(state, text) });
+      }
       const live = diagnoseLiveTurn({
-        text: String(body.text ?? ""),
-        state: (body.state ?? body.diag_state ?? {}) as Partial<LiveDiagState>,
+        text,
+        state,
         newAttachments: (body.newAttachments ?? []) as LiveAttachment[],
       });
+      if (plan.action === "clear") {
+        live.next = { ...live.next, openTicketId: null };
+        delete live.append_to_ticket_id;
+      }
       return json({ ok: true, ...live });
     }
 
@@ -60,6 +108,6 @@ Deno.serve(async (req) => {
     });
     return json({ ok: true, ...result });
   } catch (e) {
-    return json({ error: e instanceof Error ? e.message : String(e) }, 500);
+    return json({ error: errorMessage(e) }, 500);
   }
 });
