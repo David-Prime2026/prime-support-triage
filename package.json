@@ -10,7 +10,8 @@
     "db:reset": "supabase db reset --workdir .",
     "proof:dr-008": "node --experimental-strip-types scripts/bricely-diagnose-proof.ts",
     "proof:skip-replay": "node --experimental-strip-types scripts/skip-replay.ts",
-    "proof:gmail-intake": "node --experimental-strip-types scripts/bricely-gmail-intake-proof.ts"
+    "proof:gmail-intake": "node --experimental-strip-types scripts/bricely-gmail-intake-proof.ts",
+    "smoke:diagnose-v6": "python3 scripts/bricely-diagnose-v6-smoke.py"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
