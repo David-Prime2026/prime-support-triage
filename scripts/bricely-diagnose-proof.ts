@@ -145,6 +145,14 @@ const proofs: Proof[] = [
     require: [/ticket/i],
     forbid: [/dropdown after typing/i, /pencil/i, /which screen/i, /clear (any )?active filters/i, /what.?s going on/i],
   },
+  {
+    id: "T12",
+    title: "Seller tonnage how-to — Tonnage History, not specialist 24h",
+    messages: [{ role: "user", text: "what is my tonu" }],
+    expectAction: "answer",
+    require: [/Tonnage History/i],
+    forbid: [/specialist team/i, /24 hours/i, /which screen/i],
+  },
 ];
 
 function actionOk(got: DiagnoseAction, expect: DiagnoseAction | DiagnoseAction[]): boolean {
@@ -319,6 +327,28 @@ const liveProofs: LiveProof[] = [
     },
     expectTerminal: "escalate",
     forbid: [/which screen/i, /tell me what you.?re trying to do/i, /Hi —/i],
+  },
+  {
+    id: "L14",
+    title: "Seller Home + what is my tonu — Tonnage History, not default escalate",
+    text: "what is my tonu",
+    state: {
+      exchanges: 0,
+      phase: "assess",
+      screen: "Seller Home",
+      introAcked: true,
+    },
+    expectTerminal: "continue",
+    require: [/Tonnage History/i],
+    forbid: [/specialist team/i, /24 hours/i, /which screen/i],
+  },
+  {
+    id: "L15",
+    title: "what is my tonnage — same nav answer, no page screen required",
+    text: "what is my tonnage",
+    expectTerminal: "continue",
+    require: [/Tonnage History/i],
+    forbid: [/specialist team/i, /24 hours/i],
   },
 ];
 

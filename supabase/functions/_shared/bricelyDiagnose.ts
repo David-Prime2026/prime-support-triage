@@ -83,7 +83,10 @@ const SCREENSHOT_TALK =
 const ACCOUNTING =
   /\b(account(ing|s)|invoice|invoic(e|ing)|aging|statement|a\/?r\b|a\/?p\b|receivable|payable)\b/i;
 const HOW_TO =
-  /\b(how\s+do\s+i|how\s+to|where\s+(is|do|can)|can\s+i|show\s+me\s+how|help\s+me\s+(find|export|download|create))\b/i;
+  /\b(how\s+do\s+i|how\s+to|where(?:'s|\s+is|\s+do|\s+can)|can\s+i|show\s+me|what(?:'s|\s+is)\s+my|help\s+me\s+(find|export|download|create|see|view))\b/i;
+const TONNAGE_ASK = /\b(tonn?age|tonu)\b/i;
+const PROBLEMISH =
+  /\b(broken|not working|wrong|weird|issue|problem|stuck|can'?t|doesn'?t work|doesn'?t|wont|won'?t|still|missing|error|fail)\b/i;
 const LOGIN =
   /\b(log\s*in|login|sign\s*in|password|locked\s+out|can'?t\s+access(\s+my\s+account)?)\b/i;
 const VISUAL =
@@ -112,6 +115,14 @@ export function portalContactsAnswer(): string {
 
 export function pickupDefaultAnswer(): string {
   return "Pickup on New Portal should already be filled from the store default (and the last request). Check the pickup box — if it is filled, you do not need to type it again. If it is blank, tell me and I will take it from there. Do not keep retyping the usual address as a workaround.";
+}
+
+export function isTonnageHowTo(text: string): boolean {
+  return TONNAGE_ASK.test(text) && !PROBLEMISH.test(text);
+}
+
+export function tonnageHistoryAnswer(): string {
+  return "Tonnage is on Tonnage History in the top nav — Home, Accounting, Tonnage History, Loadouts. Open that page to see volume by store and period from your loadouts. If a store or month is missing, tell me which one and what you expected to see.";
 }
 
 function norm(text: string): string {
@@ -143,6 +154,7 @@ function lastUserText(messages: ChatMessage[]): string {
 function inferSurface(text: string): string | undefined {
   const t = text.toLowerCase();
   if (/load\s*board/.test(t)) return "load_board";
+  if (TONNAGE_ASK.test(t)) return "tonnage_history";
   if (LOGIN.test(t)) return "login";
   if (ACCOUNTING.test(t)) return "accounting";
   if (/\bfilter/.test(t)) return "filters";
@@ -187,7 +199,7 @@ export function extractFacts(messages: ChatMessage[], prior: KnownFacts = {}): K
       facts.surface = facts.surface ?? "seller_portal";
     }
     if (ACCOUNTING.test(text) && !facts.portal_contacts) facts.accounting = true;
-    if (HOW_TO.test(text)) facts.how_to = true;
+    if (HOW_TO.test(text) || isTonnageHowTo(text)) facts.how_to = true;
     if (LOGIN.test(text) && !facts.portal_contacts) facts.login = true;
     if (VISUAL.test(text)) facts.visual = true;
     if (STALE_OR_FILTER.test(text)) facts.stale_or_filter = true;
@@ -266,6 +278,9 @@ function finish(
 function howToAnswer(text: string, facts: KnownFacts): string {
   if (facts.portal_contacts || PORTAL_CONTACTS.test(text)) return portalContactsAnswer();
   if (facts.pickup_default || PICKUP_DEFAULT.test(text)) return pickupDefaultAnswer();
+  if (isTonnageHowTo(text) || /tonnage_history|tonnage/.test((facts.surface ?? "").toLowerCase())) {
+    return tonnageHistoryAnswer();
+  }
   const surface = (facts.surface ?? "").toLowerCase().replace(/\s+/g, "_");
   const isLoadBoard = surface === "load_board" || surface === "board" || /load\s*board/.test(text);
   if (isLoadBoard && /export|csv|download/i.test(text)) {
@@ -358,7 +373,11 @@ export function diagnose(input: DiagnoseInput): DiagnoseResult {
     );
   }
 
-  if (facts.how_to && (facts.complete_report || facts.surface || /export|csv|download|find|where/i.test(latest))) {
+  if (
+    facts.how_to &&
+    !PROBLEMISH.test(latest) &&
+    (facts.complete_report || facts.surface || /export|csv|download|find|where|what|show/i.test(latest))
+  ) {
     return finish(state, "answer", howToAnswer(latest, facts), "how_to_direct_answer");
   }
 

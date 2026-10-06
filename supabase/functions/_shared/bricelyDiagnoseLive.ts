@@ -13,8 +13,10 @@ import {
   diagnose,
   isPickupDefaultRequest,
   isPortalContactsRequest,
+  isTonnageHowTo,
   pickupDefaultAnswer,
   portalContactsAnswer,
+  tonnageHistoryAnswer,
   type ChatMessage,
   type DiagState,
   type DiagnoseAction,
@@ -152,8 +154,9 @@ function normalizeLive(raw?: Partial<LiveDiagState>): LiveDiagState {
 }
 
 function inferScreen(text: string): string | undefined {
+  if (isTonnageHowTo(text)) return "tonnage_history";
   const m = text.match(
-    /\b(load\s*management|load board|board|portal|settings|memo|aging|statement|login|filter|delivery|confirm|tonnage|home|requests?)\b/i,
+    /\b(load\s*management|load board|board|portal|settings|memo|aging|statement|login|filter|delivery|confirm|home|requests?)\b/i,
   );
   return m ? m[1].toLowerCase() : undefined;
 }
@@ -355,6 +358,16 @@ export function diagnoseLiveTurn(input: LiveDiagnoseInput): LiveDiagnoseResult {
       "escalate",
       "hold_escalate_no_reask",
       { cardStatus: "In progress" },
+    );
+  }
+
+  if (isTonnageHowTo(text) || isTonnageHowTo(notes.join(" "))) {
+    return liveOut(
+      { ...next, phase: "resolved", screen: "tonnage_history" },
+      tonnageHistoryAnswer(),
+      "continue",
+      "answer",
+      "tonnage_history_how_to",
     );
   }
 
